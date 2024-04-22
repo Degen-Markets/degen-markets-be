@@ -6,3 +6,14 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+.env
+
+*.iml
+.idea
+.DS_Store
+
+local/test.ts
+local/test.http
+
+invoke.log

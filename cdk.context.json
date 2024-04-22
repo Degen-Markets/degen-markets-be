@@ -1,0 +1,67 @@
+{
+  "hosted-zone:account=211125555405:domainName=degenmarkets.com:region=us-east-1": {
+    "Id": "/hostedzone/Z05862598IHI2ZYBH6Q0",
+    "Name": "degenmarkets.com."
+  },
+  "vpc-provider:account=211125555405:filter.isDefault=true:region=eu-west-1:returnAsymmetricSubnets=true": {
+    "vpcId": "vpc-0043fba13fe701149",
+    "vpcCidrBlock": "172.31.0.0/16",
+    "ownerAccountId": "211125555405",
+    "availabilityZones": [],
+    "subnetGroups": [
+      {
+        "name": "Public",
+        "type": "Public",
+        "subnets": [
+          {
+            "subnetId": "subnet-0ae5f105669e674d6",
+            "cidr": "172.31.0.0/20",
+            "availabilityZone": "eu-west-1a",
+            "routeTableId": "rtb-07cd07d4b64311a7d"
+          },
+          {
+            "subnetId": "subnet-02029bb628ba41392",
+            "cidr": "172.31.16.0/20",
+            "availabilityZone": "eu-west-1b",
+            "routeTableId": "rtb-07cd07d4b64311a7d"
+          },
+          {
+            "subnetId": "subnet-055ce8d8fe4c7049d",
+            "cidr": "172.31.32.0/20",
+            "availabilityZone": "eu-west-1c",
+            "routeTableId": "rtb-07cd07d4b64311a7d"
+          }
+        ]
+      },
+      {
+        "name": "Isolated",
+        "type": "Isolated",
+        "subnets": [
+          {
+            "subnetId": "subnet-01227eee9a4219c24",
+            "cidr": "172.31.48.128/25",
+            "availabilityZone": "eu-west-1a",
+            "routeTableId": "rtb-0b512c46f13ebb9e6"
+          },
+          {
+            "subnetId": "subnet-0e16014396d3ca042",
+            "cidr": "172.31.48.0/25",
+            "availabilityZone": "eu-west-1b",
+            "routeTableId": "rtb-0b512c46f13ebb9e6"
+          },
+          {
+            "subnetId": "subnet-04299d31d7bb0ec4b",
+            "cidr": "172.31.49.0/25",
+            "availabilityZone": "eu-west-1c",
+            "routeTableId": "rtb-0b512c46f13ebb9e6"
+          }
+        ]
+      }
+    ]
+  },
+  "availability-zones:account=211125555405:region=eu-west-1": [
+    "eu-west-1a",
+    "eu-west-1b",
+    "eu-west-1c"
+  ]
+}

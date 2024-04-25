@@ -28,7 +28,7 @@ export class DatabaseStack extends TaggedStack {
       instanceType: InstanceType.of(InstanceClass.BURSTABLE4_GRAVITON, instanceSize),
       publiclyAccessible: false,
       credentials: Credentials.fromGeneratedSecret('postgres', {
-        secretName: 'database.password',
+        secretName: 'DatabaseCredentials',
       }),
       vpcSubnets: {subnetType: SubnetType.PRIVATE_ISOLATED},
       vpc,

@@ -1,17 +1,21 @@
 import {Duration, Fn, StackProps} from 'aws-cdk-lib'
 import {TaggedStack} from './TaggedStack'
 import {Construct} from 'constructs'
-import {DatabaseInstance} from "aws-cdk-lib/aws-rds";
-import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
-import {Architecture, Runtime} from "aws-cdk-lib/aws-lambda";
-import * as path from "path";
-import {RetentionDays} from "aws-cdk-lib/aws-logs";
-import {Port, SecurityGroup, SubnetType, Vpc} from "aws-cdk-lib/aws-ec2";
-import {Rule, Schedule} from "aws-cdk-lib/aws-events";
-import {LambdaFunction} from "aws-cdk-lib/aws-events-targets";
+import {DatabaseInstance} from 'aws-cdk-lib/aws-rds'
+import {NodejsFunction} from 'aws-cdk-lib/aws-lambda-nodejs'
+import {Architecture, Runtime} from 'aws-cdk-lib/aws-lambda'
+import * as path from 'path'
+import {RetentionDays} from 'aws-cdk-lib/aws-logs'
+import {Port, SecurityGroup, SubnetType, Vpc} from 'aws-cdk-lib/aws-ec2'
+import {Rule, Schedule} from 'aws-cdk-lib/aws-events'
+import {LambdaFunction} from 'aws-cdk-lib/aws-events-targets'
+import {Secret} from 'aws-cdk-lib/aws-secretsmanager'
+import {Key} from 'aws-cdk-lib/aws-kms'
 
 export interface SettlementStackProps extends StackProps {
   database: DatabaseInstance
+  privateKeySecret: Secret,
+  kmsKey: Key,
   vpc: Vpc
 }
 
@@ -19,7 +23,7 @@ export class SettlementStack extends TaggedStack {
   constructor(scope: Construct, id: string, props: SettlementStackProps) {
     super(scope, id, props)
 
-    const {database, vpc} = props
+    const {database, vpc, privateKeySecret, kmsKey} = props
 
     const settlementLambda = new NodejsFunction(this, 'Settler', {
       architecture: Architecture.ARM_64,
@@ -27,6 +31,7 @@ export class SettlementStack extends TaggedStack {
       timeout: Duration.minutes(1),
       description: `Settlement handler`,
       environment: {
+        PRIVATE_KEY_SECRET: privateKeySecret.secretName,
         DATABASE_PASSWORD_SECRET: database.secret!.secretName,
         DATABASE_USERNAME: 'postgres',
         DATABASE_DATABASE_NAME: 'degen-markets',
@@ -53,6 +58,9 @@ export class SettlementStack extends TaggedStack {
         },
       },
     })
+    const secret = Secret.fromSecretNameV2(this, 'PrivateKeySecretImported', privateKeySecret.secretName)
+    secret.grantRead(settlementLambda)
+    kmsKey.grantDecrypt(settlementLambda)
 
     const securityGroup = SecurityGroup.fromSecurityGroupId(
       this, 'ImportedSecurityGroup', Fn.importValue('Database:SecurityGroup:Id'),

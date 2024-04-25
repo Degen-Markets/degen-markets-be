@@ -1,11 +1,12 @@
 import {Logger} from '@aws-lambda-powertools/logger'
 import {Client, ClientConfig} from 'pg'
 import {getMandatoryEnvVariable} from '../utils/getMandatoryEnvValue'
-import {GetSecretValueCommand, SecretsManagerClient} from '@aws-sdk/client-secrets-manager'
 import * as fs from 'fs'
+import {SecretClient} from './SecretClient'
 
 export class DatabaseClient {
   private readonly logger = new Logger({serviceName: 'DatabaseClient'})
+  private secretClient = new SecretClient()
   private secretName = getMandatoryEnvVariable('DATABASE_PASSWORD_SECRET')
   private user = getMandatoryEnvVariable('DATABASE_USERNAME')
   private database = getMandatoryEnvVariable('DATABASE_DATABASE_NAME')
@@ -25,13 +26,8 @@ export class DatabaseClient {
       if (this.password) {
         return this.password
       }
-      const secretsManager = new SecretsManagerClient({region: 'eu-west-1'})
-      const getSecretValueCommand = new GetSecretValueCommand({
-        SecretId: this.secretName,
-      })
-      const secretValue = await secretsManager.send(getSecretValueCommand)
-      const secretData = JSON.parse(secretValue.SecretString!)
-      return secretData.password
+      const secretValue = await this.secretClient.loadJsonSecretValue<{ password: string }>(this.secretName)
+      return secretValue.password
     } catch (e) {
       this.logger.error('failed to fetch database password', {error: e})
       throw e

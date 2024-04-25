@@ -8,7 +8,8 @@ import {InstanceSize} from 'aws-cdk-lib/aws-ec2'
 import {NetworkingStack} from '../lib/NetworkingStack'
 import {ClientApiStack} from '../lib/ClientApiStack'
 import {WebhookApiStack} from '../lib/WebhookApiStack'
-import {SettlementStack} from "../lib/SettlementStack";
+import {SettlementStack} from '../lib/SettlementStack'
+import {PrivateKeyStack} from '../lib/PrivateKeyStack'
 
 configDotEnv()
 
@@ -54,8 +55,14 @@ new WebhookApiStack(app, 'WebhookApi', {
   crossRegionReferences: true,
 })
 
+const {kmsKey, secret} = new PrivateKeyStack(app, 'PrivateKey', {
+  env: getEnv(),
+})
+
 new SettlementStack(app, 'Settlement', {
   vpc,
+  kmsKey: kmsKey,
+  privateKeySecret: secret,
   database: databaseInstance,
   env: getEnv(),
 })

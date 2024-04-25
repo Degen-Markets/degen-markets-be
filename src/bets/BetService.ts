@@ -1,6 +1,6 @@
 import {Logger} from '@aws-lambda-powertools/logger'
 import {BetEntity} from './BetEntity'
-import {DatabaseClient} from "../clients/DatabaseClient";
+import {DatabaseClient} from '../clients/DatabaseClient'
 
 export class BetService {
   private readonly logger = new Logger({serviceName: 'BetService'})

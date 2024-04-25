@@ -1,8 +1,8 @@
 import {Logger} from '@aws-lambda-powertools/logger'
 import {injectLambdaContext} from '@aws-lambda-powertools/logger/middleware'
 import middy from '@middy/core'
-import {SmartContractEventService} from "./SmartContractEventService";
-import {SQSEvent} from "aws-lambda";
+import {SmartContractEventService} from './SmartContractEventService'
+import {SQSEvent} from 'aws-lambda'
 
 const logger = new Logger({serviceName: 'smartContractEventProcessor'})
 const smartContractEventService = new SmartContractEventService()

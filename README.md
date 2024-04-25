@@ -1,14 +1,49 @@
-# Welcome to your CDK TypeScript project
+# Degen Markets
 
-This is a blank project for CDK development with TypeScript.
+This repo contains the entire infrastructure for the degen markets project.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Architecture
 
-## Useful commands
+![](docs/arch-overview.png)
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+### Endpoints
+
+The Architecture provides 2 public endpoints
+
+* ClientApi
+  * Used for clients to interact with the platform
+* WebhookApi
+  * Used to handle webhooks from Alchemy when blockchain events are emitted
+
+### Data storage
+
+The System has a postgres database that stores all data
+
+## Usage
+
+### Setup
+
+1) Copy the `.env.example` file to a `.env` file
+2) Create a degen-markets AWS profile in `~/.aws/config`
+3) Add credentials for the profile with `aws configure --profile degen-markets`
+
+### Commands
+
+* `make deploy`
+  * deploys the entire backend to AWS
+* `make lint`
+  * checks linting
+* `make lint_fix`
+  * fixes linting
+* `make diff`
+  * checks which resources changed
+* `make bootstrap`
+  * bootstraps the AWS account (only needs to be done once)
+* `make trigger_db_migration`
+  * triggers the database migration
+* `make tunnel`
+  * starts a tunnel to the database in AWS on port 5541
+
+## Testing
+
+Example test which mocks an AWS service can be found in `src/clients/SecretClient.test.ts`

@@ -5,13 +5,13 @@ import {LambdaApi} from './constructs/LambdaApi'
 import {Certificate} from 'aws-cdk-lib/aws-certificatemanager'
 import {IHostedZone} from 'aws-cdk-lib/aws-route53'
 import {Queue} from 'aws-cdk-lib/aws-sqs'
-import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
-import {Architecture, Runtime} from "aws-cdk-lib/aws-lambda";
-import * as path from "path";
-import {RetentionDays} from "aws-cdk-lib/aws-logs";
-import {SubnetType, Vpc} from "aws-cdk-lib/aws-ec2";
-import {DatabaseInstance} from "aws-cdk-lib/aws-rds";
-import {SqsEventSource} from "aws-cdk-lib/aws-lambda-event-sources";
+import {NodejsFunction} from 'aws-cdk-lib/aws-lambda-nodejs'
+import {Architecture, Runtime} from 'aws-cdk-lib/aws-lambda'
+import * as path from 'path'
+import {RetentionDays} from 'aws-cdk-lib/aws-logs'
+import {SubnetType, Vpc} from 'aws-cdk-lib/aws-ec2'
+import {DatabaseInstance} from 'aws-cdk-lib/aws-rds'
+import {SqsEventSource} from 'aws-cdk-lib/aws-lambda-event-sources'
 
 export interface WebhookApiStackProps extends StackProps {
   database: DatabaseInstance,

@@ -1,4 +1,4 @@
-import {Logger} from "@aws-lambda-powertools/logger";
+import {Logger} from '@aws-lambda-powertools/logger'
 
 export class SmartContractEventService {
   private readonly logger = new Logger({serviceName: 'SmartContractEventService'})

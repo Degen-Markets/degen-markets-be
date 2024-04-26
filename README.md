@@ -25,6 +25,12 @@ The System has a postgres database that stores all data
 
 1) Copy the `.env.example` file to a `.env` file
 2) Create a degen-markets AWS profile in `~/.aws/config`
+```
+[profile degen-markets]
+region = eu-west-1
+output = json
+cli_pager =
+```
 3) Add credentials for the profile with `aws configure --profile degen-markets`
 
 ### Commands

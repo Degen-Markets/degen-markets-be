@@ -49,6 +49,8 @@ cli_pager =
   * triggers the database migration
 * `make tunnel`
   * starts a tunnel to the database in AWS on port 5541
+  * using connection string `jdbc:postgresql://localhost:5541/degenmarkets`
+  * get password from secretsmanager secret `DatabaseCredentials`
 
 ## Testing
 

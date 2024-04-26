@@ -23,11 +23,12 @@ import {ARecord, IHostedZone, RecordTarget} from 'aws-cdk-lib/aws-route53'
 import {CloudFrontTarget} from 'aws-cdk-lib/aws-route53-targets'
 
 export type LambdaApiProps = {
-  zone: IHostedZone,
-  certificate: Certificate,
-  cname: string,
-  entryFile: string
-  lambda: Omit<NodejsFunctionProps, 'entry'>
+  zone: IHostedZone;
+  certificate: Certificate;
+  cname: string;
+  entryFile: string;
+  lambda: Omit<NodejsFunctionProps, 'entry'>;
+  apiName: string;
 }
 
 export class LambdaApi {
@@ -43,7 +44,8 @@ export class LambdaApi {
       zone,
       certificate,
       cname,
-    } = props
+      apiName
+    } = props;
 
     const domainName = `${cname}.${zone.zoneName}`
 
@@ -64,7 +66,7 @@ export class LambdaApi {
     })
 
     this.api = new HttpApi(scope, 'HttpApi', {
-      apiName: `ClientApi`,
+      apiName,
       defaultIntegration: new HttpLambdaIntegration(`${id}ApiIntegration`, this.lambda, {
         payloadFormatVersion: PayloadFormatVersion.VERSION_2_0,
       }),

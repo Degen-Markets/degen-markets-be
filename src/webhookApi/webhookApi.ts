@@ -8,7 +8,6 @@ import httpHeaderNormalizer from '@middy/http-header-normalizer'
 import httpSecurityHeaders from '@middy/http-security-headers'
 import {notFoundHandler} from '../utils/notFoundHandler'
 import {injectLambdaContext} from '@aws-lambda-powertools/logger/middleware'
-import {BetService} from '../bets/BetService'
 import {buildOkResponse} from '../utils/httpResponses'
 
 const logger: Logger = new Logger({serviceName: 'webhookApi'})

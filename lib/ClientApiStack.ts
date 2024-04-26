@@ -50,6 +50,7 @@ export class ClientApiStack extends TaggedStack {
           },
         },
       },
+      apiName: 'ClientApi'
     })
     const securityGroup = SecurityGroup.fromSecurityGroupId(
       this, 'ImportedSecurityGroup', Fn.importValue('Database:SecurityGroup:Id'),

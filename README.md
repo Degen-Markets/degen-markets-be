@@ -52,6 +52,16 @@ cli_pager =
   * using connection string `jdbc:postgresql://localhost:5541/degenmarkets`
   * get password from secretsmanager secret `DatabaseCredentials`
 
+### Scaling & Costs
+- CDN is currently at PRICE_CLASS_100, which covers EU & NA but for Asia later, we will need to update this
+- DB can be scaled by changing the instance size, this does not require a stack replacement
+- Any new lambdas that need access to the DB have to be connected must have the db's vpc & added bundling, for e.g. see: `ClientApiLambda`
+
+### Security
+- PrivateKey
+  - The role of user needs access to kms:Decrypto to be able to see the secret
+  - We have to ensure that KMS key's rotation stays off
+
 ## Testing
 
 Example test which mocks an AWS service can be found in `src/clients/SecretClient.test.ts`

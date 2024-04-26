@@ -59,6 +59,7 @@ export class WebhookApiStack extends TaggedStack {
           minify: true,
         },
       },
+      apiName: 'WebhookApi'
     })
 
     this.smartContractEventQueue.grantSendMessages(lambda)

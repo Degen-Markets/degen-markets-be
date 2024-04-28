@@ -11,4 +11,12 @@ export class BetService {
     const response = await this.databaseClient.executeStatement('select * from bets;')
     return response.rows as BetEntity[]
   }
+
+  storeBet = async (): Promise<BetEntity[]> => {
+    this.logger.info("storing bet");
+    const response = await this.databaseClient.executeStatement(`INSERT INTO bets values (
+                         
+   )`)
+    return response.rows as BetEntity[];
+  }
 }

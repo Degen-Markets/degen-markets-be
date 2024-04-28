@@ -6,7 +6,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "create-webhook": "EVENT=${EVENT:=BetCreated} npx ts-node scripts/createEventFilter.ts",
+    "create-event-filter": "EVENT=${EVENT:=BetCreated} npx ts-node scripts/createEventFilter.ts",
     "watch": "tsc -w",
     "test": "jest ./src/**/*.test.ts",
     "cdk": "cdk",

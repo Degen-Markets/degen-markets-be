@@ -9,6 +9,7 @@ import httpSecurityHeaders from '@middy/http-security-headers'
 import {notFoundHandler} from '../utils/notFoundHandler'
 import {injectLambdaContext} from '@aws-lambda-powertools/logger/middleware'
 import {buildOkResponse} from '../utils/httpResponses'
+import createBetHandler from "./handlers/createBetHandler";
 
 const logger: Logger = new Logger({serviceName: 'webhookApi'})
 
@@ -27,6 +28,12 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
         logger.info(`handle webhook`)
         return buildOkResponse('result')
       }),
+  },
+  {
+    method: 'POST',
+    path: '/create-bet',
+    handler: middy()
+      .handler(createBetHandler),
   },
   {
     method: 'ANY',

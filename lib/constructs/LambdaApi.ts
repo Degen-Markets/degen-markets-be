@@ -49,7 +49,7 @@ export class LambdaApi {
 
     const domainName = `${cname}.${zone.zoneName}`
 
-    this.lambda = new NodejsFunction(scope, 'ClientApiHandler', {
+    this.lambda = new NodejsFunction(scope, `${apiName}Handler`, {
       runtime: Runtime.NODEJS_20_X,
       timeout: Duration.seconds(5),
       architecture: Architecture.ARM_64,

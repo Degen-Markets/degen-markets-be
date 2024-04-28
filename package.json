@@ -6,6 +6,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "create-webhook": "EVENT=${EVENT:=BetCreated} npx ts-node scripts/createEventFilter.ts",
     "watch": "tsc -w",
     "test": "jest ./src/**/*.test.ts",
     "cdk": "cdk",
@@ -30,6 +31,7 @@
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.1.0",
     "@aws-sdk/client-secrets-manager": "^3.556.0",
+    "@graphql-tools/load": "^8.0.2",
     "@middy/core": "^5.3.2",
     "@middy/error-logger": "^5.3.2",
     "@middy/http-cors": "^5.3.2",
@@ -42,11 +44,13 @@
     "@types/pg": "^8.11.5",
     "aws-cdk-lib": "2.138.0",
     "aws-lambda": "^1.0.7",
+    "axios": "^1.6.8",
     "constructs": "^10.0.0",
     "dotenv": "^16.4.5",
     "esbuild": "^0.20.2",
     "http-errors": "^2.0.0",
     "pg": "^8.11.5",
-    "source-map-support": "^0.5.21"
+    "source-map-support": "^0.5.21",
+    "viem": "^2.9.28"
   }
 }

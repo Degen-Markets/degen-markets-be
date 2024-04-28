@@ -7,20 +7,21 @@ const queryFileName = `${process.cwd()}/src/webhookApi/graphql/${process.env.EVE
 const query = fs.readFileSync(queryFileName).toString();
 
 axios.post(
-	"https://dashboard.alchemy.com/api/create-webhook", {
-		network: "BASE_MAINNET",
-		webhook_type: "GRAPHQL",
-		webhook_url: "https://webhooks.degenmarkets.com/create-bet",
-		graphql_query: {
-			skip_empty_messages: true,
-			query,
-		},
-	},
-	{
-		headers: {
-			['X-Alchemy-Token']: process.env.ALCHEMY_WEBHOOK_TOKEN,
-			accept: 'application/json',
-			['content-type']: 'application/json',
-		}
-	},
+  "https://dashboard.alchemy.com/api/create-webhook",
+  {
+    network: "BASE_MAINNET",
+    webhook_type: "GRAPHQL",
+    webhook_url: "https://webhooks.degenmarkets.com/create-bet",
+    graphql_query: {
+      skip_empty_messages: true,
+      query,
+    },
+  },
+  {
+    headers: {
+      ["X-Alchemy-Token"]: process.env.ALCHEMY_WEBHOOK_TOKEN,
+      accept: "application/json",
+      ["content-type"]: "application/json",
+    },
+  },
 );

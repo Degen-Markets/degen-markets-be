@@ -1,31 +1,31 @@
-import {Duration, Fn, StackProps} from 'aws-cdk-lib'
-import {TaggedStack} from './TaggedStack'
-import {Construct} from 'constructs'
-import {DatabaseInstance} from 'aws-cdk-lib/aws-rds'
-import {NodejsFunction} from 'aws-cdk-lib/aws-lambda-nodejs'
-import {Architecture, Runtime} from 'aws-cdk-lib/aws-lambda'
-import * as path from 'path'
-import {RetentionDays} from 'aws-cdk-lib/aws-logs'
-import {Port, SecurityGroup, SubnetType, Vpc} from 'aws-cdk-lib/aws-ec2'
-import {Rule, Schedule} from 'aws-cdk-lib/aws-events'
-import {LambdaFunction} from 'aws-cdk-lib/aws-events-targets'
-import {Secret} from 'aws-cdk-lib/aws-secretsmanager'
-import {Key} from 'aws-cdk-lib/aws-kms'
+import { Duration, Fn, StackProps } from "aws-cdk-lib";
+import { TaggedStack } from "./TaggedStack";
+import { Construct } from "constructs";
+import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
+import * as path from "path";
+import { RetentionDays } from "aws-cdk-lib/aws-logs";
+import { Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
+import { Rule, Schedule } from "aws-cdk-lib/aws-events";
+import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
+import { Secret } from "aws-cdk-lib/aws-secretsmanager";
+import { Key } from "aws-cdk-lib/aws-kms";
 
 export interface SettlementStackProps extends StackProps {
-  database: DatabaseInstance
-  privateKeySecret: Secret,
-  kmsKey: Key,
-  vpc: Vpc
+  database: DatabaseInstance;
+  privateKeySecret: Secret;
+  kmsKey: Key;
+  vpc: Vpc;
 }
 
 export class SettlementStack extends TaggedStack {
   constructor(scope: Construct, id: string, props: SettlementStackProps) {
-    super(scope, id, props)
+    super(scope, id, props);
 
-    const {database, vpc, privateKeySecret, kmsKey} = props
+    const { database, vpc, privateKeySecret, kmsKey } = props;
 
-    const settlementLambda = new NodejsFunction(this, 'Settler', {
+    const settlementLambda = new NodejsFunction(this, "Settler", {
       architecture: Architecture.ARM_64,
       runtime: Runtime.NODEJS_20_X,
       timeout: Duration.minutes(1),
@@ -33,20 +33,20 @@ export class SettlementStack extends TaggedStack {
       environment: {
         PRIVATE_KEY_SECRET: privateKeySecret.secretName,
         DATABASE_PASSWORD_SECRET: database.secret!.secretName,
-        DATABASE_USERNAME: 'postgres',
-        DATABASE_DATABASE_NAME: 'degen-markets',
+        DATABASE_USERNAME: "postgres",
+        DATABASE_DATABASE_NAME: "degen-markets",
         DATABASE_HOST: database.instanceEndpoint.hostname,
         DATABASE_PORT: database.instanceEndpoint.port.toString(),
       },
       memorySize: 256,
       functionName: `Settler`,
-      entry: path.join(__dirname, '../src/settlement/settler.ts'),
+      entry: path.join(__dirname, "../src/settlement/settler.ts"),
       logRetention: RetentionDays.ONE_MONTH,
-      handler: 'handler',
+      handler: "handler",
       vpc,
-      vpcSubnets: {subnetType: SubnetType.PRIVATE_WITH_EGRESS},
+      vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
       bundling: {
-        externalModules: ['@aws-sdk'],
+        externalModules: ["@aws-sdk"],
         minify: true,
         commandHooks: {
           afterBundling: (inputDir: string, outputDir: string): string[] => [
@@ -57,22 +57,32 @@ export class SettlementStack extends TaggedStack {
           beforeInstall: (): string[] => [],
         },
       },
-    })
-    const secret = Secret.fromSecretNameV2(this, 'PrivateKeySecretImported', privateKeySecret.secretName)
-    secret.grantRead(settlementLambda)
-    kmsKey.grantDecrypt(settlementLambda)
+    });
+    const secret = Secret.fromSecretNameV2(
+      this,
+      "PrivateKeySecretImported",
+      privateKeySecret.secretName,
+    );
+    secret.grantRead(settlementLambda);
+    kmsKey.grantDecrypt(settlementLambda);
 
     const securityGroup = SecurityGroup.fromSecurityGroupId(
-      this, 'ImportedSecurityGroup', Fn.importValue('Database:SecurityGroup:Id'),
-    )
-    securityGroup.connections.allowFrom(settlementLambda, Port.tcp(5432), 'Settlement lambda access')
-    database.secret?.grantRead(settlementLambda)
+      this,
+      "ImportedSecurityGroup",
+      Fn.importValue("Database:SecurityGroup:Id"),
+    );
+    securityGroup.connections.allowFrom(
+      settlementLambda,
+      Port.tcp(5432),
+      "Settlement lambda access",
+    );
+    database.secret?.grantRead(settlementLambda);
 
-    const rule = new Rule(this, 'SettlementScheduler', {
-      description: 'Settlement scheduler',
+    const rule = new Rule(this, "SettlementScheduler", {
+      description: "Settlement scheduler",
       schedule: Schedule.rate(Duration.minutes(1)),
-      ruleName: 'SettlementScheduler',
-    })
-    rule.addTarget(new LambdaFunction(settlementLambda))
+      ruleName: "SettlementScheduler",
+    });
+    rule.addTarget(new LambdaFunction(settlementLambda));
   }
 }

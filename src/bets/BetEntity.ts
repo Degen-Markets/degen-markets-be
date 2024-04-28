@@ -13,4 +13,4 @@ export type BetEntity = {
   startingMetricValue: string;
   endingMetricValue: string;
   winner: string;
-}
+};

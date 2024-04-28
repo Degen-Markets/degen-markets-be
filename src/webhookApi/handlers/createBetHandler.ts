@@ -1,10 +1,10 @@
-import {APIGatewayEvent} from "aws-lambda";
-import {CreateBetEvent} from "../types/CreateBetEvent";
+import { APIGatewayEvent } from "aws-lambda";
+import { CreateBetEvent } from "../types/CreateBetEvent";
 
 const createBetHandler = (event: APIGatewayEvent) => {
-	console.log(`received create bet event: ${event.body}`)
-	const createBetEvent = JSON.parse(event.body || "{}") as CreateBetEvent;
-	return 200;
+  console.log(`received create bet event: ${event.body}`);
+  const createBetEvent = JSON.parse(event.body || "{}") as CreateBetEvent;
+  return 200;
 };
 
 export default createBetHandler;

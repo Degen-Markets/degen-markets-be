@@ -1,0 +1,17 @@
+query ($betWithdrawnTopic: [Bytes32!]!) {
+  block {
+    hash
+    logs(filter: { addresses: [], topics: [$betWithdrawnTopic] }) {
+      data
+      topics
+      transaction {
+        hash
+        from {
+          address
+        }
+        value
+        status
+      }
+    }
+  }
+}

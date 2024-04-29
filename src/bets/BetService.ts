@@ -56,7 +56,7 @@ export class BetService {
     }
   };
 
-  updateBets = async (
+  acceptBets = async (
     bets: Partial<BetEntity>[],
   ): Promise<BetEntity[] | null> => {
     try {
@@ -64,6 +64,26 @@ export class BetService {
         (bet) => `
       UPDATE bets
       SET acceptor = '${bet.acceptor}'
+      WHERE id = '${bet.id}';
+    `,
+      );
+
+      const results = await this.databaseClient.executeStatements(statements);
+      // Assuming response.rows contains the updated rows, adjust accordingly
+      return results.map((result) => result.rows[0]);
+    } catch (e) {
+      this.logger.error((e as Error).message, e as Error);
+      return null;
+    }
+  };
+  withdrawBets = async (
+    bets: Partial<BetEntity>[],
+  ): Promise<BetEntity[] | null> => {
+    try {
+      const statements = bets.map(
+        (bet) => `
+      UPDATE bets
+      SET "isWithdrawn" = true
       WHERE id = '${bet.id}';
     `,
       );

@@ -11,6 +11,7 @@ import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { buildOkResponse } from "../utils/httpResponses";
 import createBetHandler from "./handlers/createBetHandler";
 import acceptBetHandler from "./handlers/acceptBetHandler";
+import withdrawBetHandler from "./handlers/withdrawBetHandler";
 
 const logger: Logger = new Logger({ serviceName: "webhookApi" });
 
@@ -42,6 +43,11 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     method: "POST",
     path: "/accept-bet",
     handler: middy().handler(acceptBetHandler),
+  },
+  {
+    method: "POST",
+    path: "/withdraw-bet",
+    handler: middy().handler(withdrawBetHandler),
   },
   {
     method: "ANY",

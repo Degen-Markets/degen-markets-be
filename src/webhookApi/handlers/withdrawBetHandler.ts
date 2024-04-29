@@ -5,36 +5,35 @@ import DEGEN_BETS_ABI from "../../../resources/abi/DegenBetsAbi.json";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { APIGatewayEvent } from "aws-lambda";
 import {
-  AcceptBetContractEvent,
-  AcceptBetSqsEvent,
-  AcceptBetWebhookEvent,
-} from "../types/AcceptBetTypes";
+  WithdrawBetContractEvent,
+  WithdrawBetSqsEvent,
+  WithdrawBetWebhookEvent,
+} from "../types/WithdrawBetTypes";
 
-const BET_ACCEPTED_TOPIC =
+const BET_WITHDRAWN_TOPIC =
   "0x4c46eda80d7fbf5e1590d2b15e357a3f95a6ad2634b453013e4dad9d726ddc9c";
 
-const acceptBetHandler = async (event: APIGatewayEvent) => {
+const withdrawBetHandler = async (event: APIGatewayEvent) => {
   const sqs = new SQS();
   const logger = new Logger({
-    serviceName: "AcceptBetHandler",
+    serviceName: "WithdrawBetHandler",
   });
-  logger.info(`received accept bet event: ${event.body}`);
-  const acceptBetEvent = JSON.parse(
+  logger.info(`received withdraw bet event: ${event.body}`);
+  const withdrawBetEvent = JSON.parse(
     event.body || "{}",
-  ) as AcceptBetWebhookEvent;
+  ) as WithdrawBetWebhookEvent;
 
-  const bets = acceptBetEvent.event.data.block.logs.map((log) => {
-    const eventLog = decodeEventLog({
+  const bets = withdrawBetEvent.event.data.block.logs.map((log) => {
+    const args = decodeEventLog({
       abi: DEGEN_BETS_ABI,
       data: log.data,
-      eventName: "BetAccepted",
+      eventName: "BetWithdrawn",
       strict: true,
-      topics: [BET_ACCEPTED_TOPIC],
-    });
+      topics: [BET_WITHDRAWN_TOPIC],
+    }).args as unknown as WithdrawBetContractEvent;
     return {
-      id: (eventLog.args as unknown as AcceptBetContractEvent).id,
-      acceptor: log.transaction.from.address,
-    } as AcceptBetSqsEvent;
+      id: args.id,
+    } as WithdrawBetSqsEvent;
   });
   try {
     const messageGroupId = getMandatoryEnvVariable("MESSAGE_GROUP_ID");
@@ -44,12 +43,12 @@ const acceptBetHandler = async (event: APIGatewayEvent) => {
     );
     await sqs.sendMessage({
       MessageBody: JSON.stringify({
-        eventName: "BetAccepted",
+        eventName: "BetWithdrawn",
         bets,
       }),
       QueueUrl: queueUrl,
       MessageGroupId: getMandatoryEnvVariable("MESSAGE_GROUP_ID"),
-      MessageDeduplicationId: acceptBetEvent.event.data.block.hash,
+      MessageDeduplicationId: withdrawBetEvent.event.data.block.hash,
     });
   } catch (e) {
     logger.error((e as Error).message, e as Error);
@@ -57,4 +56,4 @@ const acceptBetHandler = async (event: APIGatewayEvent) => {
   return 200;
 };
 
-export default acceptBetHandler;
+export default withdrawBetHandler;

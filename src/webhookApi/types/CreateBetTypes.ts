@@ -1,5 +1,9 @@
 import { Hex } from "viem";
 import { BetEntity } from "../../bets/BetEntity";
+import {
+  SmartContractEventBody,
+  SmartContractEvents,
+} from "../../smartContractEventProcessor/smartContractEventTypes";
 
 export type CreateBetWebhookEvent = {
   webhookId: string;
@@ -39,4 +43,18 @@ export type CreateBetContractEvent = {
   currency: Hex;
 };
 
-export type CreateBetSqsBody = Partial<BetEntity> & { duration: string | null };
+export interface CreateBetSqsEvent extends SmartContractEventBody {
+  creator: Hex;
+  creationTimestamp: string;
+  ticker: string;
+  metric: string;
+  isBetOnUp: boolean;
+  duration: string;
+  value: string;
+  currency: Hex;
+}
+
+export interface CreateBetSqsEvents extends SmartContractEvents {
+  eventName: "BetCreated";
+  bets: CreateBetSqsEvent[];
+}

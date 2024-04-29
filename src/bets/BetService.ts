@@ -1,6 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { BetEntity } from "./BetEntity";
 import { DatabaseClient } from "../clients/DatabaseClient";
+import { BetEntity } from "../bets/BetEntity";
 
 export class BetService {
   private readonly logger = new Logger({ serviceName: "BetService" });
@@ -9,38 +9,47 @@ export class BetService {
   findBets = async (): Promise<BetEntity[]> => {
     this.logger.info("fetching bets");
     const response = await this.databaseClient.executeStatement(
-      "select * from bets;",
+      "SELECT * FROM bets;",
     );
     return response.rows;
   };
 
-  createBet = async (bet: Partial<BetEntity>): Promise<BetEntity | null> => {
-    this.logger.info(`creating bet row with ${bet}`);
+  createBets = async (
+    bets: Partial<BetEntity>[],
+  ): Promise<BetEntity[] | null> => {
+    this.logger.info(`creating bet rows`);
     try {
+      const values = bets
+        .map(
+          (bet) => `(
+        '${bet.id}',
+        '${bet.creator}',
+        '${bet.creationTimestamp}',
+        '${bet.ticker}',
+        '${bet.metric}',
+        '${bet.isBetOnUp}',
+        '${bet.expiresAt}',
+        '${bet.value}',
+        '${bet.currency}'
+      )`,
+        )
+        .join(", ");
+
       const response = await this.databaseClient.executeStatement(
-        `INSERT INTO 
-          bets (
-            id,
-            creator,
-            creationTimestamp,
-            ticker,
-            metric,
-            isBetOnUp,
-            expiresAt,
-            value,
-            currency,
-          ) values (
-            ${bet.id},
-            ${bet.creator},
-            ${bet.creationTimestamp},
-            ${bet.ticker},
-            ${bet.metric},
-            ${bet.isBetOnUp},
-            ${bet.expiresAt},
-          )
-        `.replace(/\r?\n|\r/g, " "),
+        `INSERT INTO bets (
+          id,
+          creator,
+          creationTimestamp,
+          ticker,
+          metric,
+          isBetOnUp,
+          expiresAt,
+          value,
+          currency
+        ) VALUES ${values}`,
       );
-      return response.rows[0];
+
+      return response.rows; // Assuming your response contains inserted rows, adjust if needed
     } catch (e) {
       this.logger.error((e as Error).message, e as Error);
       return null;

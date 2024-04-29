@@ -2,7 +2,7 @@ import { APIGatewayEvent } from "aws-lambda";
 import {
   CreateBetWebhookEvent,
   CreateBetContractEvent,
-  CreateBetSqsBody,
+  CreateBetSqsEvent,
 } from "../types/CreateBetTypes";
 import { decodeEventLog } from "viem";
 import DEGEN_BETS_ABI from "../../../resources/abi/DegenBetsAbi.json";
@@ -36,7 +36,7 @@ const createBetHandler = async (event: APIGatewayEvent) => {
       creationTimestamp: args.creationTimestamp.toString(),
       duration: args.duration.toString(),
       value: args.value.toString(),
-    } as CreateBetSqsBody;
+    } as CreateBetSqsEvent;
   });
   try {
     const messageGroupId = getMandatoryEnvVariable("MESSAGE_GROUP_ID");
@@ -45,7 +45,10 @@ const createBetHandler = async (event: APIGatewayEvent) => {
       `sending message to ${queueUrl} with message group id ${messageGroupId}`,
     );
     await sqs.sendMessage({
-      MessageBody: JSON.stringify(bets),
+      MessageBody: JSON.stringify({
+        eventName: "BetCreated",
+        bets,
+      }),
       QueueUrl: queueUrl,
       MessageGroupId: getMandatoryEnvVariable("MESSAGE_GROUP_ID"),
       MessageDeduplicationId: createBetEvent.event.data.block.hash,

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS bets (
 	"startingMetricValue"   NUMERIC(42),
 	"endingMetricValue"     NUMERIC(42),
 	"winner"                VARCHAR(42),
-    "isWithdrawn"           BOOLEAN
+    "isWithdrawn"           BOOLEAN         NOT NULL DEFAULT false
 );
 
 CREATE INDEX IF NOT EXISTS "idx_currency" ON bets("currency");

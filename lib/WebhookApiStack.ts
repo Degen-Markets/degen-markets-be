@@ -1,4 +1,4 @@
-import { Duration, StackProps } from "aws-cdk-lib";
+import { Duration, Fn, StackProps } from "aws-cdk-lib";
 import { TaggedStack } from "./TaggedStack";
 import { Construct } from "constructs";
 import { LambdaApi } from "./constructs/LambdaApi";
@@ -9,9 +9,10 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
-import { SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
+import { Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
+import { data } from "aws-cdk/lib/logging";
 
 export interface WebhookApiStackProps extends StackProps {
   database: DatabaseInstance;
@@ -78,7 +79,7 @@ export class WebhookApiStack extends TaggedStack {
         environment: {
           DATABASE_PASSWORD_SECRET: database.secret!.secretName,
           DATABASE_USERNAME: "postgres",
-          DATABASE_DATABASE_NAME: "degen-markets",
+          DATABASE_DATABASE_NAME: "degenmarkets",
           DATABASE_HOST: database.instanceEndpoint.hostname,
           DATABASE_PORT: database.instanceEndpoint.port.toString(),
         },
@@ -108,6 +109,17 @@ export class WebhookApiStack extends TaggedStack {
     );
     smartContractEventHandler.addEventSource(
       new SqsEventSource(this.smartContractEventQueue),
+    );
+    const securityGroup = SecurityGroup.fromSecurityGroupId(
+      this,
+      "ImportedSecurityGroup",
+      Fn.importValue("Database:SecurityGroup:Id"),
+    );
+    database.secret?.grantRead(smartContractEventHandler);
+    securityGroup.connections.allowFrom(
+      smartContractEventHandler,
+      Port.tcp(5432),
+      "Webhook Api access",
     );
   }
 }

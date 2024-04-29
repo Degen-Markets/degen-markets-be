@@ -1,5 +1,4 @@
 import { Hex } from "viem";
-import { BetEntity } from "../../bets/BetEntity";
 import {
   SmartContractEventBody,
   SmartContractEvents,

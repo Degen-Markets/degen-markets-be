@@ -15,6 +15,7 @@ const handleSmartContractEvent = async (event: SQSEvent) => {
       smartContractEvents,
     );
   }
+  return 200;
 };
 
 export const handler = middy(handleSmartContractEvent).use(

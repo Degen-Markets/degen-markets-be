@@ -1,21 +1,23 @@
 CREATE TABLE IF NOT EXISTS bets (
-	"id"                  VARCHAR(256)   NOT NULL PRIMARY KEY,
-	"creator"             VARCHAR(256)   NOT NULL,
-	"creationTimestamp"   TIMESTAMPTZ    NOT NULL,
-	"acceptor"            VARCHAR(256),
-	"ticker"              TEXT           NOT NULL,
-	"metric"              VARCHAR(256)   NOT NULL,
-	"isBetOnUp"           BOOLEAN        NOT NULL,
-	"expiresAt"           TIMESTAMPTZ    NOT NULL,
-	"value"               NUMERIC(12, 4) NOT NULL,
-	"currency"            VARCHAR(24)    NOT NULL,
-	"startingMetricValue" NUMERIC(12, 4),
-	"endingMetricValue"   NUMERIC(12, 4),
-	"winner"              VARCHAR(256)
+	"id"                    VARCHAR(36)     NOT NULL PRIMARY KEY,
+	"creator"               VARCHAR(42)     NOT NULL,
+	"creationTimestamp"     VARCHAR(20)     NOT NULL,
+	"acceptor"              VARCHAR(42),
+    "acceptanceTimestamp"   VARCHAR(20),
+	"ticker"                VARCHAR(20)     NOT NULL,
+	"metric"                VARCHAR(40)     NOT NULL,
+	"isBetOnUp"             BOOLEAN         NOT NULL,
+	"expirationTimestamp"   VARCHAR(20)     NOT NULL,
+	"value"                 VARCHAR(256)    NOT NULL,
+	"currency"              VARCHAR(42)     NOT NULL,
+	"startingMetricValue"   NUMERIC(42),
+	"endingMetricValue"     NUMERIC(42),
+	"winner"                VARCHAR(42),
+    "isWithdrawn"           BOOLEAN
 );
 
 CREATE INDEX IF NOT EXISTS "idx_currency" ON bets("currency");
 CREATE INDEX IF NOT EXISTS "idx_ticker" ON bets("ticker");
 CREATE INDEX IF NOT EXISTS "idx_acceptor" ON bets("acceptor");
 CREATE INDEX IF NOT EXISTS "idx_creator" ON bets("creator");
-CREATE INDEX IF NOT EXISTS "idx_expiresAt" ON bets("expiresAt");
+CREATE INDEX IF NOT EXISTS "idx_expirationTimestamp" ON bets("expirationTimestamp");

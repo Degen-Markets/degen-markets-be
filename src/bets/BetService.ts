@@ -28,7 +28,7 @@ export class BetService {
         '${bet.ticker}',
         '${bet.metric}',
         '${bet.isBetOnUp}',
-        '${bet.expiresAt}',
+        '${bet.expirationTimestamp}',
         '${bet.value}',
         '${bet.currency}'
       )`,
@@ -39,11 +39,11 @@ export class BetService {
         `INSERT INTO bets (
           id,
           creator,
-          creationTimestamp,
+          "creationTimestamp",
           ticker,
           metric,
-          isBetOnUp,
-          expiresAt,
+          "isBetOnUp",
+          "expirationTimestamp",
           value,
           currency
         ) VALUES ${values}`,

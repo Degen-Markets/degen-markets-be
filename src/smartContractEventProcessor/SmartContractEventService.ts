@@ -16,7 +16,7 @@ export class SmartContractEventService {
     await this.betService.createBets(
       createBetSqsEvents.bets.map((bet) => ({
         ...bet,
-        expiresAt: String(Date.now() + Number(bet.duration)),
+        expirationTimestamp: String(Date.now() + Number(bet.duration)),
       })),
     );
   };

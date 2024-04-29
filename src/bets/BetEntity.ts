@@ -1,16 +1,19 @@
+import { Hex } from "viem";
+
 export type BetEntity = {
   id: string;
-  creator: string;
+  creator: Hex;
   creationTimestamp: string;
-  acceptor: string;
-  acceptanceTimestamp: string;
+  acceptor?: Hex;
+  acceptanceTimestamp?: string;
   ticker: string;
   metric: string;
   isBetOnUp: boolean;
-  expiresAt: string;
+  expirationTimestamp: string;
   value: string;
   currency: string;
-  startingMetricValue: string;
-  endingMetricValue: string;
-  winner: string;
+  startingMetricValue?: number;
+  endingMetricValue?: number;
+  winner: Hex;
+  isWithdrawn: boolean;
 };

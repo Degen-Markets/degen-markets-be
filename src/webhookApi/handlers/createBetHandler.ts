@@ -10,7 +10,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 
-export const CREATE_BET_TOPIC =
+const BET_CREATED_TOPIC =
   "0x807e743b9b5ddc6f51022646b7a8cae5649afbf10bd3d28a5c11a74a9916e651";
 
 const createBetHandler = async (event: APIGatewayEvent) => {
@@ -29,7 +29,7 @@ const createBetHandler = async (event: APIGatewayEvent) => {
       data: log.data,
       eventName: "BetCreated",
       strict: true,
-      topics: [CREATE_BET_TOPIC],
+      topics: [BET_CREATED_TOPIC],
     }).args as unknown as CreateBetContractEvent;
     return {
       ...args,

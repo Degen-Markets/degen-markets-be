@@ -21,6 +21,28 @@ export class DatabaseClient<T extends QueryResultRow> {
     return result;
   };
 
+  executeStatements = async (statements: string[]) => {
+    const connection = await this.createConnection();
+    try {
+      await connection.query("BEGIN"); // Begin the transaction
+
+      const results = [];
+      for (const statement of statements) {
+        const result = await connection.query<T>(statement);
+        results.push(result);
+      }
+
+      await connection.query("COMMIT"); // Commit the transaction
+      return results;
+    } catch (e) {
+      await connection.query("ROLLBACK"); // Rollback the transaction if an error occurs
+      this.logger.error("Transaction rolled back", { error: e });
+      throw e;
+    } finally {
+      await connection.end(); // Close the connection
+    }
+  };
+
   private getPassword = async (): Promise<string> => {
     try {
       if (this.password) {

@@ -1,15 +1,17 @@
 import { SQS } from "@aws-sdk/client-sqs";
 import { Logger } from "@aws-lambda-powertools/logger";
-import {
-  CreateBetContractEvent,
-  CreateBetSqsEvent,
-  CreateBetWebhookEvent,
-} from "../types/CreateBetTypes";
 import { decodeEventLog } from "viem";
 import DEGEN_BETS_ABI from "../../../resources/abi/DegenBetsAbi.json";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
-import { CREATE_BET_TOPIC } from "./createBetHandler";
 import { APIGatewayEvent } from "aws-lambda";
+import {
+  AcceptBetContractEvent,
+  AcceptBetSqsEvent,
+  AcceptBetWebhookEvent,
+} from "../types/AcceptBetTypes";
+
+const BET_ACCEPTED_TOPIC =
+  "0x4c46eda80d7fbf5e1590d2b15e357a3f95a6ad2634b453013e4dad9d726ddc9c";
 
 const acceptBetHandler = async (event: APIGatewayEvent) => {
   const sqs = new SQS();
@@ -17,24 +19,22 @@ const acceptBetHandler = async (event: APIGatewayEvent) => {
     serviceName: "CreateBetHandler",
   });
   logger.info(`received create bet event: ${event.body}`);
-  const createBetEvent = JSON.parse(
+  const acceptBetEvent = JSON.parse(
     event.body || "{}",
-  ) as CreateBetWebhookEvent;
+  ) as AcceptBetWebhookEvent;
 
-  const bets = createBetEvent.event.data.block.logs.map((log) => {
-    const args = decodeEventLog({
+  const bets = acceptBetEvent.event.data.block.logs.map((log) => {
+    const eventLog = decodeEventLog({
       abi: DEGEN_BETS_ABI,
       data: log.data,
       eventName: "BetCreated",
       strict: true,
-      topics: [CREATE_BET_TOPIC],
-    }).args as unknown as CreateBetContractEvent;
+      topics: [BET_ACCEPTED_TOPIC],
+    });
     return {
-      ...args,
-      creationTimestamp: args.creationTimestamp.toString(),
-      duration: args.duration.toString(),
-      value: args.value.toString(),
-    } as CreateBetSqsEvent;
+      id: (eventLog.args as unknown as AcceptBetContractEvent).id,
+      acceptor: log.transaction.from.address,
+    } as AcceptBetSqsEvent;
   });
   try {
     const messageGroupId = getMandatoryEnvVariable("MESSAGE_GROUP_ID");
@@ -44,12 +44,12 @@ const acceptBetHandler = async (event: APIGatewayEvent) => {
     );
     await sqs.sendMessage({
       MessageBody: JSON.stringify({
-        eventName: "BetCreated",
+        eventName: "BetAccepted",
         bets,
       }),
       QueueUrl: queueUrl,
       MessageGroupId: getMandatoryEnvVariable("MESSAGE_GROUP_ID"),
-      MessageDeduplicationId: createBetEvent.event.data.block.hash,
+      MessageDeduplicationId: acceptBetEvent.event.data.block.hash,
     });
   } catch (e) {
     logger.error((e as Error).message, e as Error);

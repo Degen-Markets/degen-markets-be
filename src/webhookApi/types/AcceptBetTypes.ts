@@ -40,7 +40,7 @@ export interface AcceptBetSqsEvent extends SmartContractEventBody {
   acceptor: Hex;
 }
 
-export interface CreateBetSqsEvents extends SmartContractEvents {
+export interface AcceptBetSqsEvents extends SmartContractEvents {
   eventName: "BetAccepted";
   bets: AcceptBetSqsEvent[];
 }

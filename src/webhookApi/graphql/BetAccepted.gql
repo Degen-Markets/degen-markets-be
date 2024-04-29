@@ -1,19 +1,8 @@
-query ($degenBetsAddress: [Address!], $betAcceptedTopic: [Bytes32!]!) {
+query ($betAcceptedTopic: [Bytes32!]!) {
   block {
     hash
-    transactions(filter: { addresses: [{ to: $degenBetsAddress }] }) {
-      hash
-      from {
-        address
-      }
-      value
-      status
-      logs {
-        data
-        topics
-      }
-    }
-    logs(filter: { addresses: [], topics: [[], $betAcceptedTopic, []] }) {
+    logs(filter: { addresses: [], topics: [$betAcceptedTopic] }) {
+      data
       topics
       transaction {
         hash

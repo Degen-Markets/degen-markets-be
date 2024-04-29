@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS bets (
-	"id"                    VARCHAR(36)     NOT NULL PRIMARY KEY,
+	"id"                    UUID            NOT NULL PRIMARY KEY,
 	"creator"               VARCHAR(42)     NOT NULL,
 	"creationTimestamp"     VARCHAR(20)     NOT NULL,
 	"acceptor"              VARCHAR(42),

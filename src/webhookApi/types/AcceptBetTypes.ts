@@ -5,7 +5,7 @@ import {
 } from "../../smartContractEventProcessor/smartContractEventTypes";
 import { UUID } from "crypto";
 
-export type CreateBetWebhookEvent = {
+export type AcceptBetWebhookEvent = {
   webhookId: string;
   id: string;
   createdAt: string;
@@ -31,30 +31,16 @@ export type CreateBetWebhookEvent = {
   };
 };
 
-export type CreateBetContractEvent = {
+export type AcceptBetContractEvent = {
   id: UUID;
-  creator: Hex;
-  creationTimestamp: bigint;
-  ticker: string;
-  metric: string;
-  isBetOnUp: boolean;
-  duration: bigint;
-  value: bigint;
-  currency: Hex;
 };
 
-export interface CreateBetSqsEvent extends SmartContractEventBody {
-  creator: Hex;
-  creationTimestamp: string;
-  ticker: string;
-  metric: string;
-  isBetOnUp: boolean;
-  duration: string;
-  value: string;
-  currency: Hex;
+export interface AcceptBetSqsEvent extends SmartContractEventBody {
+  id: UUID;
+  acceptor: Hex;
 }
 
 export interface CreateBetSqsEvents extends SmartContractEvents {
-  eventName: "BetCreated";
-  bets: CreateBetSqsEvent[];
+  eventName: "BetAccepted";
+  bets: AcceptBetSqsEvent[];
 }

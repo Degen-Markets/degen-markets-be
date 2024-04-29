@@ -1,7 +1,8 @@
 import { Hex } from "viem";
+import { UUID } from "crypto";
 
 export type BetEntity = {
-  id: string;
+  id: UUID;
   creator: Hex;
   creationTimestamp: string;
   acceptor?: Hex;

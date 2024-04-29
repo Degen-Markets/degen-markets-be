@@ -1,7 +1,8 @@
 import { CreateBetSqsEvents } from "../webhookApi/types/CreateBetTypes";
+import { UUID } from "crypto";
 
 export interface SmartContractEventBody {
-  id: string;
+  id: UUID;
 }
 
 export type SmartContractEvents = {

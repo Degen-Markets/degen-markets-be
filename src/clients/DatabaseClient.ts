@@ -1,10 +1,10 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { Client, ClientConfig } from "pg";
+import { Client, ClientConfig, QueryResultRow } from "pg";
 import { getMandatoryEnvVariable } from "../utils/getMandatoryEnvValue";
 import * as fs from "fs";
 import { SecretClient } from "./SecretClient";
 
-export class DatabaseClient {
+export class DatabaseClient<T extends QueryResultRow> {
   private readonly logger = new Logger({ serviceName: "DatabaseClient" });
   private secretClient = new SecretClient();
   private secretName = getMandatoryEnvVariable("DATABASE_PASSWORD_SECRET");
@@ -16,7 +16,7 @@ export class DatabaseClient {
 
   executeStatement = async (statement: string) => {
     const connection = await this.createConnection();
-    const result = await connection.query(statement);
+    const result = await connection.query<T>(statement);
     await connection.end();
     return result;
   };

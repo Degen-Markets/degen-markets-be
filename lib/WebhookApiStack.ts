@@ -21,6 +21,8 @@ export interface WebhookApiStackProps extends StackProps {
   cname: string;
 }
 
+const messageGroupId = "WebhookBetEvents";
+
 export class WebhookApiStack extends TaggedStack {
   readonly smartContractEventQueue: Queue;
 
@@ -52,7 +54,8 @@ export class WebhookApiStack extends TaggedStack {
       entryFile: "webhookApi/webhookApi.ts",
       lambda: {
         environment: {
-          QUEUE_NAME: this.smartContractEventQueue.queueName,
+          QUEUE_URL: this.smartContractEventQueue.queueUrl,
+          MESSAGE_GROUP_ID: messageGroupId,
         },
         bundling: {
           externalModules: ["@aws-sdk"],

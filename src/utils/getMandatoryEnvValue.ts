@@ -1,4 +1,4 @@
-export const getMandatoryEnvVariable = (variableName: string) => {
+export const getMandatoryEnvVariable = (variableName: string): string => {
   const value = process.env[variableName];
   if (!value) {
     // eslint-disable-next-line no-console

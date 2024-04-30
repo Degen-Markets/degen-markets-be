@@ -96,7 +96,6 @@ export class BetService {
         statements,
         updateValues,
       );
-      // Assuming response.rows contains the updated rows, adjust accordingly
       return results.map((result) => result.rows[0]);
     } catch (e) {
       this.logger.error((e as Error).message, e as Error);
@@ -124,7 +123,6 @@ export class BetService {
         statements,
         updateValues,
       );
-      // Assuming response.rows contains the updated rows, adjust accordingly
       return results.map((result) => result.rows[0]);
     } catch (e) {
       this.logger.error((e as Error).message, e as Error);

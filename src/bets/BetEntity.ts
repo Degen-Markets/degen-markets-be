@@ -4,14 +4,14 @@ import { UUID } from "crypto";
 export type BetEntity = {
   id: UUID;
   creator: Hex;
-  creationTimestamp: string;
+  creationTimestamp: number;
   acceptor?: Hex;
-  acceptanceTimestamp?: string;
+  acceptanceTimestamp?: number;
   ticker: string;
   metric: string;
   isBetOnUp: boolean;
-  expirationTimestamp: string;
-  value: string;
+  expirationTimestamp: number;
+  value: number;
   currency: string;
   startingMetricValue?: number;
   endingMetricValue?: number;

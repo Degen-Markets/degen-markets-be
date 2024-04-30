@@ -1,27 +1,15 @@
 [
-  {
-    "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
+  { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "owner", "type": "address" }
     ],
     "name": "OwnableInvalidOwner",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "account", "type": "address" }
     ],
     "name": "OwnableUnauthorizedAccount",
     "type": "error"
@@ -87,7 +75,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "duration",
+        "name": "expirationTimestamp",
         "type": "uint256"
       },
       {
@@ -159,11 +147,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "string",
-        "name": "_betId",
-        "type": "string"
-      }
+      { "internalType": "string", "name": "_betId", "type": "string" }
     ],
     "name": "acceptBet",
     "outputs": [],
@@ -171,111 +155,49 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
+    "inputs": [],
+    "name": "acceptanceTimeLimit",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "string", "name": "", "type": "string" }],
     "name": "betIdToBet",
     "outputs": [
-      {
-        "internalType": "string",
-        "name": "id",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      },
+      { "internalType": "string", "name": "id", "type": "string" },
+      { "internalType": "address", "name": "creator", "type": "address" },
       {
         "internalType": "uint256",
         "name": "creationTimestamp",
         "type": "uint256"
       },
-      {
-        "internalType": "string",
-        "name": "ticker",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "metric",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "isBetOnUp",
-        "type": "bool"
-      },
+      { "internalType": "string", "name": "ticker", "type": "string" },
+      { "internalType": "string", "name": "metric", "type": "string" },
+      { "internalType": "bool", "name": "isBetOnUp", "type": "bool" },
       {
         "internalType": "uint256",
-        "name": "duration",
+        "name": "expirationTimestamp",
         "type": "uint256"
       },
-      {
-        "internalType": "address",
-        "name": "acceptor",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "winner",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "currency",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "acceptor", "type": "address" },
+      { "internalType": "address", "name": "winner", "type": "address" },
+      { "internalType": "uint256", "name": "value", "type": "uint256" },
+      { "internalType": "address", "name": "currency", "type": "address" },
+      { "internalType": "bool", "name": "isWithdrawn", "type": "bool" }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "string",
-        "name": "_id",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_duration",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_ticker",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_metric",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "_isBetOnUp",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_currency",
-        "type": "address"
-      }
+      { "internalType": "string", "name": "_id", "type": "string" },
+      { "internalType": "uint256", "name": "_duration", "type": "uint256" },
+      { "internalType": "string", "name": "_ticker", "type": "string" },
+      { "internalType": "string", "name": "_metric", "type": "string" },
+      { "internalType": "bool", "name": "_isBetOnUp", "type": "bool" },
+      { "internalType": "uint256", "name": "_value", "type": "uint256" },
+      { "internalType": "address", "name": "_currency", "type": "address" }
     ],
     "name": "createBet",
     "outputs": [],
@@ -285,45 +207,40 @@
   {
     "inputs": [],
     "name": "maximumBetDuration",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "minimumBetDuration",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_acceptanceTimeLimit",
+        "type": "uint256"
+      }
+    ],
+    "name": "setAcceptanceTimeLimit",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -356,16 +273,8 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "string",
-        "name": "_betId",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "_winner",
-        "type": "address"
-      }
+      { "internalType": "string", "name": "_betId", "type": "string" },
+      { "internalType": "address", "name": "_winner", "type": "address" }
     ],
     "name": "settleBet",
     "outputs": [],
@@ -374,11 +283,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "newOwner", "type": "address" }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -387,11 +292,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "string",
-        "name": "_betId",
-        "type": "string"
-      }
+      { "internalType": "string", "name": "_betId", "type": "string" }
     ],
     "name": "withdrawBet",
     "outputs": [],

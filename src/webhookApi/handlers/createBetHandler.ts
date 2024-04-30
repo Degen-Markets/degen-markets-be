@@ -33,9 +33,9 @@ const createBetHandler = async (event: APIGatewayEvent) => {
     }).args as unknown as CreateBetContractEvent;
     return {
       ...args,
-      creationTimestamp: args.creationTimestamp.toString(),
-      duration: args.duration.toString(),
-      value: args.value.toString(),
+      creationTimestamp: Number(args.creationTimestamp.toString()),
+      expirationTimestamp: Number(args.expirationTimestamp.toString()),
+      value: Number(args.value.toString()),
     } as CreateBetSqsEvent;
   });
   try {

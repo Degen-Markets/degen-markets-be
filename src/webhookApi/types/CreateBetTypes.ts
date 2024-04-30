@@ -38,19 +38,19 @@ export type CreateBetContractEvent = {
   ticker: string;
   metric: string;
   isBetOnUp: boolean;
-  duration: bigint;
+  expirationTimestamp: bigint;
   value: bigint;
   currency: Hex;
 };
 
 export interface CreateBetSqsEvent extends SmartContractEventBody {
   creator: Hex;
-  creationTimestamp: string;
+  creationTimestamp: number;
   ticker: string;
   metric: string;
   isBetOnUp: boolean;
-  duration: string;
-  value: string;
+  expirationTimestamp: number;
+  value: number;
   currency: Hex;
 }
 

@@ -24,12 +24,12 @@ export class BetService {
           (bet) => `(
         '${bet.id}',
         '${bet.creator}',
-        '${bet.creationTimestamp}',
+        ${bet.creationTimestamp},
         '${bet.ticker}',
         '${bet.metric}',
-        '${bet.isBetOnUp}',
-        '${bet.expirationTimestamp}',
-        '${bet.value}',
+        ${bet.isBetOnUp},
+        ${bet.expirationTimestamp},
+        ${bet.value},
         '${bet.currency}'
       )`,
         )

@@ -17,12 +17,7 @@ export class SmartContractEventService {
 
   private betService = new BetService();
   handleCreateBets = async (createBetSqsEvents: CreateBetSqsEvents) => {
-    await this.betService.createBets(
-      createBetSqsEvents.bets.map((bet) => ({
-        ...bet,
-        expirationTimestamp: String(Date.now() + Number(bet.duration)),
-      })),
-    );
+    await this.betService.createBets(createBetSqsEvents.bets);
   };
 
   handleAcceptBets = async (acceptBetSqsEvents: AcceptBetSqsEvents) => {

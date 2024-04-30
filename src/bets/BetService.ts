@@ -30,7 +30,8 @@ export class BetService {
         ${bet.isBetOnUp},
         ${bet.expirationTimestamp},
         ${bet.value},
-        '${bet.currency}'
+        '${bet.currency}',
+        ${bet.creationTimestamp}
       )`,
         )
         .join(", ");
@@ -45,7 +46,8 @@ export class BetService {
           "isBetOnUp",
           "expirationTimestamp",
           value,
-          currency
+          currency,
+          "lastActivityTimestamp"
         ) VALUES ${values};`,
       );
 
@@ -65,6 +67,7 @@ export class BetService {
       UPDATE bets
       SET acceptor = '${bet.acceptor}',
         "acceptanceTimestamp" = ${bet.acceptanceTimestamp}
+        "lastActivityTimestamp" = ${bet.acceptanceTimestamp}
       WHERE id = '${bet.id}';
     `,
       );
@@ -84,7 +87,9 @@ export class BetService {
       const statements = bets.map(
         (bet) => `
       UPDATE bets
-      SET "isWithdrawn" = true
+      SET "isWithdrawn" = true,
+          "withdrawalTimestamp" = ${bet.withdrawalTimestamp}
+          "lastActivityTimestamp" = ${bet.withdrawalTimestamp}
       WHERE id = '${bet.id}';
     `,
       );

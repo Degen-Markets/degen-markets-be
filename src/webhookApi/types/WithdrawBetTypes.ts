@@ -14,6 +14,7 @@ export type WithdrawBetWebhookEvent = {
     data: {
       block: {
         hash: Hex;
+        timestamp: number;
         logs: {
           data: Hex;
           topics: Hex[];
@@ -35,7 +36,9 @@ export type WithdrawBetContractEvent = {
   id: UUID;
 };
 
-export interface WithdrawBetSqsEvent extends SmartContractEventBody {}
+export interface WithdrawBetSqsEvent extends SmartContractEventBody {
+  withdrawalTimestamp: number;
+}
 
 export interface WithdrawBetSqsEvents extends SmartContractEvents {
   eventName: "BetWithdrawn";

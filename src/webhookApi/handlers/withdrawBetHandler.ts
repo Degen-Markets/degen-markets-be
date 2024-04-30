@@ -33,6 +33,7 @@ const withdrawBetHandler = async (event: APIGatewayEvent) => {
     }).args as unknown as WithdrawBetContractEvent;
     return {
       id: args.id,
+      withdrawalTimestamp: withdrawBetEvent.event.data.block.timestamp,
     } as WithdrawBetSqsEvent;
   });
   try {

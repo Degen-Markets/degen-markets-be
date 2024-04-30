@@ -34,7 +34,7 @@ export class SettlementStack extends TaggedStack {
         PRIVATE_KEY_SECRET: privateKeySecret.secretName,
         DATABASE_PASSWORD_SECRET: database.secret!.secretName,
         DATABASE_USERNAME: "postgres",
-        DATABASE_DATABASE_NAME: "degen-markets",
+        DATABASE_DATABASE_NAME: "degenmarkets",
         DATABASE_HOST: database.instanceEndpoint.hostname,
         DATABASE_PORT: database.instanceEndpoint.port.toString(),
       },

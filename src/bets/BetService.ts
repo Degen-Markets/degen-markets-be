@@ -78,10 +78,14 @@ export class BetService {
       query += ` LIMIT ${queryStringParameters.limit}`;
     }
 
-    this.logger.info(`Running query: ${query}, with values: ${values}`);
-
     const response = await this.databaseClient.executeStatement(query, values);
     return response.rows;
+  };
+
+  findOne = async (id: string): Promise<BetEntity> => {
+    const query = "SELECT * FROM bets WHERE id = $1";
+    const response = await this.databaseClient.executeStatement(query, [id]);
+    return response.rows[0];
   };
 
   createBets = async (
@@ -137,14 +141,16 @@ export class BetService {
         UPDATE bets
         SET acceptor = $1,
             "acceptanceTimestamp" = $2,
-            "lastActivityTimestamp" = $2
-        WHERE id = $3;
+            "lastActivityTimestamp" = $2,
+            "startingMetricValue" = $3
+        WHERE id = $4;
       `,
       );
 
       const updateValues = bets.map((bet) => [
         bet.acceptor,
         bet.acceptanceTimestamp,
+        bet.startingMetricValue,
         bet.id,
       ]);
 

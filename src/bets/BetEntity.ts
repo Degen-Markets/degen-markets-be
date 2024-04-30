@@ -13,8 +13,8 @@ export type BetEntity = {
   expirationTimestamp: number;
   value: number;
   currency: string;
-  startingMetricValue?: number;
-  endingMetricValue?: number;
+  startingMetricValue?: string;
+  endingMetricValue?: string;
   winner?: Hex;
   isWithdrawn: boolean;
   withdrawalTimestamp?: number;

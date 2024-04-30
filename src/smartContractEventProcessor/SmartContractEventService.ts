@@ -9,6 +9,8 @@ import { CreateBetSqsEvents } from "../webhookApi/types/CreateBetTypes";
 import { BetService } from "../bets/BetService";
 import { AcceptBetSqsEvents } from "../webhookApi/types/AcceptBetTypes";
 import { WithdrawBetSqsEvents } from "../webhookApi/types/WithdrawBetTypes";
+import { QuotesService } from "../quotes/QuotesService";
+import { getCmcId, tickerToCmcId } from "../utils/cmcApi";
 
 export class SmartContractEventService {
   private readonly logger = new Logger({
@@ -16,12 +18,26 @@ export class SmartContractEventService {
   });
 
   private betService = new BetService();
+  private quotesService = new QuotesService();
   handleCreateBets = async (createBetSqsEvents: CreateBetSqsEvents) => {
     await this.betService.createBets(createBetSqsEvents.bets);
   };
 
   handleAcceptBets = async (acceptBetSqsEvents: AcceptBetSqsEvents) => {
-    await this.betService.acceptBets(acceptBetSqsEvents.bets);
+    await this.betService.acceptBets(
+      await Promise.all(
+        acceptBetSqsEvents.bets.map(async (bet) => {
+          const storedBet = await this.betService.findOne(bet.id);
+          return {
+            ...bet,
+            startingMetricValue: await this.quotesService.getLatestQuote(
+              getCmcId(storedBet.ticker),
+              storedBet.metric,
+            ),
+          };
+        }),
+      ),
+    );
   };
 
   handleWithdrawBets = async (withdrawBetSqsEvents: WithdrawBetSqsEvents) => {

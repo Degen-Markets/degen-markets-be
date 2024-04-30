@@ -10,11 +10,11 @@ CREATE TABLE IF NOT EXISTS bets (
 	"expirationTimestamp"   NUMERIC(20)     NOT NULL,
 	"value"                 NUMERIC(256)    NOT NULL,
 	"currency"              VARCHAR(42)     NOT NULL,
-	"startingMetricValue"   NUMERIC(42),
-	"endingMetricValue"     NUMERIC(42),
+	"startingMetricValue"   VARCHAR(42),
+	"endingMetricValue"     VARCHAR(42),
 	"winner"                VARCHAR(42),
     "isWithdrawn"           BOOLEAN         NOT NULL DEFAULT false,
-    "withdrawalTimestamp"    NUMERIC(20),
+    "withdrawalTimestamp"   NUMERIC(20),
     "lastActivityTimestamp" NUMERIC(20)     NOT NULL
 );
 

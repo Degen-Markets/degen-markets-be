@@ -17,6 +17,7 @@ export class DatabaseClient<T extends QueryResultRow> {
   executeStatement = async (statement: string, values: any[] = []) => {
     const connection = await this.createConnection();
     try {
+      this.logger.info(`Running query: ${statement}, with values: ${values}`);
       const result = await connection.query<T>(statement, values);
       return result;
     } finally {

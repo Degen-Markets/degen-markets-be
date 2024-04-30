@@ -23,6 +23,7 @@ export interface WebhookApiStackProps extends StackProps {
 }
 
 const messageGroupId = "WebhookBetEvents";
+const cmcApiKey = "b2421e9c-caf3-43df-bdbd-b7d5b84c1954";
 
 export class WebhookApiStack extends TaggedStack {
   readonly smartContractEventQueue: Queue;
@@ -82,6 +83,7 @@ export class WebhookApiStack extends TaggedStack {
           DATABASE_DATABASE_NAME: "degenmarkets",
           DATABASE_HOST: database.instanceEndpoint.hostname,
           DATABASE_PORT: database.instanceEndpoint.port.toString(),
+          CMC_API_KEY: cmcApiKey,
         },
         memorySize: 128,
         functionName: `SmartContractEventHandler`,

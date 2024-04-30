@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS bets (
 	"metric"                VARCHAR(40)     NOT NULL,
 	"isBetOnUp"             BOOLEAN         NOT NULL,
 	"expirationTimestamp"   NUMERIC(20)     NOT NULL,
-	"value"                 VARCHAR(256)    NOT NULL,
+	"value"                 NUMERIC(256)    NOT NULL,
 	"currency"              VARCHAR(42)     NOT NULL,
 	"startingMetricValue"   NUMERIC(42),
 	"endingMetricValue"     NUMERIC(42),

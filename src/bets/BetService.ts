@@ -88,7 +88,7 @@ export class BetService {
         (bet) => `
       UPDATE bets
       SET "isWithdrawn" = true,
-          "withdrawalTimestamp" = ${bet.withdrawalTimestamp}
+          "withdrawalTimestamp" = ${bet.withdrawalTimestamp},
           "lastActivityTimestamp" = ${bet.withdrawalTimestamp}
       WHERE id = '${bet.id}';
     `,

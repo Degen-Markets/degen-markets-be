@@ -11,7 +11,7 @@ import {
 } from "../types/WithdrawBetTypes";
 
 const BET_WITHDRAWN_TOPIC =
-  "0x4c46eda80d7fbf5e1590d2b15e357a3f95a6ad2634b453013e4dad9d726ddc9c";
+  "0x884ef261d5843d2b240c6b117de1a07002bc87b59f6a69562a3dab30bd764c4e";
 
 const withdrawBetHandler = async (event: APIGatewayEvent) => {
   const sqs = new SQS();

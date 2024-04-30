@@ -4,7 +4,7 @@ import {
   CreateBetContractEvent,
   CreateBetSqsEvent,
 } from "../types/CreateBetTypes";
-import { decodeEventLog } from "viem";
+import { decodeEventLog, zeroAddress } from "viem";
 import DEGEN_BETS_ABI from "../../../resources/abi/DegenBetsAbi.json";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQS } from "@aws-sdk/client-sqs";
@@ -35,7 +35,11 @@ const createBetHandler = async (event: APIGatewayEvent) => {
       ...args,
       creationTimestamp: Number(args.creationTimestamp.toString()),
       expirationTimestamp: Number(args.expirationTimestamp.toString()),
-      value: Number(args.value.toString()),
+      value: Number(
+        args.currency === zeroAddress
+          ? log.transaction.value
+          : args.value.toString(),
+      ),
     } as CreateBetSqsEvent;
   });
   try {

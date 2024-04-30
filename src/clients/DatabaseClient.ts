@@ -14,21 +14,24 @@ export class DatabaseClient<T extends QueryResultRow> {
   private port = Number(getMandatoryEnvVariable("DATABASE_PORT"));
   private password: string | undefined = undefined;
 
-  executeStatement = async (statement: string) => {
+  executeStatement = async (statement: string, values: any[] = []) => {
     const connection = await this.createConnection();
-    const result = await connection.query<T>(statement);
-    await connection.end();
-    return result;
+    try {
+      const result = await connection.query<T>(statement, values);
+      return result;
+    } finally {
+      await connection.end(); // Close the connection
+    }
   };
 
-  executeStatements = async (statements: string[]) => {
+  executeStatements = async (statements: string[], values: any[][]) => {
     const connection = await this.createConnection();
     try {
       await connection.query("BEGIN"); // Begin the transaction
 
       const results = [];
-      for (const statement of statements) {
-        const result = await connection.query<T>(statement);
+      for (let i = 0; i < statements.length; i++) {
+        const result = await connection.query<T>(statements[i], values[i]);
         results.push(result);
       }
 

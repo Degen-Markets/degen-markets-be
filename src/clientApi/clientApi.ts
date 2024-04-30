@@ -2,7 +2,11 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import httpRouterHandler, { Route } from "@middy/http-router";
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import {
+  APIGatewayEvent,
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResultV2,
+} from "aws-lambda";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpHeaderNormalizer from "@middy/http-header-normalizer";
 import httpSecurityHeaders from "@middy/http-security-headers";
@@ -28,8 +32,8 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/bets",
-    handler: middy().handler(async (event) => {
-      const bets = await betService.findBets();
+    handler: middy().handler(async (event: APIGatewayEvent) => {
+      const bets = await betService.findBets(event.queryStringParameters);
       logger.info(`loading bets`);
       return buildOkResponse(bets);
     }),

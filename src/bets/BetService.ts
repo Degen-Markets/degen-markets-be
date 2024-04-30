@@ -4,10 +4,32 @@ import { BetEntity } from "./BetEntity";
 import { APIGatewayProxyEventQueryStringParameters } from "aws-lambda/trigger/api-gateway-proxy";
 import { WithdrawBetSqsEvent } from "../webhookApi/types/WithdrawBetTypes";
 import { CreateBetSqsEvent } from "../webhookApi/types/CreateBetTypes";
+import { isNumeric } from "../utils/numbers";
 
 export class BetService {
   private readonly logger = new Logger({ serviceName: "BetService" });
   private readonly databaseClient = new DatabaseClient<BetEntity>();
+
+  getSafeOrderByColumn = (queryParam: string): string => {
+    switch (queryParam) {
+      case "creator":
+      case "acceptor":
+      case "value":
+      case "ticker":
+      case "metric":
+      case "currency":
+        return queryParam;
+      case "creationTimestamp":
+        return '"creationTimestamp"';
+      case "expirationTimestamp":
+        return '"expirationTimestamp"';
+      case "withdrawalTimestamp":
+        return '"withdrawalTimestamp"';
+      case "lastActivityTimestamp":
+      default:
+        return '"lastActivityTimestamp"';
+    }
+  };
 
   findRecentActivity = async (): Promise<BetEntity[]> => {
     this.logger.info("fetching recent activity");
@@ -33,6 +55,27 @@ export class BetService {
     if (queryStringParameters?.creator) {
       query += " WHERE creator = $1";
       values.push(queryStringParameters.creator);
+    }
+
+    if (queryStringParameters?.sort) {
+      const includesOrderByDirection = queryStringParameters.sort.includes(":");
+      const orderByField = includesOrderByDirection
+        ? queryStringParameters.sort.split(":")[0]
+        : queryStringParameters.sort;
+      const orderByDirection =
+        includesOrderByDirection &&
+        queryStringParameters.sort.split(":")[1].toLowerCase() === "asc"
+          ? "ASC"
+          : "DESC";
+      const safeOrderByColumn = this.getSafeOrderByColumn(orderByField);
+      query += ` ORDER BY ${safeOrderByColumn} ${orderByDirection}`;
+    }
+
+    if (
+      queryStringParameters?.limit &&
+      isNumeric(queryStringParameters.limit)
+    ) {
+      query += ` LIMIT ${queryStringParameters.limit}`;
     }
 
     this.logger.info(`Running query: ${query}, with values: ${values}`);

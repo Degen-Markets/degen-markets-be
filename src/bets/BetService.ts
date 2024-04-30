@@ -63,7 +63,8 @@ export class BetService {
       const statements = bets.map(
         (bet) => `
       UPDATE bets
-      SET acceptor = '${bet.acceptor}'
+      SET acceptor = '${bet.acceptor}',
+        "acceptanceTimestamp" = ${bet.acceptanceTimestamp}
       WHERE id = '${bet.id}';
     `,
       );

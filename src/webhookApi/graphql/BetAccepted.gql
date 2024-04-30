@@ -1,7 +1,15 @@
-query ($betAcceptedTopic: [Bytes32!]!) {
+query {
   block {
     hash
-    logs(filter: { addresses: [], topics: [$betAcceptedTopic] }) {
+    timestamp
+    logs(
+      filter: {
+        addresses: ["0xe1b046Ae7b3ea1d5041274c707bc6298884E3A71"]
+        topics: [
+          ["0x4c46eda80d7fbf5e1590d2b15e357a3f95a6ad2634b453013e4dad9d726ddc9c"]
+        ]
+      }
+    ) {
       data
       topics
       transaction {

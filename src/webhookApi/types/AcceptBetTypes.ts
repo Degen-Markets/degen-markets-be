@@ -14,6 +14,7 @@ export type AcceptBetWebhookEvent = {
     data: {
       block: {
         hash: Hex;
+        timestamp: number;
         logs: {
           data: Hex;
           topics: Hex[];
@@ -38,6 +39,7 @@ export type AcceptBetContractEvent = {
 export interface AcceptBetSqsEvent extends SmartContractEventBody {
   id: UUID;
   acceptor: Hex;
+  acceptanceTimestamp: number;
 }
 
 export interface AcceptBetSqsEvents extends SmartContractEvents {

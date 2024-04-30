@@ -34,6 +34,7 @@ const acceptBetHandler = async (event: APIGatewayEvent) => {
     return {
       id: (eventLog.args as unknown as AcceptBetContractEvent).id,
       acceptor: log.transaction.from.address,
+      acceptanceTimestamp: Number(acceptBetEvent.event.data.block.timestamp),
     } as AcceptBetSqsEvent;
   });
   try {

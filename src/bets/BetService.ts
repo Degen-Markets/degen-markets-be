@@ -9,6 +9,17 @@ export class BetService {
   private readonly logger = new Logger({ serviceName: "BetService" });
   private readonly databaseClient = new DatabaseClient<BetEntity>();
 
+  findRecentActivity = async (): Promise<BetEntity[]> => {
+    this.logger.info("fetching recent activity");
+
+    const query = 'SELECT * FROM bets ORDER BY "lastActivityTimestamp" DESC';
+
+    this.logger.info(`Running query: ${query}.`);
+
+    const response = await this.databaseClient.executeStatement(query);
+    return response.rows;
+  };
+
   findBets = async (
     queryStringParameters: APIGatewayProxyEventQueryStringParameters | null,
   ): Promise<BetEntity[]> => {
@@ -23,6 +34,8 @@ export class BetService {
       query += " WHERE creator = $1";
       values.push(queryStringParameters.creator);
     }
+
+    this.logger.info(`Running query: ${query}, with values: ${values}`);
 
     const response = await this.databaseClient.executeStatement(query, values);
     return response.rows;

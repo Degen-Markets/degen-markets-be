@@ -39,7 +39,7 @@ const withdrawBetHandler = async (event: APIGatewayEvent) => {
   try {
     const messageGroupId = getMandatoryEnvVariable("MESSAGE_GROUP_ID");
     const queueUrl = getMandatoryEnvVariable("QUEUE_URL");
-    console.log(
+    logger.info(
       `sending message to ${queueUrl} with message group id ${messageGroupId}`,
     );
     await sqs.sendMessage({

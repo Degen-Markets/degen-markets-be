@@ -24,3 +24,6 @@ CREATE INDEX IF NOT EXISTS "idx_acceptor" ON bets("acceptor");
 CREATE INDEX IF NOT EXISTS "idx_creator" ON bets("creator");
 CREATE INDEX IF NOT EXISTS "idx_expirationTimestamp" ON bets("expirationTimestamp");
 CREATE INDEX IF NOT EXISTS "idx_lastActivityTimestamp" ON bets("lastActivityTimestamp");
+CREATE INDEX IF NOT EXISTS "idx_acceptanceTimestamp" ON bets("acceptanceTimestamp");
+CREATE INDEX IF NOT EXISTS "idx_withdrawalTimestamp" ON bets("withdrawalTimestamp");
+CREATE INDEX IF NOT EXISTS "idx_creationTimestamp" ON bets("creationTimestamp");

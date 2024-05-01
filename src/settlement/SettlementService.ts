@@ -44,35 +44,29 @@ export class SettlementService {
 
     for (const bet of betsToSettle) {
       let winner: Address | undefined = undefined;
-      if (!!bet.acceptor && bet.acceptor !== zeroAddress) {
-        try {
-          this.logger.info("Calling coinmarketcap api");
-          const endingMetricValue = await this.quotesService.getLatestQuote(
-            getCmcId(bet.ticker),
-            bet.metric,
-          );
-          this.logger.info(
-            `For bet ${bet.id} Ending metric value is: ${endingMetricValue}, startingMetric was: ${bet.startingMetricValue}`,
-          );
-          if (
-            bet.isBetOnUp &&
-            Number(endingMetricValue) > Number(bet.startingMetricValue)
-          ) {
-            this.logger.info(`Bet won by creator ${bet.creator}`);
-            winner = bet.creator;
-          } else {
-            this.logger.info(`Bet won by acceptor ${bet.acceptor}`);
-            winner = bet.acceptor;
-          }
-        } catch (e) {
-          this.logger.error(
-            `fetching quotes failed for bet ${bet.id}!`,
-            e as Error,
-          );
-        }
-      } else {
+      try {
+        this.logger.info("Calling coinmarketcap api");
+        const endingMetricValue = await this.quotesService.getLatestQuote(
+          getCmcId(bet.ticker),
+          bet.metric,
+        );
         this.logger.info(
-          `bet ${bet.id} does not have an acceptor. Ignoring it!`,
+          `For bet ${bet.id} Ending metric value is: ${endingMetricValue}, startingMetric was: ${bet.startingMetricValue}`,
+        );
+        if (
+          bet.isBetOnUp &&
+          Number(endingMetricValue) > Number(bet.startingMetricValue)
+        ) {
+          this.logger.info(`Bet won by creator ${bet.creator}`);
+          winner = bet.creator;
+        } else {
+          this.logger.info(`Bet won by acceptor ${bet.acceptor}`);
+          winner = bet.acceptor;
+        }
+      } catch (e) {
+        this.logger.error(
+          `fetching quotes failed for bet ${bet.id}!`,
+          e as Error,
         );
       }
 

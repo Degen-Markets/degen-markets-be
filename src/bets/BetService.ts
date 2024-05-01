@@ -79,7 +79,7 @@ export class BetService {
   };
 
   findUnsettledBets = async (): Promise<BetEntity[]> => {
-    const query = `SELECT * FROM bets WHERE winner IS NULL AND "expirationTimestamp" < ${Date.now() / 1000}`;
+    const query = `SELECT * FROM bets WHERE winner IS NULL AND acceptor IS NOT NULL AND "expirationTimestamp" < ${Date.now() / 1000}`;
     const response = await this.databaseClient.executeStatement(query);
     return response.rows;
   };

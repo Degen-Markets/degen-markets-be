@@ -57,6 +57,8 @@ export class WebhookApiStack extends TaggedStack {
         environment: {
           QUEUE_URL: this.smartContractEventQueue.queueUrl,
           MESSAGE_GROUP_ID: messageGroupId,
+          TELEGRAM_BOT_KEY: getMandatoryEnvVariable("TELEGRAM_BOT_KEY"),
+          TELEGRAM_CHAT_ID: getMandatoryEnvVariable("TELEGRAM_CHAT_ID"),
         },
         bundling: {
           externalModules: ["@aws-sdk"],

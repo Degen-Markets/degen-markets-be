@@ -32,17 +32,6 @@ export class BetService {
     }
   };
 
-  findRecentActivity = async (): Promise<BetEntity[]> => {
-    this.logger.info("fetching recent activity");
-
-    const query = 'SELECT * FROM bets ORDER BY "lastActivityTimestamp" DESC';
-
-    this.logger.info(`Running query: ${query}.`);
-
-    const response = await this.databaseClient.executeStatement(query);
-    return response.rows;
-  };
-
   findBets = async (
     queryStringParameters: APIGatewayProxyEventQueryStringParameters | null,
   ): Promise<BetEntity[]> => {

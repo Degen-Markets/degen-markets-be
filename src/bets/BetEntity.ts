@@ -16,6 +16,7 @@ export type BetEntity = {
   startingMetricValue?: string;
   endingMetricValue?: string;
   winner?: Hex;
+  winTimestamp?: number;
   isWithdrawn: boolean;
   withdrawalTimestamp?: number;
 };

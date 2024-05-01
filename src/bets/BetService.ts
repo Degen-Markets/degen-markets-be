@@ -5,6 +5,7 @@ import { APIGatewayProxyEventQueryStringParameters } from "aws-lambda/trigger/ap
 import { WithdrawBetSqsEvent } from "../webhookApi/types/WithdrawBetTypes";
 import { CreateBetSqsEvent } from "../webhookApi/types/CreateBetTypes";
 import { isNumeric } from "../utils/numbers";
+import { SettleBetSqsEvent } from "../webhookApi/types/SettleBetTypes";
 
 export class BetService {
   private readonly logger = new Logger({ serviceName: "BetService" });
@@ -186,6 +187,35 @@ export class BetService {
       );
 
       const updateValues = bets.map((bet) => [bet.withdrawalTimestamp, bet.id]);
+
+      const results = await this.databaseClient.executeStatements(
+        statements,
+        updateValues,
+      );
+      return results.map((result) => result.rows[0]);
+    } catch (e) {
+      this.logger.error((e as Error).message, e as Error);
+      return null;
+    }
+  };
+
+  settleBets = async (bets: SettleBetSqsEvent[]) => {
+    try {
+      const statements = bets.map(
+        () => `
+        UPDATE bets
+        SET "winner" = $1,
+            "winTimestamp" = $2,
+            "lastActivityTimestamp" = $2
+        WHERE id = $3;
+      `,
+      );
+
+      const updateValues = bets.map((bet) => [
+        bet.winner,
+        bet.winTimestamp,
+        bet.id,
+      ]);
 
       const results = await this.databaseClient.executeStatements(
         statements,

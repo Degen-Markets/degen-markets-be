@@ -4,7 +4,13 @@ import { getMandatoryEnvVariable } from "../utils/getMandatoryEnvValue";
 import { BetService } from "../bets/BetService";
 import { QuotesService } from "../quotes/QuotesService";
 import { getCmcId } from "../utils/cmcApi";
-import { Address, createWalletClient, http, zeroAddress } from "viem";
+import {
+  Address,
+  createPublicClient,
+  createWalletClient,
+  http,
+  zeroAddress,
+} from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 import DEGEN_BETS_ABI from "../../resources/abi/DegenBetsAbi.json";
@@ -90,6 +96,17 @@ export class SettlementService {
           });
 
           this.logger.info(`settleBet transaction sent: ${hash}`);
+
+          const publicClient = createPublicClient({
+            chain: base,
+            transport: http(this.rpcUrl),
+          });
+
+          await publicClient.waitForTransactionReceipt({
+            hash,
+          });
+
+          this.logger.info(`settleBet transaction completed: ${hash}`);
         } catch (e) {
           this.logger.error(`settling bet failed!`, e as Error);
         }

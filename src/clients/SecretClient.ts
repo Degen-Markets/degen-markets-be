@@ -7,8 +7,10 @@ import { requireNotNull } from "../../lib/utils";
 export class SecretClient {
   private readonly secretsManager = new SecretsManagerClient();
 
-  loadPlainTextSecretValue = async (secretName: string): Promise<string> => {
-    return await this.loadSecretValue(secretName);
+  loadPlainTextSecretValue = async <T = string>(
+    secretName: string,
+  ): Promise<T> => {
+    return (await this.loadSecretValue(secretName)) as T;
   };
 
   loadJsonSecretValue = async <T>(secretName: string): Promise<T> => {

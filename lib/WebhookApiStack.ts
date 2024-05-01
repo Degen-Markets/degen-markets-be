@@ -12,7 +12,7 @@ import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
-import { data } from "aws-cdk/lib/logging";
+import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 
 export interface WebhookApiStackProps extends StackProps {
   database: DatabaseInstance;
@@ -23,7 +23,6 @@ export interface WebhookApiStackProps extends StackProps {
 }
 
 const messageGroupId = "WebhookBetEvents";
-const cmcApiKey = "b2421e9c-caf3-43df-bdbd-b7d5b84c1954";
 
 export class WebhookApiStack extends TaggedStack {
   readonly smartContractEventQueue: Queue;
@@ -83,7 +82,7 @@ export class WebhookApiStack extends TaggedStack {
           DATABASE_DATABASE_NAME: "degenmarkets",
           DATABASE_HOST: database.instanceEndpoint.hostname,
           DATABASE_PORT: database.instanceEndpoint.port.toString(),
-          CMC_API_KEY: cmcApiKey,
+          CMC_API_KEY: getMandatoryEnvVariable("CMC_API_KEY"),
         },
         memorySize: 128,
         functionName: `SmartContractEventHandler`,

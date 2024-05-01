@@ -11,6 +11,7 @@ import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
 import { Key } from "aws-cdk-lib/aws-kms";
+import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 
 export interface SettlementStackProps extends StackProps {
   database: DatabaseInstance;
@@ -37,6 +38,9 @@ export class SettlementStack extends TaggedStack {
         DATABASE_DATABASE_NAME: "degenmarkets",
         DATABASE_HOST: database.instanceEndpoint.hostname,
         DATABASE_PORT: database.instanceEndpoint.port.toString(),
+        CMC_API_KEY: getMandatoryEnvVariable("CMC_API_KEY"),
+        BASE_RPC_URL: getMandatoryEnvVariable("BASE_RPC_URL"),
+        DEGEN_BETS_ADDRESS: getMandatoryEnvVariable("DEGEN_BETS_ADDRESS"),
       },
       memorySize: 256,
       functionName: `Settler`,

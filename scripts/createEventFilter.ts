@@ -3,7 +3,7 @@ import axios from "axios";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-const queryFileName = `${process.cwd()}/src/webhookApi/graphql/BetSettled.gql`;
+const queryFileName = `${process.cwd()}/src/resources/graphql/BetCreated.gql`;
 const query = fs.readFileSync(queryFileName).toString();
 
 axios.post(
@@ -11,7 +11,7 @@ axios.post(
   {
     network: "BASE_MAINNET",
     webhook_type: "GRAPHQL",
-    webhook_url: "https://webhooks.degenmarkets.com/settle-bet",
+    webhook_url: "https://webhooks.degenmarkets.com/notify-create-bet",
     graphql_query: {
       skip_empty_messages: true,
       query,

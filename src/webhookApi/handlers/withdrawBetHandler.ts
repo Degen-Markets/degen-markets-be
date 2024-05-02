@@ -55,18 +55,6 @@ const withdrawBetHandler = async (event: APIGatewayEvent) => {
   } catch (e) {
     logger.error((e as Error).message, e as Error);
   }
-  const notificationsService = new NotificationsService();
-  try {
-    await Promise.all(
-      bets.map((bet) =>
-        notificationsService.sendSlackBetUpdate(
-          `Bet Withdrawn: https://degenmarkets.com/bets/${bet.id}`,
-        ),
-      ),
-    );
-  } catch (e) {
-    logger.error("Error sending slack message(s)", e as Error);
-  }
   return 200;
 };
 

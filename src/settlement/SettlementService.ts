@@ -8,12 +8,14 @@ import {
   Address,
   createPublicClient,
   createWalletClient,
+  formatEther,
   http,
   zeroAddress,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 import DEGEN_BETS_ABI from "../../resources/abi/DegenBetsAbi.json";
+import NotificationsService from "../notifications/NotificationsService";
 
 export class SettlementService {
   private readonly logger = new Logger({ serviceName: "SettlementService" });
@@ -41,6 +43,20 @@ export class SettlementService {
     const betsToSettle = await this.betService.findUnsettledBets();
 
     this.logger.info(`found ${betsToSettle.length} bet(s) to settle`);
+
+    const account = privateKeyToAccount(privateKey);
+    this.logger.info(`using account ${account.address} to send funds`);
+
+    const client = createWalletClient({
+      account,
+      chain: base,
+      transport: http(this.rpcUrl),
+    });
+
+    const publicClient = createPublicClient({
+      chain: base,
+      transport: http(this.rpcUrl),
+    });
 
     for (const bet of betsToSettle) {
       let winner: Address | undefined = undefined;
@@ -73,14 +89,6 @@ export class SettlementService {
       if (!!winner) {
         try {
           this.logger.info(`transferring funds to winner ${winner}`);
-          const account = privateKeyToAccount(privateKey);
-          this.logger.info(`using account ${account.address} to send funds`);
-
-          const client = createWalletClient({
-            account,
-            chain: base,
-            transport: http(this.rpcUrl),
-          });
 
           const hash = await client.writeContract({
             address: this.degenBetsAddress,
@@ -91,11 +99,6 @@ export class SettlementService {
 
           this.logger.info(`settleBet transaction sent: ${hash}`);
 
-          const publicClient = createPublicClient({
-            chain: base,
-            transport: http(this.rpcUrl),
-          });
-
           await publicClient.waitForTransactionReceipt({
             hash,
           });
@@ -105,6 +108,22 @@ export class SettlementService {
           this.logger.error(`settling bet failed!`, e as Error);
         }
       }
+    }
+    try {
+      const balance = await publicClient.getBalance({
+        address: account.address,
+      });
+      const balanceInEth = formatEther(balance);
+      this.logger.info(`Balance after settlements: ${balanceInEth}`);
+      const notificationService = new NotificationsService();
+      await notificationService.sendSlackBalanceUpdate(
+        `Current Balance of settling wallet: *${Number(balanceInEth).toFixed(4)} ETH*.\n\nTo fund, send base ETH to ${account.address}.\n\n-------------------------------------------------------------------------------------`,
+      );
+    } catch (e) {
+      this.logger.error(
+        "Error in fetching & sending balance update",
+        e as Error,
+      );
     }
   };
 }

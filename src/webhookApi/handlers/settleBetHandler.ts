@@ -9,7 +9,6 @@ import {
   SettleBetSqsEvent,
   SettleBetWebhookEvent,
 } from "../types/SettleBetTypes";
-import NotificationsService from "../../notifications/NotificationsService";
 
 const BET_SETTLED_TOPIC =
   "0x77cac40fe703601c1be96bb29a3814c2e320bcd347584de571cc2d2d6028ca11";
@@ -55,19 +54,6 @@ const settleBetHandler = async (event: APIGatewayEvent) => {
     });
   } catch (e) {
     logger.error((e as Error).message, e as Error);
-  }
-
-  const notificationsService = new NotificationsService();
-  try {
-    await Promise.all(
-      bets.map((bet) =>
-        notificationsService.sendSlackBetUpdate(
-          `Bet Settled: https://degenmarkets.com/bets/${bet.id}`,
-        ),
-      ),
-    );
-  } catch (e) {
-    logger.error("Error sending slack message(s)", e as Error);
   }
   return 200;
 };

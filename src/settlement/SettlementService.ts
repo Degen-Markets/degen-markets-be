@@ -109,21 +109,23 @@ export class SettlementService {
         }
       }
     }
-    try {
-      const balance = await publicClient.getBalance({
-        address: account.address,
-      });
-      const balanceInEth = formatEther(balance);
-      this.logger.info(`Balance after settlements: ${balanceInEth}`);
-      const notificationService = new NotificationsService();
-      await notificationService.sendSlackBalanceUpdate(
-        `Current Balance of settling wallet: *${Number(balanceInEth).toFixed(4)} ETH*.\n\nTo fund, send base ETH to ${account.address}.\n\n-------------------------------------------------------------------------------------`,
-      );
-    } catch (e) {
-      this.logger.error(
-        "Error in fetching & sending balance update",
-        e as Error,
-      );
+    if (betsToSettle && betsToSettle.length > 0) {
+      try {
+        const balance = await publicClient.getBalance({
+          address: account.address,
+        });
+        const balanceInEth = formatEther(balance);
+        this.logger.info(`Balance after settlements: ${balanceInEth}`);
+        const notificationService = new NotificationsService();
+        await notificationService.sendSlackBalanceUpdate(
+          `Current Balance of settling wallet: *${Number(balanceInEth).toFixed(4)} ETH*.\n\nTo fund, send base ETH to ${account.address}.\n\n-------------------------------------------------------------------------------------`,
+        );
+      } catch (e) {
+        this.logger.error(
+          "Error in fetching & sending balance update",
+          e as Error,
+        );
+      }
     }
   };
 }

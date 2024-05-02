@@ -17,6 +17,16 @@ class NotificationsService {
       },
     );
   }
+
+  async sendSlackBetUpdate(text: string) {
+    this.logger.info(`Sending slack bet update with text: ${text}`);
+    await axios.post(
+      "https://hooks.slack.com/services/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",
+      {
+        text,
+      },
+    );
+  }
 }
 
 export default NotificationsService;

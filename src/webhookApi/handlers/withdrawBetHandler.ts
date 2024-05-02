@@ -9,6 +9,7 @@ import {
   WithdrawBetSqsEvent,
   WithdrawBetWebhookEvent,
 } from "../types/WithdrawBetTypes";
+import NotificationsService from "../../notifications/NotificationsService";
 
 const BET_WITHDRAWN_TOPIC =
   "0x884ef261d5843d2b240c6b117de1a07002bc87b59f6a69562a3dab30bd764c4e";
@@ -53,6 +54,18 @@ const withdrawBetHandler = async (event: APIGatewayEvent) => {
     });
   } catch (e) {
     logger.error((e as Error).message, e as Error);
+  }
+  const notificationsService = new NotificationsService();
+  try {
+    await Promise.all(
+      bets.map((bet) =>
+        notificationsService.sendSlackBetUpdate(
+          `Bet Withdrawn: https://degenmarkets.com/bets/${bet.id}`,
+        ),
+      ),
+    );
+  } catch (e) {
+    logger.error("Error sending slack message(s)", e as Error);
   }
   return 200;
 };

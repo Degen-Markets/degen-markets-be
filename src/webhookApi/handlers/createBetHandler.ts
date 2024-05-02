@@ -9,6 +9,7 @@ import DEGEN_BETS_ABI from "../../../resources/abi/DegenBetsAbi.json";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
+import NotificationsService from "../../notifications/NotificationsService";
 
 const BET_CREATED_TOPIC =
   "0x807e743b9b5ddc6f51022646b7a8cae5649afbf10bd3d28a5c11a74a9916e651";
@@ -61,7 +62,18 @@ const createBetHandler = async (event: APIGatewayEvent) => {
     logger.error((e as Error).message, e as Error);
   }
 
-  // const notificationsService = new NotificationsService();
+  const notificationsService = new NotificationsService();
+  try {
+    await Promise.all(
+      bets.map((bet) =>
+        notificationsService.sendSlackBetUpdate(
+          `New Bet Created: https://degenmarkets.com/bets/${bet.id}`,
+        ),
+      ),
+    );
+  } catch (e) {
+    logger.error("Error sending slack message(s)", e as Error);
+  }
   // try {
   //   await Promise.all(
   //     bets.map((bet) =>

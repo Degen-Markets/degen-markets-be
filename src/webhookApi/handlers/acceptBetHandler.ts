@@ -9,6 +9,7 @@ import {
   AcceptBetSqsEvent,
   AcceptBetWebhookEvent,
 } from "../types/AcceptBetTypes";
+import NotificationsService from "../../notifications/NotificationsService";
 
 const BET_ACCEPTED_TOPIC =
   "0x4c46eda80d7fbf5e1590d2b15e357a3f95a6ad2634b453013e4dad9d726ddc9c";
@@ -54,6 +55,19 @@ const acceptBetHandler = async (event: APIGatewayEvent) => {
     });
   } catch (e) {
     logger.error((e as Error).message, e as Error);
+  }
+
+  const notificationsService = new NotificationsService();
+  try {
+    await Promise.all(
+      bets.map((bet) =>
+        notificationsService.sendTelegramMessage(
+          `Bet Accepted: https://degenmarkets.com/bets/${bet.id}`,
+        ),
+      ),
+    );
+  } catch (e) {
+    logger.error("Error sending accept bet tg messages", e as Error);
   }
   return 200;
 };

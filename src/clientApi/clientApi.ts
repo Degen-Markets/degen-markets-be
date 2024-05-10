@@ -39,6 +39,15 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     }),
   },
   {
+    method: "GET",
+    path: "/bets/{id}",
+    handler: middy().handler(async (event: APIGatewayEvent) => {
+      const bets = await betService.findBetById(event.pathParameters);
+      logger.info("loading bet by id");
+      return buildOkResponse(bets);
+    }),
+  },
+  {
     method: "ANY",
     path: "/{proxy+}",
     handler: notFoundHandler,

@@ -1,7 +1,10 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { DatabaseClient } from "../clients/DatabaseClient";
 import { BetEntity } from "./BetEntity";
-import { APIGatewayProxyEventQueryStringParameters } from "aws-lambda/trigger/api-gateway-proxy";
+import {
+  APIGatewayProxyEventPathParameters,
+  APIGatewayProxyEventQueryStringParameters,
+} from "aws-lambda/trigger/api-gateway-proxy";
 import { WithdrawBetSqsEvent } from "../webhookApi/types/WithdrawBetTypes";
 import { CreateBetSqsEvent } from "../webhookApi/types/CreateBetTypes";
 import { isNumeric } from "../utils/numbers";
@@ -30,6 +33,20 @@ export class BetService {
       default:
         return '"lastActivityTimestamp"';
     }
+  };
+
+  findBetById = async (
+    pathParameters: APIGatewayProxyEventPathParameters | null,
+  ): Promise<BetEntity> => {
+    this.logger.info(
+      `Finding bet by id. With path params: ${JSON.stringify(pathParameters)}`,
+    );
+
+    let query = "SELECT * FROM bets WHERE id = $1";
+    const values: any[] = [pathParameters?.id];
+
+    const response = await this.databaseClient.executeStatement(query, values);
+    return response.rows[0];
   };
 
   findBets = async (

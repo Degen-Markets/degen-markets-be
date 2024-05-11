@@ -15,6 +15,7 @@ deploy:
     		ClientApi \
     		WebhookApi \
     		Settlement \
+    		QuotesImporter \
     		--profile ${AWS_PROFILE} \
     		--require-approval never
 

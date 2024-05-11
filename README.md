@@ -4,7 +4,7 @@ This repo contains the entire infrastructure for the degen markets project.
 
 ## Architecture
 
-![](docs/arch-overview.png)
+![](docs/arch-overview.drawio.png)
 
 ### Endpoints
 

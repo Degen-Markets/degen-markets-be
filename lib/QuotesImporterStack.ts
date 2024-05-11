@@ -36,10 +36,11 @@ export class QuotesImporterStack extends TaggedStack {
         DATABASE_HOST: database.instanceEndpoint.hostname,
         DATABASE_PORT: database.instanceEndpoint.port.toString(),
         CMC_API_KEY: getMandatoryEnvVariable("CMC_API_KEY"),
+        // LIVECOINWATCH_API_KEY: getMandatoryEnvVariable("LIVECOINWATCH_API_KEY"),
       },
       memorySize: 256,
       functionName: "Importer",
-      entry: path.join(__dirname, "../src/settlement/settler.ts"),
+      entry: path.join(__dirname, "../src/quotes/handler.ts"),
       logRetention: RetentionDays.ONE_MONTH,
       handler: "handler",
       vpc,
@@ -67,15 +68,16 @@ export class QuotesImporterStack extends TaggedStack {
     securityGroup.connections.allowFrom(
       importerLambda,
       Port.tcp(5432),
-      "Settlement lambda access",
+      "Quotes importer lambda access",
     );
     database.secret?.grantRead(importerLambda);
 
-    const rule = new Rule(this, "SettlementScheduler", {
-      description: "Settlement scheduler",
+    const rule = new Rule(this, "QuotesImporterScheduler", {
+      description: "Quotes Importer scheduler",
       schedule: Schedule.rate(Duration.minutes(1)),
-      ruleName: "SettlementScheduler",
+      ruleName: "QuotesImporterScheduler",
     });
+
     rule.addTarget(new LambdaFunction(importerLambda));
   }
 }

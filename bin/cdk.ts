@@ -68,7 +68,7 @@ new SettlementStack(app, "Settlement", {
   env: getEnv(),
 });
 
-new QuotesImporterStack(app, "StrikePrice", {
+new QuotesImporterStack(app, "QuotesImporter", {
   vpc,
   kmsKey: kmsKey,
   database: databaseInstance,

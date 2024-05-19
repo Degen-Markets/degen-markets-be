@@ -69,3 +69,14 @@ cli_pager =
 ## Testing
 
 Example test which mocks an AWS service can be found in `src/clients/SecretClient.test.ts`
+
+### BE Changes:
+
+- bet-created handler will store new fields (`betType`, `strikePriceCreator`)
+- new column isPaid
+- bet-accepted will store new fields (`strikePriceAcceptor`)
+- bet-won handler
+- bet-settled handler
+- bet-withdrawn handler (should set bet `isPaid = true`)
+- bet-paid handler
+- settler should have separate settle logic for each betType

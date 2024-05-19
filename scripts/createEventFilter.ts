@@ -11,7 +11,7 @@ axios.post(
   {
     network: "BASE_MAINNET",
     webhook_type: "GRAPHQL",
-    webhook_url: "https://webhooks.degenmarkets.com/notify-create-bet",
+    webhook_url: "https://webhooks.degenmarkets.com/create-bet",
     graphql_query: {
       skip_empty_messages: true,
       query,

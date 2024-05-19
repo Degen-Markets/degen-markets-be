@@ -39,7 +39,7 @@ export class QuotesImporterStack extends TaggedStack {
         // LIVECOINWATCH_API_KEY: getMandatoryEnvVariable("LIVECOINWATCH_API_KEY"),
       },
       memorySize: 256,
-      functionName: "Importer",
+      functionName: "QuotesImporter",
       entry: path.join(__dirname, "../src/quotes/handler.ts"),
       logRetention: RetentionDays.ONE_MONTH,
       handler: "handler",

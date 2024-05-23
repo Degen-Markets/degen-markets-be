@@ -14,6 +14,7 @@ import acceptBetHandler from "./handlers/acceptBetHandler";
 import withdrawBetHandler from "./handlers/withdrawBetHandler";
 import settleBetHandler from "./handlers/settleBetHandler";
 import betCreatedHandler from "./handlers/betCreatedHandler";
+import betAcceptedHandler from "./handlers/betAcceptedHandler";
 
 const logger: Logger = new Logger({ serviceName: "webhookApi" });
 
@@ -50,6 +51,11 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     method: "POST",
     path: "/accept-bet",
     handler: middy().handler(acceptBetHandler),
+  },
+  {
+    method: "POST",
+    path: "/bet-accepted",
+    handler: middy().handler(betAcceptedHandler),
   },
   {
     method: "POST",

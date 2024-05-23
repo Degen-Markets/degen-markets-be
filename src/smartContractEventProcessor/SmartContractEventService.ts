@@ -31,20 +31,24 @@ export class SmartContractEventService {
   };
 
   handleAcceptBets = async (acceptBetSqsEvents: BetAcceptedSqsEvents) => {
-    await this.betService.acceptBets(
-      await Promise.all(
-        acceptBetSqsEvents.bets.map(async (bet) => {
-          const storedBet = await this.betService.findOne(bet.id);
-          return {
-            ...bet,
-            startingMetricValue: await this.quotesService.getLatestQuote(
-              getCmcId(storedBet.ticker),
-              storedBet.metric,
-            ),
-          };
-        }),
-      ),
+    const bets = await Promise.all(
+      acceptBetSqsEvents.bets.map(async (bet) => {
+        const storedBet = await this.betService.findOne(bet.id);
+        return {
+          ...bet,
+          startingMetricValue: await this.quotesService.getLatestQuote(
+            getCmcId(storedBet.ticker),
+            storedBet.metric,
+          ),
+        };
+      }),
     );
+    try {
+      await this.betService.acceptV2Bets(bets);
+    } catch (e) {
+      this.logger.error(`Error inserting V2 Bet:`, e as Error);
+      await this.betService.acceptBets(bets);
+    }
   };
 
   handleWithdrawBets = async (withdrawBetSqsEvents: WithdrawBetSqsEvents) => {

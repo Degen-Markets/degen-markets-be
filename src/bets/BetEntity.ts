@@ -3,6 +3,7 @@ import { UUID } from "crypto";
 
 export type BetEntity = {
   id: UUID;
+  betType: string;
   creator: Hex;
   creationTimestamp: number;
   acceptor?: Hex;
@@ -18,5 +19,8 @@ export type BetEntity = {
   winner?: Hex;
   winTimestamp?: number;
   isWithdrawn: boolean;
+  isPaid: boolean;
   withdrawalTimestamp?: number;
+  strikePriceCreator?: string | null;
+  strikePriceAcceptor?: string | null;
 };

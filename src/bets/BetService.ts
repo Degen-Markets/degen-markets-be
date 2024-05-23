@@ -221,6 +221,41 @@ export class BetService {
     }
   };
 
+  acceptV2Bets = async (
+    bets: Partial<BetEntity>[],
+  ): Promise<BetEntity[] | null> => {
+    try {
+      const statements = bets.map(
+        () => `
+        UPDATE bets
+        SET acceptor = $1,
+            "acceptanceTimestamp" = $2,
+            "lastActivityTimestamp" = $2,
+            "startingMetricValue" = $3,
+            "strikePriceAcceptor" = $4
+        WHERE id = $5;
+      `,
+      );
+
+      const updateValues = bets.map((bet) => [
+        bet.acceptor,
+        bet.acceptanceTimestamp,
+        bet.startingMetricValue,
+        bet.strikePriceAcceptor,
+        bet.id,
+      ]);
+
+      const results = await this.databaseClient.executeStatements(
+        statements,
+        updateValues,
+      );
+      return results.map((result) => result.rows[0]);
+    } catch (e) {
+      this.logger.error((e as Error).message, e as Error);
+      return null;
+    }
+  };
+
   withdrawBets = async (
     bets: WithdrawBetSqsEvent[],
   ): Promise<BetEntity[] | null> => {

@@ -12,7 +12,7 @@ import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import NotificationsService from "../../notifications/NotificationsService";
 
 const BET_CREATED_TOPIC =
-  "0xd99412f51ed34f3813c2b4286a0051ba4538cba43788114d8ea0dd6c427663fb";
+  "0x9a0204d7d0a90e95e52d820bb9bd7713c5dc79105b86cfe6073c827a88b999bb";
 
 const betCreatedHandler = async (event: APIGatewayEvent) => {
   const sqs = new SQS();
@@ -34,6 +34,7 @@ const betCreatedHandler = async (event: APIGatewayEvent) => {
     }).args as unknown as BetCreatedContractEvent;
     return {
       ...args,
+      creator: log.transaction.from.address,
       creationTimestamp: Number(args.creationTimestamp.toString()),
       expirationTimestamp: Number(args.expirationTimestamp.toString()),
       value: Number(

@@ -8,7 +8,7 @@ import {
 } from "./smartContractEventTypes";
 import { BetCreatedSqsEvents } from "../webhookApi/types/BetCreatedTypes";
 import { BetService } from "../bets/BetService";
-import { AcceptBetSqsEvents } from "../webhookApi/types/AcceptBetTypes";
+import { BetAcceptedSqsEvents } from "../webhookApi/types/BetAcceptedTypes";
 import { WithdrawBetSqsEvents } from "../webhookApi/types/WithdrawBetTypes";
 import { QuotesService } from "../quotes/QuotesService";
 import { getCmcId } from "../utils/cmcApi";
@@ -30,7 +30,7 @@ export class SmartContractEventService {
     }
   };
 
-  handleAcceptBets = async (acceptBetSqsEvents: AcceptBetSqsEvents) => {
+  handleAcceptBets = async (acceptBetSqsEvents: BetAcceptedSqsEvents) => {
     await this.betService.acceptBets(
       await Promise.all(
         acceptBetSqsEvents.bets.map(async (bet) => {

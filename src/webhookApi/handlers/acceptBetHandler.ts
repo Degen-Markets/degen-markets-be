@@ -5,10 +5,10 @@ import DEGEN_BETS_ABI from "../../../resources/abi/DegenBetsAbi.json";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { APIGatewayEvent } from "aws-lambda";
 import {
-  AcceptBetContractEvent,
-  AcceptBetSqsEvent,
-  AcceptBetWebhookEvent,
-} from "../types/AcceptBetTypes";
+  BetAcceptedContractEvent,
+  BetAcceptedSqsEvent,
+  BetAcceptedWebhookEvent,
+} from "../types/BetAcceptedTypes";
 import NotificationsService from "../../notifications/NotificationsService";
 
 const BET_ACCEPTED_TOPIC =
@@ -22,7 +22,7 @@ const acceptBetHandler = async (event: APIGatewayEvent) => {
   logger.info(`received accept bet event: ${event.body}`);
   const acceptBetEvent = JSON.parse(
     event.body || "{}",
-  ) as AcceptBetWebhookEvent;
+  ) as BetAcceptedWebhookEvent;
 
   const bets = acceptBetEvent.event.data.block.logs.map((log) => {
     const eventLog = decodeEventLog({
@@ -33,10 +33,10 @@ const acceptBetHandler = async (event: APIGatewayEvent) => {
       topics: [BET_ACCEPTED_TOPIC],
     });
     return {
-      id: (eventLog.args as unknown as AcceptBetContractEvent).id,
+      id: (eventLog.args as unknown as BetAcceptedContractEvent).id,
       acceptor: log.transaction.from.address,
       acceptanceTimestamp: Number(acceptBetEvent.event.data.block.timestamp),
-    } as AcceptBetSqsEvent;
+    } as BetAcceptedSqsEvent;
   });
   try {
     const messageGroupId = getMandatoryEnvVariable("MESSAGE_GROUP_ID");

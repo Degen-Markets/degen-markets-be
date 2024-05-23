@@ -90,12 +90,6 @@
       },
       {
         "indexed": false,
-        "internalType": "address",
-        "name": "acceptor",
-        "type": "address"
-      },
-      {
-        "indexed": false,
         "internalType": "string",
         "name": "strikePriceAcceptor",
         "type": "string"
@@ -118,12 +112,6 @@
         "internalType": "string",
         "name": "betType",
         "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
       },
       {
         "indexed": false,

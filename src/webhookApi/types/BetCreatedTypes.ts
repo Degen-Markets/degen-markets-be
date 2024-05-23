@@ -34,7 +34,6 @@ export type BetCreatedWebhookEvent = {
 export type BetCreatedContractEvent = {
   id: UUID;
   betType: string;
-  creator: Hex;
   creationTimestamp: bigint;
   ticker: string;
   metric: string;

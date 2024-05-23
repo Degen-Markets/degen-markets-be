@@ -1,4 +1,4 @@
-import { CreateBetSqsEvents } from "../webhookApi/types/CreateBetTypes";
+import { BetCreatedSqsEvents } from "../webhookApi/types/BetCreatedTypes";
 import { UUID } from "crypto";
 import { AcceptBetSqsEvents } from "../webhookApi/types/AcceptBetTypes";
 import { WithdrawBetSqsEvents } from "../webhookApi/types/WithdrawBetTypes";
@@ -15,7 +15,7 @@ export type SmartContractEvents = {
 
 export const isCreateBetSqsEvent = (
   smartContractEvents: SmartContractEvents,
-): smartContractEvents is CreateBetSqsEvents =>
+): smartContractEvents is BetCreatedSqsEvents =>
   smartContractEvents.eventName === "BetCreated";
 
 export const isAcceptBetSqsEvent = (

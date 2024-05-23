@@ -6,7 +6,7 @@ import {
   isWithdrawBetSqsEvent,
   SmartContractEvents,
 } from "./smartContractEventTypes";
-import { CreateBetSqsEvents } from "../webhookApi/types/CreateBetTypes";
+import { BetCreatedSqsEvents } from "../webhookApi/types/BetCreatedTypes";
 import { BetService } from "../bets/BetService";
 import { AcceptBetSqsEvents } from "../webhookApi/types/AcceptBetTypes";
 import { WithdrawBetSqsEvents } from "../webhookApi/types/WithdrawBetTypes";
@@ -21,8 +21,13 @@ export class SmartContractEventService {
 
   private betService = new BetService();
   private quotesService = new QuotesService();
-  handleCreateBets = async (createBetSqsEvents: CreateBetSqsEvents) => {
-    await this.betService.createBets(createBetSqsEvents.bets);
+  handleCreateBets = async (createBetSqsEvents: BetCreatedSqsEvents) => {
+    try {
+      await this.betService.createV2Bets(createBetSqsEvents.bets);
+    } catch (e) {
+      this.logger.error(`Error inserting V2 Bet:`, e as Error);
+      await this.betService.createBets(createBetSqsEvents.bets);
+    }
   };
 
   handleAcceptBets = async (acceptBetSqsEvents: AcceptBetSqsEvents) => {

@@ -6,7 +6,7 @@ import {
   APIGatewayProxyEventQueryStringParameters,
 } from "aws-lambda/trigger/api-gateway-proxy";
 import { WithdrawBetSqsEvent } from "../webhookApi/types/WithdrawBetTypes";
-import { CreateBetSqsEvent } from "../webhookApi/types/CreateBetTypes";
+import { BetCreatedSqsEvent } from "../webhookApi/types/BetCreatedTypes";
 import { isNumeric } from "../utils/numbers";
 import { SettleBetSqsEvent } from "../webhookApi/types/SettleBetTypes";
 
@@ -102,7 +102,7 @@ export class BetService {
   };
 
   createBets = async (
-    bets: CreateBetSqsEvent[],
+    bets: BetCreatedSqsEvent[],
   ): Promise<BetEntity[] | null> => {
     this.logger.info(`creating bet rows`);
     try {
@@ -143,6 +143,49 @@ export class BetService {
       this.logger.error((e as Error).message, e as Error);
       return null;
     }
+  };
+
+  createV2Bets = async (
+    bets: BetCreatedSqsEvent[],
+  ): Promise<BetEntity[] | null> => {
+    this.logger.info(`creating bet rows`);
+    const values = bets.map(
+      () => `($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+    );
+    const insertValues = bets.flatMap((bet) => [
+      bet.id,
+      bet.betType,
+      bet.creator,
+      bet.creationTimestamp,
+      bet.ticker,
+      bet.metric,
+      bet.isBetOnUp,
+      bet.expirationTimestamp,
+      bet.value,
+      bet.currency,
+      bet.creationTimestamp,
+      bet.strikePriceCreator,
+    ]);
+
+    const response = await this.databaseClient.executeStatement(
+      `INSERT INTO bets (
+          id,
+          "type",
+          creator,
+          "creationTimestamp",
+          ticker,
+          metric,
+          "isBetOnUp",
+          "expirationTimestamp",
+          value,
+          currency,
+          "lastActivityTimestamp",
+          "strikePriceCreator"
+        ) VALUES ${values.join(", ")};`,
+      insertValues,
+    );
+
+    return response.rows; // Assuming your response contains inserted rows, adjust if needed
   };
 
   acceptBets = async (

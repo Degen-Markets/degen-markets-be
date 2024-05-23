@@ -1,0 +1,24 @@
+query {
+  block {
+    hash
+    logs(
+      filter: {
+        addresses: ["0x2d235faaf865be61021d26b0ccc244ffcb023a96"]
+        topics: [
+          ["0xd99412f51ed34f3813c2b4286a0051ba4538cba43788114d8ea0dd6c427663fb"]
+        ]
+      }
+    ) {
+      data
+      topics
+      transaction {
+        hash
+        from {
+          address
+        }
+        value
+        status
+      }
+    }
+  }
+}

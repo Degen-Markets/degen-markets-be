@@ -42,3 +42,14 @@ $$;
 
 UPDATE bets SET "isPaid" = true WHERE "isWithdrawn" = true;
 UPDATE bets SET "isPaid" = true WHERE "winner" IS NOT NULL;
+
+DO $$
+    BEGIN
+        ALTER TABLE bets ADD COLUMN chain VARCHAR(10) NOT NULL DEFAULT 'base';
+    EXCEPTION
+        WHEN duplicate_column THEN RAISE NOTICE 'Column "chain" already exists in bets.';
+    END
+$$;
+
+CREATE INDEX IF NOT EXISTS "idx_chain" ON bets("chain");
+CREATE INDEX IF NOT EXISTS "idx_type" ON bets("type");

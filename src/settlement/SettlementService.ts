@@ -73,10 +73,11 @@ export class SettlementService {
     const v2Bets: BetEntity[] = [];
 
     for (const bet of betsToSettle) {
-      let winner: Address | undefined = undefined;
+      let winner: Address | null = null;
+      let endingMetricValue: string | null = null;
       try {
         this.logger.info("Calling coinmarketcap api");
-        const endingMetricValue = await this.quotesService.getLatestQuote(
+        endingMetricValue = await this.quotesService.getLatestQuote(
           getCmcId(bet.ticker),
           bet.metric,
         );
@@ -102,11 +103,12 @@ export class SettlementService {
         );
       }
 
-      if (!!winner) {
+      if (!!winner && !!endingMetricValue) {
         if (this.isBetV2(bet)) {
           v2Bets.push({
             ...bet,
             winner,
+            endingMetricValue,
           });
         } else {
           try {
@@ -156,6 +158,10 @@ export class SettlementService {
       } catch (e) {
         this.logger.error(`setWinners tx failed!`, e as Error);
       }
+
+      try {
+        this.betService;
+      } catch (e) {}
     }
 
     try {

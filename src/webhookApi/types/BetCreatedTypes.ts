@@ -55,6 +55,7 @@ export interface BetCreatedSqsEvent extends SmartContractEventBody {
   strikePriceCreator: string;
   value: number;
   currency: Hex;
+  chain: string;
 }
 
 export interface BetCreatedSqsEvents extends SmartContractEvents {

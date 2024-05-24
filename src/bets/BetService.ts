@@ -150,7 +150,7 @@ export class BetService {
   ): Promise<BetEntity[] | null> => {
     this.logger.info(`creating bet rows`);
     const values = bets.map(
-      () => `($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+      () => `($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
     );
     const insertValues = bets.flatMap((bet) => [
       bet.id,
@@ -165,6 +165,7 @@ export class BetService {
       bet.currency,
       bet.creationTimestamp,
       bet.strikePriceCreator,
+      bet.chain,
     ]);
 
     const response = await this.databaseClient.executeStatement(
@@ -180,7 +181,8 @@ export class BetService {
           value,
           currency,
           "lastActivityTimestamp",
-          "strikePriceCreator"
+          "strikePriceCreator",
+          chain
         ) VALUES ${values.join(", ")};`,
       insertValues,
     );

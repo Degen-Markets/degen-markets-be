@@ -15,10 +15,13 @@ const BET_CREATED_TOPIC =
   "0x9a0204d7d0a90e95e52d820bb9bd7713c5dc79105b86cfe6073c827a88b999bb";
 
 const betCreatedHandler = async (event: APIGatewayEvent) => {
-  const sqs = new SQS();
   const logger = new Logger({
     serviceName: "BetCreatedHandler",
   });
+  const queryParams = event.queryStringParameters;
+  const chain = queryParams?.chain;
+  logger.info(`Creating bet on chain ${chain}`);
+  const sqs = new SQS();
   logger.info(`received BetCreated event: ${event.body}`);
   const betCreatedEvent = JSON.parse(
     event.body || "{}",
@@ -34,6 +37,7 @@ const betCreatedHandler = async (event: APIGatewayEvent) => {
     }).args as unknown as BetCreatedContractEvent;
     return {
       ...args,
+      chain,
       creator: log.transaction.from.address,
       creationTimestamp: Number(args.creationTimestamp.toString()),
       expirationTimestamp: Number(args.expirationTimestamp.toString()),

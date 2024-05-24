@@ -41,6 +41,7 @@ export class SettlementStack extends TaggedStack {
         CMC_API_KEY: getMandatoryEnvVariable("CMC_API_KEY"),
         BASE_RPC_URL: getMandatoryEnvVariable("BASE_RPC_URL"),
         DEGEN_BETS_ADDRESS: getMandatoryEnvVariable("DEGEN_BETS_ADDRESS"),
+        DEGEN_BETS_V2_ADDRESS: getMandatoryEnvVariable("DEGEN_BETS_V2_ADDRESS"),
       },
       memorySize: 256,
       functionName: `Settler`,

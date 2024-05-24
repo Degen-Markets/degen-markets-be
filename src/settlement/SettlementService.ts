@@ -15,7 +15,9 @@ import {
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 import DEGEN_BETS_ABI from "../../resources/abi/DegenBetsAbi.json";
+import DEGEN_BETS_V2_ABI from "../../resources/abi/DegenBetsV2Abi.json";
 import NotificationsService from "../notifications/NotificationsService";
+import { BetEntity } from "../bets/BetEntity";
 
 export class SettlementService {
   private readonly logger = new Logger({ serviceName: "SettlementService" });
@@ -26,6 +28,11 @@ export class SettlementService {
   private readonly rpcUrl = getMandatoryEnvVariable("BASE_RPC_URL");
   private readonly degenBetsAddress =
     getMandatoryEnvVariable<`0x${string}`>("DEGEN_BETS_ADDRESS");
+  private readonly degenBetsV2Address = getMandatoryEnvVariable<`0x${string}`>(
+    "DEGEN_BETS_V2_ADDRESS",
+  );
+
+  isBetV2 = (bet: BetEntity) => bet.strikePriceCreator !== null;
 
   handleSettlement = async () => {
     const privateKey =
@@ -44,6 +51,11 @@ export class SettlementService {
 
     this.logger.info(`found ${betsToSettle.length} bet(s) to settle`);
 
+    if (betsToSettle.length === 0) {
+      this.logger.info("No bets to settle, closing lambda");
+      return;
+    }
+
     const account = privateKeyToAccount(privateKey);
     this.logger.info(`using account ${account.address} to send funds`);
 
@@ -58,6 +70,8 @@ export class SettlementService {
       transport: http(this.rpcUrl),
     });
 
+    const v2Bets: BetEntity[] = [];
+
     for (const bet of betsToSettle) {
       let winner: Address | undefined = undefined;
       try {
@@ -70,8 +84,10 @@ export class SettlementService {
           `For bet ${bet.id} Ending metric value is: ${endingMetricValue}, startingMetric was: ${bet.startingMetricValue}`,
         );
         if (
-          bet.isBetOnUp &&
-          Number(endingMetricValue) > Number(bet.startingMetricValue)
+          (bet.isBetOnUp &&
+            Number(endingMetricValue) > Number(bet.startingMetricValue)) ||
+          (!bet.isBetOnUp &&
+            Number(endingMetricValue) < Number(bet.startingMetricValue))
         ) {
           this.logger.info(`Bet won by creator ${bet.creator}`);
           winner = bet.creator;
@@ -87,45 +103,76 @@ export class SettlementService {
       }
 
       if (!!winner) {
-        try {
-          this.logger.info(`transferring funds to winner ${winner}`);
-
-          const hash = await client.writeContract({
-            address: this.degenBetsAddress,
-            abi: DEGEN_BETS_ABI,
-            functionName: "settleBet",
-            args: [bet.id, winner],
+        if (this.isBetV2(bet)) {
+          v2Bets.push({
+            ...bet,
+            winner,
           });
+        } else {
+          try {
+            this.logger.info(`transferring funds to winner ${winner}`);
 
-          this.logger.info(`settleBet transaction sent: ${hash}`);
+            const hash = await client.writeContract({
+              address: this.degenBetsAddress,
+              abi: DEGEN_BETS_ABI,
+              functionName: "settleBet",
+              args: [bet.id, winner],
+            });
 
-          await publicClient.waitForTransactionReceipt({
-            hash,
-          });
+            this.logger.info(`settleBet transaction sent: ${hash}`);
 
-          this.logger.info(`settleBet transaction completed: ${hash}`);
-        } catch (e) {
-          this.logger.error(`settling bet failed!`, e as Error);
+            await publicClient.waitForTransactionReceipt({
+              hash,
+            });
+
+            this.logger.info(`settleBet transaction completed: ${hash}`);
+          } catch (e) {
+            this.logger.error(`settling bet failed!`, e as Error);
+          }
         }
       }
     }
-    if (betsToSettle && betsToSettle.length > 0) {
+
+    if (v2Bets.length > 0) {
+      const winners = v2Bets.map((bet) => bet.winner);
+      const betIds = v2Bets.map((bet) => bet.id);
       try {
-        const balance = await publicClient.getBalance({
-          address: account.address,
+        this.logger.info(`Setting winners for ${v2Bets.length} bets`);
+
+        const hash = await client.writeContract({
+          address: this.degenBetsV2Address,
+          abi: DEGEN_BETS_V2_ABI,
+          functionName: "setWinners",
+          args: [betIds, winners],
         });
-        const balanceInEth = formatEther(balance);
-        this.logger.info(`Balance after settlements: ${balanceInEth}`);
-        const notificationService = new NotificationsService();
-        await notificationService.sendSlackBalanceUpdate(
-          `Current Balance of settling wallet: *${Number(balanceInEth).toFixed(4)} ETH*.\n\nTo fund, send base ETH to ${account.address}.\n\n-------------------------------------------------------------------------------------`,
-        );
+
+        this.logger.info(`setWinners tx sent: ${hash}`);
+
+        await publicClient.waitForTransactionReceipt({
+          hash,
+        });
+
+        this.logger.info(`setWinners tx completed: ${hash}`);
       } catch (e) {
-        this.logger.error(
-          "Error in fetching & sending balance update",
-          e as Error,
-        );
+        this.logger.error(`setWinners tx failed!`, e as Error);
       }
+    }
+
+    try {
+      const balance = await publicClient.getBalance({
+        address: account.address,
+      });
+      const balanceInEth = formatEther(balance);
+      this.logger.info(`Balance after settlements: ${balanceInEth}`);
+      const notificationService = new NotificationsService();
+      await notificationService.sendSlackBalanceUpdate(
+        `Current Balance of settling wallet: *${Number(balanceInEth).toFixed(4)} ETH*.\n\nTo fund, send base ETH to ${account.address}.\n\n-------------------------------------------------------------------------------------`,
+      );
+    } catch (e) {
+      this.logger.error(
+        "Error in fetching & sending balance update",
+        e as Error,
+      );
     }
   };
 }

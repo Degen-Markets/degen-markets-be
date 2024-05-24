@@ -34,7 +34,7 @@ $$;
 
 DO $$
     BEGIN
-        ALTER TABLE bets ADD COLUMN "isPaid" VARCHAR(20) NOT NULL DEFAULT false;
+        ALTER TABLE bets ADD COLUMN "isPaid" BOOLEAN NOT NULL DEFAULT false;
     EXCEPTION
         WHEN duplicate_column THEN RAISE NOTICE 'Column "isPaid" already exists in bets.';
     END

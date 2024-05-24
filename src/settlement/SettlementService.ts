@@ -103,11 +103,14 @@ export class SettlementService {
         );
       }
 
+      const winTimestamp = Math.ceil(Date.now() / 1000);
+
       if (!!winner && !!endingMetricValue) {
         if (this.isBetV2(bet)) {
           v2Bets.push({
             ...bet,
             winner,
+            winTimestamp,
             endingMetricValue,
           });
         } else {
@@ -160,8 +163,10 @@ export class SettlementService {
       }
 
       try {
-        this.betService;
-      } catch (e) {}
+        await this.betService.settleV2Bets(v2Bets);
+      } catch (e) {
+        this.logger.error("Setting winners on db failed", e as Error);
+      }
     }
 
     try {

@@ -40,9 +40,6 @@ DO $$
     END
 $$;
 
-UPDATE bets SET "isPaid" = true WHERE "isWithdrawn" = true;
-UPDATE bets SET "isPaid" = true WHERE "winner" IS NOT NULL;
-
 DO $$
     BEGIN
         ALTER TABLE bets ADD COLUMN chain VARCHAR(10) NOT NULL DEFAULT 'base';

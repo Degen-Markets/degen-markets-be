@@ -285,6 +285,32 @@ export class BetService {
     }
   };
 
+  settleV2Bets = async (bets: BetEntity[]) => {
+    const statements = bets.map(
+      () => `
+        UPDATE bets
+        SET "winner" = $1,
+            "winTimestamp" = $2,
+            "lastActivityTimestamp" = $2,
+            "endingMetricValue" = $3
+        WHERE id = $4;
+      `,
+    );
+
+    const updateValues = bets.map((bet) => [
+      bet.winner,
+      bet.winTimestamp,
+      bet.endingMetricValue,
+      bet.id,
+    ]);
+
+    const results = await this.databaseClient.executeStatements(
+      statements,
+      updateValues,
+    );
+    return results.map((result) => result.rows[0]);
+  };
+
   settleBets = async (bets: SettleBetSqsEvent[]) => {
     try {
       const statements = bets.map(

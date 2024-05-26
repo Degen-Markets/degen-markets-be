@@ -60,9 +60,10 @@ export class BetService {
     let query = "SELECT * FROM bets";
     const values: any[] = [];
 
-    if (queryStringParameters?.creator) {
-      query += " WHERE LOWER(creator) = LOWER($1)";
-      values.push(queryStringParameters.creator);
+    if (queryStringParameters?.address) {
+      query +=
+        " WHERE LOWER(creator) = LOWER($1) OR LOWER(acceptor) = LOWER($1)";
+      values.push(queryStringParameters.address);
     }
 
     if (queryStringParameters?.sort) {

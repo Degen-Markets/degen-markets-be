@@ -9,7 +9,7 @@ import {
   BetAcceptedSqsEvent,
   BetAcceptedWebhookEvent,
 } from "../types/BetAcceptedTypes";
-import NotificationsService from "../../notifications/NotificationsService";
+import { sendTelegramMessage } from "../../notifications/NotificationsService";
 
 const BET_ACCEPTED_TOPIC =
   "0x85b053dc6ea92023daa993ba2b8798963198248b43277234da5187e757c6ab94";
@@ -60,11 +60,10 @@ const betAccepted = async (event: APIGatewayEvent) => {
     logger.error((e as Error).message, e as Error);
   }
 
-  const notificationsService = new NotificationsService();
   try {
     await Promise.all(
       bets.map((bet) =>
-        notificationsService.sendTelegramMessage(
+        sendTelegramMessage(
           `Bet Accepted: https://degenmarkets.com/bets/${bet.id}`,
         ),
       ),

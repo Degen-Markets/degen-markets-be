@@ -16,8 +16,8 @@ import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 import DEGEN_BETS_ABI from "../../resources/abi/DegenBetsAbi.json";
 import DEGEN_BETS_V2_ABI from "../../resources/abi/DegenBetsV2Abi.json";
-import NotificationsService from "../notifications/NotificationsService";
 import { BetEntity } from "../bets/BetEntity";
+import { sendSlackBalanceUpdate } from "../notifications/NotificationsService";
 
 export class SettlementService {
   private readonly logger = new Logger({ serviceName: "SettlementService" });
@@ -175,8 +175,7 @@ export class SettlementService {
       });
       const balanceInEth = formatEther(balance);
       this.logger.info(`Balance after settlements: ${balanceInEth}`);
-      const notificationService = new NotificationsService();
-      await notificationService.sendSlackBalanceUpdate(
+      await sendSlackBalanceUpdate(
         `Current Balance of settling wallet: *${Number(balanceInEth).toFixed(4)} ETH*.\n\nTo fund, send base ETH to ${account.address}.\n\n-------------------------------------------------------------------------------------`,
       );
     } catch (e) {

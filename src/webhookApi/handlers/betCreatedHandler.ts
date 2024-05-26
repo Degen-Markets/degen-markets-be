@@ -9,7 +9,7 @@ import DEGEN_BETS_V2_ABI from "../../../resources/abi/DegenBetsV2Abi.json";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
-import NotificationsService from "../../notifications/NotificationsService";
+import { sendTelegramMessage } from "../../notifications/NotificationsService";
 
 const BET_CREATED_TOPIC =
   "0x9a0204d7d0a90e95e52d820bb9bd7713c5dc79105b86cfe6073c827a88b999bb";
@@ -67,11 +67,10 @@ const betCreatedHandler = async (event: APIGatewayEvent) => {
     logger.error((e as Error).message, e as Error);
   }
 
-  const notificationsService = new NotificationsService();
   try {
     await Promise.all(
       bets.map((bet) =>
-        notificationsService.sendTelegramMessage(
+        sendTelegramMessage(
           `New Bet Created: https://degenmarkets.com/bets/${bet.id}`,
         ),
       ),

@@ -2,20 +2,17 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import middy from "@middy/core";
 import { SettlementService } from "./SettlementService";
-import NotificationsService from "../notifications/NotificationsService";
+import { sendTelegramMessage } from "../notifications/NotificationsService";
 
 const logger = new Logger({ serviceName: "settler" });
 const settlementService = new SettlementService();
 
 export const handleSettlement = async () => {
   const bets = await settlementService.handleSettlement();
-  const notificationsService = new NotificationsService();
   try {
     await Promise.all(
       bets.map((bet) =>
-        notificationsService.sendTelegramMessage(
-          `Bet Won: https://degenmarkets.com/bets/${bet.id}`,
-        ),
+        sendTelegramMessage(`Bet Won: https://degenmarkets.com/bets/${bet.id}`),
       ),
     );
   } catch (e) {

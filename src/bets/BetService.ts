@@ -325,7 +325,8 @@ export class BetService {
         UPDATE bets
         SET "winner" = $1,
             "winTimestamp" = $2,
-            "lastActivityTimestamp" = $2
+            "lastActivityTimestamp" = $2,
+            "isPaid" = true
         WHERE id = $3;
       `,
       );

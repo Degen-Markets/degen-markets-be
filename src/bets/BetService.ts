@@ -103,50 +103,6 @@ export class BetService {
     return response.rows;
   };
 
-  createBets = async (
-    bets: BetCreatedSqsEvent[],
-  ): Promise<BetEntity[] | null> => {
-    this.logger.info(`creating bet rows`);
-    try {
-      const values = bets.map(
-        () => `($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      );
-      const insertValues = bets.flatMap((bet) => [
-        bet.id,
-        bet.creator,
-        bet.creationTimestamp,
-        bet.ticker,
-        bet.metric,
-        bet.isBetOnUp,
-        bet.expirationTimestamp,
-        bet.value,
-        bet.currency,
-        bet.creationTimestamp,
-      ]);
-
-      const response = await this.databaseClient.executeStatement(
-        `INSERT INTO bets (
-          id,
-          creator,
-          "creationTimestamp",
-          ticker,
-          metric,
-          "isBetOnUp",
-          "expirationTimestamp",
-          value,
-          currency,
-          "lastActivityTimestamp"
-        ) VALUES ${values.join(", ")};`,
-        insertValues,
-      );
-
-      return response.rows; // Assuming your response contains inserted rows, adjust if needed
-    } catch (e) {
-      this.logger.error((e as Error).message, e as Error);
-      return null;
-    }
-  };
-
   createV2Bets = async (
     bets: BetCreatedSqsEvent[],
   ): Promise<BetEntity[] | null> => {
@@ -190,39 +146,6 @@ export class BetService {
     );
 
     return response.rows; // Assuming your response contains inserted rows, adjust if needed
-  };
-
-  acceptBets = async (
-    bets: Partial<BetEntity>[],
-  ): Promise<BetEntity[] | null> => {
-    try {
-      const statements = bets.map(
-        () => `
-        UPDATE bets
-        SET acceptor = $1,
-            "acceptanceTimestamp" = $2,
-            "lastActivityTimestamp" = $2,
-            "startingMetricValue" = $3
-        WHERE id = $4;
-      `,
-      );
-
-      const updateValues = bets.map((bet) => [
-        bet.acceptor,
-        bet.acceptanceTimestamp,
-        bet.startingMetricValue,
-        bet.id,
-      ]);
-
-      const results = await this.databaseClient.executeStatements(
-        statements,
-        updateValues,
-      );
-      return results.map((result) => result.rows[0]);
-    } catch (e) {
-      this.logger.error((e as Error).message, e as Error);
-      return null;
-    }
   };
 
   acceptV2Bets = async (

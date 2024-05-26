@@ -28,7 +28,6 @@ export class SmartContractEventService {
       await this.betService.createV2Bets(createBetSqsEvents.bets);
     } catch (e) {
       this.logger.error(`Error inserting V2 Bet:`, e as Error);
-      await this.betService.createBets(createBetSqsEvents.bets);
     }
   };
 
@@ -49,7 +48,6 @@ export class SmartContractEventService {
       await this.betService.acceptV2Bets(bets);
     } catch (e) {
       this.logger.error(`Error inserting V2 Bet:`, e as Error);
-      await this.betService.acceptBets(bets);
     }
   };
 

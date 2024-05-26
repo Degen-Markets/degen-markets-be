@@ -42,6 +42,8 @@ export class SettlementStack extends TaggedStack {
         BASE_RPC_URL: getMandatoryEnvVariable("BASE_RPC_URL"),
         DEGEN_BETS_ADDRESS: getMandatoryEnvVariable("DEGEN_BETS_ADDRESS"),
         DEGEN_BETS_V2_ADDRESS: getMandatoryEnvVariable("DEGEN_BETS_V2_ADDRESS"),
+        TELEGRAM_BOT_KEY: getMandatoryEnvVariable("TELEGRAM_BOT_KEY"),
+        TELEGRAM_CHAT_ID: getMandatoryEnvVariable("TELEGRAM_CHAT_ID"),
       },
       memorySize: 256,
       functionName: `Settler`,

@@ -14,7 +14,7 @@ export const handleSettlement = async () => {
     await Promise.all(
       bets.map((bet) =>
         notificationsService.sendTelegramMessage(
-          `Bet Settled: https://degenmarkets.com/bets/${bet.id}`,
+          `Bet Won: https://degenmarkets.com/bets/${bet.id}`,
         ),
       ),
     );

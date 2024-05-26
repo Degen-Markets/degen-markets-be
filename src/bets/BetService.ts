@@ -9,6 +9,7 @@ import { WithdrawBetSqsEvent } from "../webhookApi/types/WithdrawBetTypes";
 import { BetCreatedSqsEvent } from "../webhookApi/types/BetCreatedTypes";
 import { isNumeric } from "../utils/numbers";
 import { SettleBetSqsEvent } from "../webhookApi/types/SettleBetTypes";
+import { BetPaidSqsEvent } from "../webhookApi/types/BetPaidTypes";
 
 export class BetService {
   private readonly logger = new Logger({ serviceName: "BetService" });
@@ -328,6 +329,30 @@ export class BetService {
         bet.winTimestamp,
         bet.id,
       ]);
+
+      const results = await this.databaseClient.executeStatements(
+        statements,
+        updateValues,
+      );
+      return results.map((result) => result.rows[0]);
+    } catch (e) {
+      this.logger.error((e as Error).message, e as Error);
+      return null;
+    }
+  };
+
+  payBets = async (bets: BetPaidSqsEvent[]) => {
+    try {
+      const statements = bets.map(
+        () => `
+        UPDATE bets
+        SET "isPaid" = true,
+            "paidTx" = $1
+        WHERE id = $2;
+      `,
+      );
+
+      const updateValues = bets.map((bet) => [bet.txHash, bet.id]);
 
       const results = await this.databaseClient.executeStatements(
         statements,

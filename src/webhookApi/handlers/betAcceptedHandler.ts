@@ -25,14 +25,14 @@ const betAccepted = async (event: APIGatewayEvent) => {
   ) as BetAcceptedWebhookEvent;
 
   const bets = betAcceptedWebhookEvent.event.data.block.logs.map((log) => {
-    const eventLog = decodeEventLog({
+    const eventData = decodeEventLog({
       abi: DEGEN_BETS_V2_ABI,
       data: log.data,
       eventName: "BetAccepted",
       strict: true,
       topics: [BET_ACCEPTED_TOPIC],
     });
-    const bet = eventLog.args as unknown as BetAcceptedContractEvent;
+    const bet = eventData.args as unknown as BetAcceptedContractEvent;
     return {
       ...bet,
       acceptor: log.transaction.from.address,

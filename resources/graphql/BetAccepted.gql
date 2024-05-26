@@ -4,9 +4,9 @@ query {
     timestamp
     logs(
       filter: {
-        addresses: ["0xe1b046Ae7b3ea1d5041274c707bc6298884E3A71"]
+        addresses: ["0xf6927810102d37be74f585168064feece9a672c7"]
         topics: [
-          ["0x4c46eda80d7fbf5e1590d2b15e357a3f95a6ad2634b453013e4dad9d726ddc9c"]
+          ["0x85b053dc6ea92023daa993ba2b8798963198248b43277234da5187e757c6ab94"]
         ]
       }
     ) {

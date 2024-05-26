@@ -3,6 +3,7 @@ import { UUID } from "crypto";
 import { BetAcceptedSqsEvents } from "../webhookApi/types/BetAcceptedTypes";
 import { WithdrawBetSqsEvents } from "../webhookApi/types/WithdrawBetTypes";
 import { SettleBetSqsEvents } from "../webhookApi/types/SettleBetTypes";
+import { BetPaidSqsEvents } from "../webhookApi/types/BetPaidTypes";
 
 export interface SmartContractEventBody {
   id: UUID;
@@ -32,3 +33,8 @@ export const isSettleBetSqsEvent = (
   smartContractEvents: SmartContractEvents,
 ): smartContractEvents is SettleBetSqsEvents =>
   smartContractEvents.eventName === "BetSettled";
+
+export const isBetPaidSqsEvent = (
+  smartContractEvents: SmartContractEvents,
+): smartContractEvents is BetPaidSqsEvents =>
+  smartContractEvents.eventName === "BetPaid";

@@ -1,6 +1,7 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import {
   isAcceptBetSqsEvent,
+  isBetPaidSqsEvent,
   isCreateBetSqsEvent,
   isSettleBetSqsEvent,
   isWithdrawBetSqsEvent,
@@ -13,6 +14,7 @@ import { WithdrawBetSqsEvents } from "../webhookApi/types/WithdrawBetTypes";
 import { QuotesService } from "../quotes/QuotesService";
 import { getCmcId } from "../utils/cmcApi";
 import { SettleBetSqsEvents } from "../webhookApi/types/SettleBetTypes";
+import { BetPaidSqsEvents } from "../webhookApi/types/BetPaidTypes";
 
 export class SmartContractEventService {
   private readonly logger = new Logger({
@@ -59,6 +61,10 @@ export class SmartContractEventService {
     await this.betService.settleBets(settleBetSqsEvents.bets);
   };
 
+  handlePayBets = async (betPaidSqsEvents: BetPaidSqsEvents) => {
+    await this.betService.payBets(betPaidSqsEvents.bets);
+  };
+
   handleSmartContractEvents = async (
     smartContractEvents: SmartContractEvents,
   ) => {
@@ -73,6 +79,8 @@ export class SmartContractEventService {
       await this.handleWithdrawBets(smartContractEvents);
     } else if (isSettleBetSqsEvent(smartContractEvents)) {
       await this.handleSettleBets(smartContractEvents);
+    } else if (isBetPaidSqsEvent(smartContractEvents)) {
+      await this.handlePayBets(smartContractEvents);
     }
   };
 }

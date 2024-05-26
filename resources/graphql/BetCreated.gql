@@ -3,9 +3,9 @@ query {
     hash
     logs(
       filter: {
-        addresses: ["0xe1b046Ae7b3ea1d5041274c707bc6298884E3A71"]
+        addresses: ["0xf6927810102d37be74f585168064feece9a672c7"]
         topics: [
-          ["0x807e743b9b5ddc6f51022646b7a8cae5649afbf10bd3d28a5c11a74a9916e651"]
+          ["0x9a0204d7d0a90e95e52d820bb9bd7713c5dc79105b86cfe6073c827a88b999bb"]
         ]
       }
     ) {

@@ -4,29 +4,13 @@ import {
   SmartContractEvents,
 } from "../../smartContractEventProcessor/smartContractEventTypes";
 import { UUID } from "crypto";
+import { WebhookEvent } from "./WebhookEventTypes";
 
 export type BetCreatedWebhookEvent = {
-  webhookId: string;
-  id: string;
-  createdAt: string;
-  type: "GRAPHQL";
+  webhookId: WebhookEvent["webhookId"];
   event: {
     data: {
-      block: {
-        hash: Hex;
-        logs: {
-          data: Hex;
-          topics: Hex[];
-          transaction: {
-            hash: Hex;
-            from: {
-              address: Hex;
-            };
-            value: Hex;
-            status: 1 | 2; // 1 is "confirmed"
-          };
-        }[];
-      };
+      block: Omit<WebhookEvent["event"]["data"]["block"], "timestamp">;
     };
   };
 };

@@ -10,7 +10,7 @@ import {
 import { BetCreatedSqsEvents } from "../webhookApi/types/BetCreatedTypes";
 import { BetService } from "../bets/BetService";
 import { BetAcceptedSqsEvents } from "../webhookApi/types/BetAcceptedTypes";
-import { WithdrawBetSqsEvents } from "../webhookApi/types/WithdrawBetTypes";
+import { BetWithdrawnSqsEvents } from "../webhookApi/types/BetWithdrawnTypes";
 import { QuotesService } from "../quotes/QuotesService";
 import { getCmcId } from "../utils/cmcApi";
 import { SettleBetSqsEvents } from "../webhookApi/types/SettleBetTypes";
@@ -53,7 +53,7 @@ export class SmartContractEventService {
     }
   };
 
-  handleWithdrawBets = async (withdrawBetSqsEvents: WithdrawBetSqsEvents) => {
+  handleWithdrawBets = async (withdrawBetSqsEvents: BetWithdrawnSqsEvents) => {
     await this.betService.withdrawBets(withdrawBetSqsEvents.bets);
   };
 

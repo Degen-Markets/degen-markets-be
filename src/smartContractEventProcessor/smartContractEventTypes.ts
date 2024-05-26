@@ -1,7 +1,7 @@
 import { BetCreatedSqsEvents } from "../webhookApi/types/BetCreatedTypes";
 import { UUID } from "crypto";
 import { BetAcceptedSqsEvents } from "../webhookApi/types/BetAcceptedTypes";
-import { WithdrawBetSqsEvents } from "../webhookApi/types/WithdrawBetTypes";
+import { BetWithdrawnSqsEvents } from "../webhookApi/types/BetWithdrawnTypes";
 import { SettleBetSqsEvents } from "../webhookApi/types/SettleBetTypes";
 import { BetPaidSqsEvents } from "../webhookApi/types/BetPaidTypes";
 
@@ -26,7 +26,7 @@ export const isAcceptBetSqsEvent = (
 
 export const isWithdrawBetSqsEvent = (
   smartContractEvents: SmartContractEvents,
-): smartContractEvents is WithdrawBetSqsEvents =>
+): smartContractEvents is BetWithdrawnSqsEvents =>
   smartContractEvents.eventName === "BetWithdrawn";
 
 export const isSettleBetSqsEvent = (

@@ -4,7 +4,7 @@ query {
     timestamp
     logs(
       filter: {
-        addresses: ["0xe1b046Ae7b3ea1d5041274c707bc6298884E3A71"]
+        addresses: ["0xf6927810102d37be74f585168064feece9a672c7"]
         topics: [
           ["0x884ef261d5843d2b240c6b117de1a07002bc87b59f6a69562a3dab30bd764c4e"]
         ]

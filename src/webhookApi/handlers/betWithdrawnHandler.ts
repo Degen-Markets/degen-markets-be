@@ -1,30 +1,28 @@
+import { APIGatewayEvent } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { decodeEventLog } from "viem";
 import DEGEN_BETS_ABI from "../../../resources/abi/DegenBetsAbi.json";
-import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
-import { APIGatewayEvent } from "aws-lambda";
 import {
   BetWithdrawnContractEvent,
   BetWithdrawnSqsEvent,
   BetWithdrawnWebhookEvent,
 } from "../types/BetWithdrawnTypes";
-import NotificationsService from "../../notifications/NotificationsService";
+import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 
 const BET_WITHDRAWN_TOPIC =
   "0x884ef261d5843d2b240c6b117de1a07002bc87b59f6a69562a3dab30bd764c4e";
 
-const withdrawBetHandler = async (event: APIGatewayEvent) => {
+const betWithdrawnHandler = async (event: APIGatewayEvent) => {
   const sqs = new SQS();
   const logger = new Logger({
-    serviceName: "WithdrawBetHandler",
+    serviceName: "BetWithdrawnHandler",
   });
-  logger.info(`received withdraw bet event: ${event.body}`);
-  const withdrawBetEvent = JSON.parse(
+  logger.info(`received bet withdrawn event: ${event.body}`);
+  const betWithdrawnWebhookEvent = JSON.parse(
     event.body || "{}",
   ) as BetWithdrawnWebhookEvent;
-
-  const bets = withdrawBetEvent.event.data.block.logs.map((log) => {
+  const bets = betWithdrawnWebhookEvent.event.data.block.logs.map((log) => {
     const args = decodeEventLog({
       abi: DEGEN_BETS_ABI,
       data: log.data,
@@ -34,7 +32,7 @@ const withdrawBetHandler = async (event: APIGatewayEvent) => {
     }).args as unknown as BetWithdrawnContractEvent;
     return {
       id: args.id,
-      withdrawalTimestamp: withdrawBetEvent.event.data.block.timestamp,
+      withdrawalTimestamp: betWithdrawnWebhookEvent.event.data.block.timestamp,
       txHash: log.transaction.hash,
     } as BetWithdrawnSqsEvent;
   });
@@ -51,7 +49,7 @@ const withdrawBetHandler = async (event: APIGatewayEvent) => {
       }),
       QueueUrl: queueUrl,
       MessageGroupId: getMandatoryEnvVariable("MESSAGE_GROUP_ID"),
-      MessageDeduplicationId: withdrawBetEvent.event.data.block.hash,
+      MessageDeduplicationId: betWithdrawnWebhookEvent.event.data.block.hash,
     });
   } catch (e) {
     logger.error((e as Error).message, e as Error);
@@ -59,4 +57,4 @@ const withdrawBetHandler = async (event: APIGatewayEvent) => {
   return 200;
 };
 
-export default withdrawBetHandler;
+export default betWithdrawnHandler;

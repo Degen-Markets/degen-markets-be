@@ -5,7 +5,7 @@ import {
   APIGatewayProxyEventPathParameters,
   APIGatewayProxyEventQueryStringParameters,
 } from "aws-lambda/trigger/api-gateway-proxy";
-import { WithdrawBetSqsEvent } from "../webhookApi/types/WithdrawBetTypes";
+import { BetWithdrawnSqsEvent } from "../webhookApi/types/BetWithdrawnTypes";
 import { BetCreatedSqsEvent } from "../webhookApi/types/BetCreatedTypes";
 import { isNumeric } from "../utils/numbers";
 import { SettleBetSqsEvent } from "../webhookApi/types/SettleBetTypes";
@@ -260,20 +260,26 @@ export class BetService {
   };
 
   withdrawBets = async (
-    bets: WithdrawBetSqsEvent[],
+    bets: BetWithdrawnSqsEvent[],
   ): Promise<BetEntity[] | null> => {
     try {
       const statements = bets.map(
         () => `
-        UPDATE bets
-        SET "isWithdrawn" = true,
-            "withdrawalTimestamp" = $1,
-            "lastActivityTimestamp" = $1
-        WHERE id = $2;
-      `,
+          UPDATE bets
+          SET "isWithdrawn" = true,
+              "isPaid" = true,
+              "withdrawalTimestamp" = $1,
+              "lastActivityTimestamp" = $1,
+              "paidTx" = $2
+          WHERE id = $3;
+        `,
       );
 
-      const updateValues = bets.map((bet) => [bet.withdrawalTimestamp, bet.id]);
+      const updateValues = bets.map((bet) => [
+        bet.withdrawalTimestamp,
+        bet.txHash,
+        bet.id,
+      ]);
 
       const results = await this.databaseClient.executeStatements(
         statements,

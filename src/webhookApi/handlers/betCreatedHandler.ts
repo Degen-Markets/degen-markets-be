@@ -67,18 +67,18 @@ const betCreatedHandler = async (event: APIGatewayEvent) => {
     logger.error((e as Error).message, e as Error);
   }
 
-  // const notificationsService = new NotificationsService();
-  // try {
-  //   await Promise.all(
-  //     bets.map((bet) =>
-  //       notificationsService.sendTelegramMessage(
-  //         `New Bet Created: https://degenmarkets.com/bets/${bet.id}`,
-  //       ),
-  //     ),
-  //   );
-  // } catch (e) {
-  //   logger.error("Error sending create bet tg messages", e as Error);
-  // }
+  const notificationsService = new NotificationsService();
+  try {
+    await Promise.all(
+      bets.map((bet) =>
+        notificationsService.sendTelegramMessage(
+          `New Bet Created: https://degenmarkets.com/bets/${bet.id}`,
+        ),
+      ),
+    );
+  } catch (e) {
+    logger.error("Error sending create bet tg messages", e as Error);
+  }
   return 200;
 };
 

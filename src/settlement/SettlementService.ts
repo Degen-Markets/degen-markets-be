@@ -34,7 +34,7 @@ export class SettlementService {
 
   isBetV2 = (bet: BetEntity) => bet.strikePriceCreator !== null;
 
-  handleSettlement = async () => {
+  handleSettlement = async (): Promise<BetEntity[]> => {
     const privateKey =
       await this.secretClient.loadPlainTextSecretValue<`0x${string}`>(
         this.secretName,
@@ -53,7 +53,7 @@ export class SettlementService {
 
     if (betsToSettle.length === 0) {
       this.logger.info("No bets to settle, closing lambda");
-      return;
+      return betsToSettle;
     }
 
     const account = privateKeyToAccount(privateKey);
@@ -185,5 +185,6 @@ export class SettlementService {
         e as Error,
       );
     }
+    return betsToSettle;
   };
 }

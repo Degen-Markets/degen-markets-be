@@ -61,7 +61,7 @@ export class BetService {
     const values: any[] = [];
 
     if (queryStringParameters?.creator) {
-      query += " WHERE creator = $1";
+      query += " WHERE LOWER(creator) = LOWER($1)";
       values.push(queryStringParameters.creator);
     }
 

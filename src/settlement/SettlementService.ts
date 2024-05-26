@@ -10,11 +10,9 @@ import {
   createWalletClient,
   formatEther,
   http,
-  zeroAddress,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
-import DEGEN_BETS_ABI from "../../resources/abi/DegenBetsAbi.json";
 import DEGEN_BETS_V2_ABI from "../../resources/abi/DegenBetsV2Abi.json";
 import { BetEntity } from "../bets/BetEntity";
 import { sendSlackBalanceUpdate } from "../notifications/NotificationsService";
@@ -70,7 +68,7 @@ export class SettlementService {
       transport: http(this.rpcUrl),
     });
 
-    const v2Bets: BetEntity[] = [];
+    const bets: BetEntity[] = [];
 
     for (const bet of betsToSettle) {
       let winner: Address | null = null;
@@ -106,43 +104,20 @@ export class SettlementService {
       const winTimestamp = Math.ceil(Date.now() / 1000);
 
       if (!!winner && !!endingMetricValue) {
-        if (this.isBetV2(bet)) {
-          v2Bets.push({
-            ...bet,
-            winner,
-            winTimestamp,
-            endingMetricValue,
-          });
-        } else {
-          try {
-            this.logger.info(`transferring funds to winner ${winner}`);
-
-            const hash = await client.writeContract({
-              address: this.degenBetsAddress,
-              abi: DEGEN_BETS_ABI,
-              functionName: "settleBet",
-              args: [bet.id, winner],
-            });
-
-            this.logger.info(`settleBet transaction sent: ${hash}`);
-
-            await publicClient.waitForTransactionReceipt({
-              hash,
-            });
-
-            this.logger.info(`settleBet transaction completed: ${hash}`);
-          } catch (e) {
-            this.logger.error(`settling bet failed!`, e as Error);
-          }
-        }
+        bets.push({
+          ...bet,
+          winner,
+          winTimestamp,
+          endingMetricValue,
+        });
       }
     }
 
-    if (v2Bets.length > 0) {
-      const winners = v2Bets.map((bet) => bet.winner);
-      const betIds = v2Bets.map((bet) => bet.id);
+    if (bets.length > 0) {
+      const winners = bets.map((bet) => bet.winner);
+      const betIds = bets.map((bet) => bet.id);
       try {
-        this.logger.info(`Setting winners for ${v2Bets.length} bets`);
+        this.logger.info(`Setting winners for ${bets.length} bets`);
 
         const hash = await client.writeContract({
           address: this.degenBetsV2Address,
@@ -163,7 +138,7 @@ export class SettlementService {
       }
 
       try {
-        await this.betService.settleV2Bets(v2Bets);
+        await this.betService.settleV2Bets(bets);
       } catch (e) {
         this.logger.error("Setting winners on db failed", e as Error);
       }

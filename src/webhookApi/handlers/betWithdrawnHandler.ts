@@ -2,7 +2,7 @@ import { APIGatewayEvent } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { decodeEventLog } from "viem";
-import DEGEN_BETS_ABI from "../../../resources/abi/DegenBetsAbi.json";
+import DEGEN_BETS_V2_ABI from "../../../resources/abi/DegenBetsV2Abi.json";
 import {
   BetWithdrawnContractEvent,
   BetWithdrawnSqsEvent,
@@ -24,7 +24,7 @@ const betWithdrawnHandler = async (event: APIGatewayEvent) => {
   ) as BetWithdrawnWebhookEvent;
   const bets = betWithdrawnWebhookEvent.event.data.block.logs.map((log) => {
     const args = decodeEventLog({
-      abi: DEGEN_BETS_ABI,
+      abi: DEGEN_BETS_V2_ABI,
       data: log.data,
       eventName: "BetWithdrawn",
       strict: true,

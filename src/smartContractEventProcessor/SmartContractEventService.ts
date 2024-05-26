@@ -3,7 +3,6 @@ import {
   isAcceptBetSqsEvent,
   isBetPaidSqsEvent,
   isCreateBetSqsEvent,
-  isSettleBetSqsEvent,
   isWithdrawBetSqsEvent,
   SmartContractEvents,
 } from "./smartContractEventTypes";
@@ -13,7 +12,6 @@ import { BetAcceptedSqsEvents } from "../webhookApi/types/BetAcceptedTypes";
 import { BetWithdrawnSqsEvents } from "../webhookApi/types/BetWithdrawnTypes";
 import { QuotesService } from "../quotes/QuotesService";
 import { getCmcId } from "../utils/cmcApi";
-import { SettleBetSqsEvents } from "../webhookApi/types/SettleBetTypes";
 import { BetPaidSqsEvents } from "../webhookApi/types/BetPaidTypes";
 
 export class SmartContractEventService {
@@ -55,10 +53,6 @@ export class SmartContractEventService {
     await this.betService.withdrawBets(withdrawBetSqsEvents.bets);
   };
 
-  handleSettleBets = async (settleBetSqsEvents: SettleBetSqsEvents) => {
-    await this.betService.settleBets(settleBetSqsEvents.bets);
-  };
-
   handlePayBets = async (betPaidSqsEvents: BetPaidSqsEvents) => {
     await this.betService.payBets(betPaidSqsEvents.bets);
   };
@@ -75,8 +69,6 @@ export class SmartContractEventService {
       await this.handleAcceptBets(smartContractEvents);
     } else if (isWithdrawBetSqsEvent(smartContractEvents)) {
       await this.handleWithdrawBets(smartContractEvents);
-    } else if (isSettleBetSqsEvent(smartContractEvents)) {
-      await this.handleSettleBets(smartContractEvents);
     } else if (isBetPaidSqsEvent(smartContractEvents)) {
       await this.handlePayBets(smartContractEvents);
     }

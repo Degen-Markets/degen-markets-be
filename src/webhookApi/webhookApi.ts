@@ -9,7 +9,6 @@ import httpSecurityHeaders from "@middy/http-security-headers";
 import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { buildOkResponse } from "../utils/httpResponses";
-import settleBetHandler from "./handlers/settleBetHandler";
 import betCreatedHandler from "./handlers/betCreatedHandler";
 import betAcceptedHandler from "./handlers/betAcceptedHandler";
 import betPaidHandler from "./handlers/betPaidHandler";
@@ -55,11 +54,6 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     method: "POST",
     path: "/bet-withdrawn",
     handler: middy().handler(betWithdrawnHandler),
-  },
-  {
-    method: "POST",
-    path: "/settle-bet",
-    handler: middy().handler(settleBetHandler),
   },
   {
     method: "ANY",

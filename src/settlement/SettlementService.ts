@@ -30,8 +30,6 @@ export class SettlementService {
     "DEGEN_BETS_V2_ADDRESS",
   );
 
-  isBetV2 = (bet: BetEntity) => bet.strikePriceCreator !== null;
-
   handleSettlement = async (): Promise<BetEntity[]> => {
     const privateKey =
       await this.secretClient.loadPlainTextSecretValue<`0x${string}`>(
@@ -82,17 +80,29 @@ export class SettlementService {
         this.logger.info(
           `For bet ${bet.id} Ending metric value is: ${endingMetricValue}, startingMetric was: ${bet.startingMetricValue}`,
         );
-        if (
-          (bet.isBetOnUp &&
-            Number(endingMetricValue) > Number(bet.startingMetricValue)) ||
-          (!bet.isBetOnUp &&
-            Number(endingMetricValue) < Number(bet.startingMetricValue))
-        ) {
-          this.logger.info(`Bet won by creator ${bet.creator}`);
-          winner = bet.creator;
-        } else {
-          this.logger.info(`Bet won by acceptor ${bet.acceptor}`);
-          winner = bet.acceptor;
+        if (bet.type === "binary") {
+          if (
+            (bet.isBetOnUp &&
+              Number(endingMetricValue) > Number(bet.startingMetricValue)) ||
+            (!bet.isBetOnUp &&
+              Number(endingMetricValue) < Number(bet.startingMetricValue))
+          ) {
+            this.logger.info(`Bet won by creator ${bet.creator}`);
+            winner = bet.creator;
+          } else {
+            this.logger.info(`Bet won by acceptor ${bet.acceptor}`);
+            winner = bet.acceptor;
+          }
+        } else if (bet.type === "closest-guess-wins") {
+          const diffCreator =
+            (Number(endingMetricValue) - Number(bet.strikePriceCreator)) ^ 2; // we square to avoid negative numberss
+          const diffAcceptor =
+            (Number(endingMetricValue) - Number(bet.strikePriceAcceptor)) ^ 2; // we square to avoid negative numberss
+          if (diffCreator < diffAcceptor) {
+            winner = bet.creator;
+          } else {
+            winner = bet.acceptor;
+          }
         }
       } catch (e) {
         this.logger.error(

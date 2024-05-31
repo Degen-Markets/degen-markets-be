@@ -9,10 +9,11 @@ import { BetWithdrawnSqsEvent } from "../webhookApi/types/BetWithdrawnTypes";
 import { BetCreatedSqsEvent } from "../webhookApi/types/BetCreatedTypes";
 import { isNumeric } from "../utils/numbers";
 import { BetPaidSqsEvent } from "../webhookApi/types/BetPaidTypes";
+import { TickerRow } from "../events/types";
 
 export class BetService {
   private readonly logger = new Logger({ serviceName: "BetService" });
-  private readonly databaseClient = new DatabaseClient<BetEntity>();
+  private readonly databaseClient = new DatabaseClient();
 
   getSafeOrderByColumn = (queryParam: string): string => {
     switch (queryParam) {
@@ -35,6 +36,24 @@ export class BetService {
     }
   };
 
+  findTopTradedTickers = async (
+    queryStringParameters: APIGatewayProxyEventQueryStringParameters | null,
+  ): Promise<TickerRow[]> => {
+    try {
+      let limit = 5;
+      if (!isNaN(Number(queryStringParameters?.limit))) {
+        limit = Number(queryStringParameters?.limit);
+      }
+      const query = `SELECT ticker, COUNT(*) as "betCount" FROM bets GROUP BY(ticker) ORDER BY "betCount" DESC LIMIT ${limit};`;
+      const response =
+        await this.databaseClient.executeStatement<TickerRow>(query);
+      return response.rows;
+    } catch (e) {
+      this.logger.error((e as Error).message, e as Error);
+      return [];
+    }
+  };
+
   findBetById = async (
     pathParameters: APIGatewayProxyEventPathParameters | null,
   ): Promise<BetEntity> => {
@@ -45,7 +64,10 @@ export class BetService {
     let query = "SELECT * FROM bets WHERE id = $1";
     const values: any[] = [pathParameters?.id];
 
-    const response = await this.databaseClient.executeStatement(query, values);
+    const response = await this.databaseClient.executeStatement<BetEntity>(
+      query,
+      values,
+    );
     return response.rows[0];
   };
 
@@ -86,19 +108,26 @@ export class BetService {
       query += ` LIMIT ${queryStringParameters.limit}`;
     }
 
-    const response = await this.databaseClient.executeStatement(query, values);
+    const response = await this.databaseClient.executeStatement<BetEntity>(
+      query,
+      values,
+    );
     return response.rows;
   };
 
   findOne = async (id: string): Promise<BetEntity> => {
     const query = "SELECT * FROM bets WHERE id = $1";
-    const response = await this.databaseClient.executeStatement(query, [id]);
+    const response = await this.databaseClient.executeStatement<BetEntity>(
+      query,
+      [id],
+    );
     return response.rows[0];
   };
 
   findUnsettledBets = async (): Promise<BetEntity[]> => {
     const query = `SELECT * FROM bets WHERE winner IS NULL AND acceptor IS NOT NULL AND "expirationTimestamp" < ${Date.now() / 1000}`;
-    const response = await this.databaseClient.executeStatement(query);
+    const response =
+      await this.databaseClient.executeStatement<BetEntity>(query);
     return response.rows;
   };
 
@@ -125,7 +154,7 @@ export class BetService {
       bet.chain,
     ]);
 
-    const response = await this.databaseClient.executeStatement(
+    const response = await this.databaseClient.executeStatement<BetEntity>(
       `INSERT INTO bets (
           id,
           "type",
@@ -171,7 +200,7 @@ export class BetService {
         bet.id,
       ]);
 
-      const results = await this.databaseClient.executeStatements(
+      const results = await this.databaseClient.executeStatements<BetEntity>(
         statements,
         updateValues,
       );
@@ -204,7 +233,7 @@ export class BetService {
         bet.id,
       ]);
 
-      const results = await this.databaseClient.executeStatements(
+      const results = await this.databaseClient.executeStatements<BetEntity>(
         statements,
         updateValues,
       );
@@ -254,7 +283,7 @@ export class BetService {
 
       const updateValues = bets.map((bet) => [bet.txHash, bet.id]);
 
-      const results = await this.databaseClient.executeStatements(
+      const results = await this.databaseClient.executeStatements<BetEntity>(
         statements,
         updateValues,
       );

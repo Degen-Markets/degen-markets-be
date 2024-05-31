@@ -48,6 +48,16 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     }),
   },
   {
+    method: "GET",
+    path: "/tickers",
+    handler: middy().handler(async (event: APIGatewayEvent) => {
+      const tickers = await betService.findTopTradedTickers(
+        event.queryStringParameters,
+      );
+      return buildOkResponse(tickers);
+    }),
+  },
+  {
     method: "ANY",
     path: "/{proxy+}",
     handler: notFoundHandler,

@@ -4,7 +4,7 @@ import { getMandatoryEnvVariable } from "../utils/getMandatoryEnvValue";
 import * as fs from "fs";
 import { SecretClient } from "./SecretClient";
 
-export class DatabaseClient<T extends QueryResultRow> {
+export class DatabaseClient {
   private readonly logger = new Logger({ serviceName: "DatabaseClient" });
   private secretClient = new SecretClient();
   private secretName = getMandatoryEnvVariable("DATABASE_PASSWORD_SECRET");
@@ -14,7 +14,10 @@ export class DatabaseClient<T extends QueryResultRow> {
   private port = Number(getMandatoryEnvVariable("DATABASE_PORT"));
   private password: string | undefined = undefined;
 
-  executeStatement = async (statement: string, values: any[] = []) => {
+  executeStatement = async <T extends QueryResultRow>(
+    statement: string,
+    values: any[] = [],
+  ) => {
     const connection = await this.createConnection();
     try {
       this.logger.info(`Running query: ${statement}, with values: ${values}`);
@@ -25,7 +28,10 @@ export class DatabaseClient<T extends QueryResultRow> {
     }
   };
 
-  executeStatements = async (statements: string[], values: any[][]) => {
+  executeStatements = async <T extends QueryResultRow>(
+    statements: string[],
+    values: any[][],
+  ) => {
     const connection = await this.createConnection();
     try {
       await connection.query("BEGIN"); // Begin the transaction

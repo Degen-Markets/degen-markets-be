@@ -9,7 +9,7 @@ import { BetWithdrawnSqsEvent } from "../webhookApi/types/BetWithdrawnTypes";
 import { BetCreatedSqsEvent } from "../webhookApi/types/BetCreatedTypes";
 import { isNumeric } from "../utils/numbers";
 import { BetPaidSqsEvent } from "../webhookApi/types/BetPaidTypes";
-import { TickerRow } from "../events/types";
+import { TickerRow } from "./types";
 
 export class BetService {
   private readonly logger = new Logger({ serviceName: "BetService" });

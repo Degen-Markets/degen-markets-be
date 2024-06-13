@@ -59,6 +59,12 @@ export class WebhookApiStack extends TaggedStack {
           MESSAGE_GROUP_ID: messageGroupId,
           TELEGRAM_BOT_KEY: getMandatoryEnvVariable("TELEGRAM_BOT_KEY"),
           TELEGRAM_CHAT_ID: getMandatoryEnvVariable("TELEGRAM_CHAT_ID"),
+          TWITTER_APP_KEY: getMandatoryEnvVariable("TWITTER_APP_KEY"),
+          TWITTER_APP_SECRET: getMandatoryEnvVariable("TWITTER_APP_SECRET"),
+          TWITTER_ACCESS_TOKEN: getMandatoryEnvVariable("TWITTER_ACCESS_TOKEN"),
+          TWITTER_ACCESS_SECRET: getMandatoryEnvVariable(
+            "TWITTER_ACCESS_SECRET",
+          ),
         },
         bundling: {
           externalModules: ["@aws-sdk"],

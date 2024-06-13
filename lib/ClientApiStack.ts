@@ -6,6 +6,7 @@ import { LambdaApi } from "./constructs/LambdaApi";
 import { Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
+import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 
 export interface ClientApiStackProps extends StackProps {
   certificate: Certificate;
@@ -34,6 +35,12 @@ export class ClientApiStack extends TaggedStack {
           DATABASE_DATABASE_NAME: "degenmarkets",
           DATABASE_HOST: database.instanceEndpoint.hostname,
           DATABASE_PORT: database.instanceEndpoint.port.toString(),
+          TWITTER_APP_KEY: getMandatoryEnvVariable("TWITTER_APP_KEY"),
+          TWITTER_APP_SECRET: getMandatoryEnvVariable("TWITTER_APP_SECRET"),
+          TWITTER_ACCESS_TOKEN: getMandatoryEnvVariable("TWITTER_ACCESS_TOKEN"),
+          TWITTER_ACCESS_SECRET: getMandatoryEnvVariable(
+            "TWITTER_ACCESS_SECRET",
+          ),
         },
         vpc,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },

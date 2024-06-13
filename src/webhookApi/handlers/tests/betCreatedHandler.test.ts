@@ -3,7 +3,7 @@ import { mockClient } from "aws-sdk-client-mock";
 import "aws-sdk-client-mock-jest";
 import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import { createEvent } from "./utils";
-import * as NotificationsService from "../../../notifications/NotificationsService";
+import * as NotificationsService from "../../../notifications/telegram";
 
 const validBetCreatedEvent = {
   id: "f602fc53-4b74-4eb5-af6a-daf200e13870",

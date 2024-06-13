@@ -15,7 +15,7 @@ import { privateKeyToAccount } from "viem/accounts";
 import { base } from "viem/chains";
 import DEGEN_BETS_V2_ABI from "../../resources/abi/DegenBetsV2Abi.json";
 import { BetEntity } from "../bets/BetEntity";
-import { sendSlackBalanceUpdate } from "../notifications/NotificationsService";
+import { sendSlackBalanceUpdate } from "../notifications/slack";
 
 export class SettlementService {
   private readonly logger = new Logger({ serviceName: "SettlementService" });
@@ -95,9 +95,9 @@ export class SettlementService {
           }
         } else if (bet.type === "closest-guess-wins") {
           const diffCreator =
-            (Number(endingMetricValue) - Number(bet.strikePriceCreator)) ^ 2; // we square to avoid negative numberss
+            (Number(endingMetricValue) - Number(bet.strikePriceCreator)) ^ 2; // we square to avoid negative numbers
           const diffAcceptor =
-            (Number(endingMetricValue) - Number(bet.strikePriceAcceptor)) ^ 2; // we square to avoid negative numberss
+            (Number(endingMetricValue) - Number(bet.strikePriceAcceptor)) ^ 2; // we square to avoid negative numbers
           if (diffCreator < diffAcceptor) {
             winner = bet.creator;
           } else {

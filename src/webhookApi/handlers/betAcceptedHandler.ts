@@ -61,12 +61,8 @@ const betAccepted = async (event: APIGatewayEvent) => {
   }
 
   try {
-    await Promise.all(
-      bets.map((bet) =>
-        sendTelegramMessage(
-          `Bet Accepted: https://degenmarkets.com/bets/${bet.id}`,
-        ),
-      ),
+    await sendTelegramMessage(
+      `Bet(s) Accepted:\n\n ${bets.map((bet) => `https://degenmarkets.com/bets/${bet.id}`).join("\n")}`,
     );
   } catch (e) {
     logger.error("Error sending accept bet tg messages", e as Error);

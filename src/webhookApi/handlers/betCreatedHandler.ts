@@ -68,12 +68,10 @@ const betCreatedHandler = async (event: APIGatewayEvent) => {
   }
 
   try {
-    await Promise.all(
-      bets.map((bet) =>
-        sendTelegramMessage(
-          `New Bet Created: https://degenmarkets.com/bets/${bet.id}`,
-        ),
-      ),
+    await sendTelegramMessage(
+      `New Bet(s) Created:\n\n${bets
+        .map((bet) => `https://degenmarkets.com/bets/${bet.id}`)
+        .join("\n")}`,
     );
   } catch (e) {
     logger.error("Error sending create bet tg messages", e as Error);

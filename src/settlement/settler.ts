@@ -9,14 +9,14 @@ const settlementService = new SettlementService();
 
 export const handleSettlement = async () => {
   const bets = await settlementService.handleSettlement();
-  try {
-    await Promise.all(
-      bets.map((bet) =>
-        sendTelegramMessage(`Bet Won: https://degenmarkets.com/bets/${bet.id}`),
-      ),
-    );
-  } catch (e) {
-    logger.error("Error sending settle bet tg messages", e as Error);
+  if (bets.length > 0) {
+    try {
+      await sendTelegramMessage(
+        `Bet(s) Won:\n\n${bets.map((bet) => `https://degenmarkets.com/bets/${bet.id}`).join("\n")}`,
+      );
+    } catch (e) {
+      logger.error("Error sending settle bet tg messages", e as Error);
+    }
   }
 };
 

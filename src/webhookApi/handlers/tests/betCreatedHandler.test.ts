@@ -44,7 +44,7 @@ describe("betCreatedHandler", () => {
       createEvent(validBetCreatedEventData, "/create-bet", { chain: "blast" }),
     );
     expect(spyFn).toHaveBeenCalledWith(
-      "New Bet Created: https://degenmarkets.com/bets/f602fc53-4b74-4eb5-af6a-daf200e13870",
+      "New Bet(s) Created:\n\nhttps://degenmarkets.com/bets/f602fc53-4b74-4eb5-af6a-daf200e13870",
     );
     expect(sqsMock).toHaveReceivedCommandWith(SendMessageCommand, {
       MessageBody: JSON.stringify({

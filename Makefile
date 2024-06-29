@@ -15,7 +15,7 @@ deploy:
     		ClientApi \
     		WebhookApi \
     		Settlement \
-    		QuotesImporter \
+    		SolanaActionsApi \
     		--profile ${AWS_PROFILE} \
     		--require-approval never
 
@@ -26,6 +26,7 @@ diff:
 			ClientApi \
 			WebhookApi \
 			Settlement \
+			SolanaActionsApi \
 			--profile ${AWS_PROFILE}
 
 # bootstraps the AWS account (only needs to be done once)

@@ -10,20 +10,24 @@ import { ClientApiStack } from "../lib/ClientApiStack";
 import { WebhookApiStack } from "../lib/WebhookApiStack";
 import { SettlementStack } from "../lib/SettlementStack";
 import { PrivateKeyStack } from "../lib/PrivateKeyStack";
-import { QuotesImporterStack } from "../lib/QuotesImporterStack";
+import { SolanaActionsStack } from "../lib/SolanaActionsStack";
 
 configDotEnv();
 
 const app = new cdk.App();
 
-const { certificate, zone } = new CertificateStack(app, "Certificates", {
-  domain: "degenmarkets.com",
-  cnames: ["api", "webhooks"],
-  env: {
-    ...getEnv(),
-    region: "us-east-1",
+const { certificate, zone, solanaActionsCertificate } = new CertificateStack(
+  app,
+  "Certificates",
+  {
+    domain: "degenmarkets.com",
+    cnames: ["api", "webhooks"],
+    env: {
+      ...getEnv(),
+      region: "us-east-1",
+    },
   },
-});
+);
 
 const { vpc } = new NetworkingStack(app, "Networking", {
   env: getEnv(),
@@ -68,9 +72,11 @@ new SettlementStack(app, "Settlement", {
   env: getEnv(),
 });
 
-new QuotesImporterStack(app, "QuotesImporter", {
+new SolanaActionsStack(app, "SolanaActionsApi", {
   vpc,
-  kmsKey: kmsKey,
-  database: databaseInstance,
+  certificate: solanaActionsCertificate,
+  zone,
+  cname: "actions",
   env: getEnv(),
+  crossRegionReferences: true,
 });

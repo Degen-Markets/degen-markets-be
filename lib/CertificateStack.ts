@@ -15,6 +15,7 @@ export interface CertificateStackProps extends StackProps {
 export class CertificateStack extends TaggedStack {
   readonly certificate: Certificate;
   readonly zone: IHostedZone;
+  readonly solanaActionsCertificate: Certificate;
 
   constructor(scope: Construct, id: string, props: CertificateStackProps) {
     super(scope, id, props);
@@ -28,6 +29,11 @@ export class CertificateStack extends TaggedStack {
     this.certificate = new Certificate(this, `Cert`, {
       domainName: `${cnames[0]}.${domain}`,
       subjectAlternativeNames: cnames.map((c) => `${c}.${domain}`),
+      validation: CertificateValidation.fromDns(this.zone),
+    });
+
+    this.solanaActionsCertificate = new Certificate(this, `SolanaActionsCert`, {
+      domainName: `actions.${domain}`,
       validation: CertificateValidation.fromDns(this.zone),
     });
   }

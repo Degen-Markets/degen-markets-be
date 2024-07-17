@@ -293,4 +293,18 @@ export class BetService {
       return null;
     }
   };
+
+  findStats = async () => {
+    const statements = [
+      `SELECT COUNT(*) FROM bets;`,
+      `SELECT COUNT(DISTINCT "creator") FROM bets;`,
+      `SELECT COUNT(DISTINCT "acceptor") FROM bets;`,
+    ];
+    const results = await this.databaseClient.executeStatements(statements, []);
+    return {
+      bets: Number(results[0].rows[0].count),
+      creators: Number(results[1].rows[0].count),
+      acceptors: Number(results[2].rows[0].count),
+    };
+  };
 }

@@ -14,6 +14,7 @@ import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { BetService } from "../bets/BetService";
 import { buildOkResponse } from "../utils/httpResponses";
+import * as PlayerService from "../players/PlayerService";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -55,6 +56,24 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
         event.queryStringParameters,
       );
       return buildOkResponse(tickers);
+    }),
+  },
+  {
+    method: "GET",
+    path: "/stats",
+    handler: middy().handler(async () => {
+      const stats = await betService.findStats();
+      return buildOkResponse(stats);
+    }),
+  },
+  {
+    method: "GET",
+    path: "/players",
+    handler: middy().handler(async (event: APIGatewayEvent) => {
+      const players = await PlayerService.findAllPlayers(
+        event.queryStringParameters,
+      );
+      return buildOkResponse(players);
     }),
   },
   {

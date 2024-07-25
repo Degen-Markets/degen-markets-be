@@ -1,0 +1,30 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"default\"]",
+  "declared_features": "[\"default\", \"parallel\", \"rayon\", \"std\"]",
+  "target": 9138558695375309189,
+  "profile": 6609184196851301694,
+  "path": 11620509140518841830,
+  "deps": [
+    [1043979679572436616, "ark_std", false, 6517681458846354813],
+    [7879775654530620242, "zeroize", false, 494528579997472426],
+    [8276887554890758022, "ark_poly", false, 8928544904786380572],
+    [10448766010662481490, "num_traits", false, 2578178508282982140],
+    [10710785969369771473, "hashbrown", false, 6862096027942466958],
+    [12476079151637451836, "itertools", false, 14191063585613739856],
+    [14957310945697015811, "ark_serialize", false, 4804803929501910219],
+    [16546267729176824362, "ark_ff", false, 1175824334546168019],
+    [16945656986238552556, "derivative", false, 4761312574319569922]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/ark-ec-9f2cdbdf6388f9c1/dep-lib-ark_ec"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 3624413180845795723,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

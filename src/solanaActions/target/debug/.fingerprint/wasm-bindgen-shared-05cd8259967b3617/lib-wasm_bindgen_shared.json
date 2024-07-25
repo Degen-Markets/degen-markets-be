@@ -1,0 +1,22 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[]",
+  "declared_features": "[]",
+  "target": 3624657277857300784,
+  "profile": 6707562999592697545,
+  "path": 11936187781486133305,
+  "deps": [
+    [8357811740209250746, "build_script_build", false, 14497100722108086901]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/wasm-bindgen-shared-05cd8259967b3617/dep-lib-wasm_bindgen_shared"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 4905702609766663142,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

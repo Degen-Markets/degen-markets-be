@@ -1,0 +1,27 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"convert\", \"heck\", \"sha2\"]",
+  "declared_features": "[\"build\", \"convert\", \"heck\", \"regex\", \"sha2\"]",
+  "target": 18044296698205928365,
+  "profile": 6707562999592697545,
+  "path": 12196811872711196101,
+  "deps": [
+    [10695905396679492879, "sha2", false, 14088680636179963285],
+    [11911222911618930913, "anchor_lang_idl_spec", false, 15725318092395625431],
+    [15072300735095579955, "serde_json", false, 3047883643806885812],
+    [15616241866830646667, "heck", false, 12733895725672695522],
+    [16045357212464686133, "anyhow", false, 12076362426009784736],
+    [17050486954677592869, "serde", false, 7461311373702382149]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/anchor-lang-idl-32d8569208c0778b/dep-lib-anchor_lang_idl"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 1964265634086296574,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

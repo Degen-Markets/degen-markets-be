@@ -1,0 +1,25 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"default\", \"display\", \"parse\"]",
+  "declared_features": "[\"default\", \"display\", \"indexmap\", \"parse\", \"preserve_order\"]",
+  "target": 16428676033914667516,
+  "profile": 12158522821310934824,
+  "path": 10800050044383106581,
+  "deps": [
+    [5005212103935869559, "toml_datetime", false, 2374144883906420208],
+    [7930533144571564837, "serde_spanned", false, 10768999576204144391],
+    [10141056761118864923, "toml_edit", false, 11894782858167732325],
+    [17050486954677592869, "serde", false, 7461311373702382149]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/toml-304c01ab48efe531/dep-lib-toml"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 13437692833141290973,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

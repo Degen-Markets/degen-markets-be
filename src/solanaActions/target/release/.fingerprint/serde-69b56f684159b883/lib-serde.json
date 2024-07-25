@@ -1,0 +1,22 @@
+{
+  "rustc": 15193207150399759846,
+  "features": "[\"default\", \"derive\", \"serde_derive\", \"std\"]",
+  "target": 12518487807107382959,
+  "profile": 1443595415865257735,
+  "path": 230047460311107693,
+  "deps": [
+    [5154523486757466938, "serde_derive", false, 15640947951478964876],
+    [17050486954677592869, "build_script_build", false, 60427970611603922]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "release/.fingerprint/serde-69b56f684159b883/dep-lib-serde"
+      }
+    }
+  ],
+  "rustflags": [],
+  "metadata": 3767376778934503013,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

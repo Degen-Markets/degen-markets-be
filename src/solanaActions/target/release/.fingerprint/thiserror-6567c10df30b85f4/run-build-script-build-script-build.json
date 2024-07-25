@@ -1,0 +1,22 @@
+{
+  "rustc": 15193207150399759846,
+  "features": "",
+  "target": 0,
+  "profile": 0,
+  "path": 0,
+  "deps": [
+    [2298489633419329899, "build_script_build", false, 4721699686944335396]
+  ],
+  "local": [
+    {
+      "RerunIfChanged": {
+        "output": "release/build/thiserror-6567c10df30b85f4/output",
+        "paths": ["build/probe.rs"]
+      }
+    }
+  ],
+  "rustflags": [],
+  "metadata": 0,
+  "config": 0,
+  "compile_kind": 0
+}

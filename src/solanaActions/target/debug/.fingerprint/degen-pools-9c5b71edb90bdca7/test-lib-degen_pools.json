@@ -1,0 +1,24 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"default\", \"idl-build\"]",
+  "declared_features": "[\"cpi\", \"default\", \"idl-build\", \"no-entrypoint\", \"no-idl\", \"no-log-ix-name\"]",
+  "target": 4599946764494746384,
+  "profile": 3339259779026454266,
+  "path": 8760905142926700084,
+  "deps": [
+    [2037962357507984653, "anchor_lang", false, 5558665330643848201],
+    [4485243235582659819, "hex", false, 9343869209564219383],
+    [14837358994568648540, "round", false, 2653034429834211407]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/degen-pools-9c5b71edb90bdca7/dep-test-lib-degen_pools"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 4016031212386852110,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

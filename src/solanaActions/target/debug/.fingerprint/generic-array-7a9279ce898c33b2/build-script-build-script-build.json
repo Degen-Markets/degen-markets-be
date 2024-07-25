@@ -1,0 +1,22 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"more_lengths\", \"serde\"]",
+  "declared_features": "[\"more_lengths\", \"serde\", \"zeroize\"]",
+  "target": 6423576478976419116,
+  "profile": 6707562999592697545,
+  "path": 10212755680455709946,
+  "deps": [
+    [16079472387499994964, "version_check", false, 13587870734413170601]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/generic-array-7a9279ce898c33b2/dep-build-script-build-script-build"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 3504643559825856545,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

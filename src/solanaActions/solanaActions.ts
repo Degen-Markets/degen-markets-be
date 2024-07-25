@@ -13,6 +13,8 @@ import httpSecurityHeaders from "@middy/http-security-headers";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { getActionsJSON } from "./getActionsJSON";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
+import { generateEnterPoolTx } from "./enterPoolTx";
+import { getPool } from "./getPool";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
 
@@ -41,31 +43,13 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   },
   {
     method: "GET",
-    path: "/bets/{id}",
-    handler: middy().handler(async (event: APIGatewayEvent) => {
-      const id = event.pathParameters?.id;
-      logger.info("loading bet by id");
-      const metadata: ActionGetResponse = {
-        icon: "https://ucarecdn.com/bb6ebebc-a810-4943-906d-5e3c2ca17b8d/-/preview/880x880/-/quality/smart/-/format/auto/",
-        label: `Accept bet ${id}`,
-        title: `Accept bet ${id}`,
-        description:
-          "Buy mockJUP with USDC. Choose a USD amount of USDC from the options below, or enter a custom amount.",
-        links: {
-          actions: [
-            {
-              label: "$10",
-              href: `/bets/${id}`,
-            },
-          ],
-        },
-      };
-      return {
-        statusCode: 200,
-        body: JSON.stringify(metadata),
-        headers: ACTIONS_CORS_HEADERS,
-      };
-    }),
+    path: "/pools/{id}",
+    handler: middy().handler(getPool),
+  },
+  {
+    method: "POST",
+    path: "/pools/{poolId}/options/{optionId}",
+    handler: middy().handler(generateEnterPoolTx),
   },
 ];
 

@@ -1,0 +1,26 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[]",
+  "declared_features": "[]",
+  "target": 11076721067331203601,
+  "profile": 6707562999592697545,
+  "path": 5063718527973870445,
+  "deps": [
+    [1364752078607954195, "num_bigint", false, 3072495125519572636],
+    [5247968963080504553, "proc_macro2", false, 11144433011225228125],
+    [10448766010662481490, "num_traits", false, 2407326741634832842],
+    [14268468010440576439, "quote", false, 11871912575197694178],
+    [17143850428905299221, "syn", false, 5675169016156642769]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/ark-ff-macros-8289fc8a8953539c/dep-lib-ark_ff_macros"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 10371130559425817418,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

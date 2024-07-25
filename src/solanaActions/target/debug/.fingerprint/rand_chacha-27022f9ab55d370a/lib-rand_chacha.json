@@ -1,0 +1,23 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"std\"]",
+  "declared_features": "[\"default\", \"serde\", \"serde1\", \"simd\", \"std\"]",
+  "target": 4459480189522053162,
+  "profile": 6609184196851301694,
+  "path": 9377417776047706035,
+  "deps": [
+    [1565494060434293766, "rand_core", false, 4814125109479986100],
+    [4511957894497802922, "ppv_lite86", false, 12287666936749553413]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/rand_chacha-27022f9ab55d370a/dep-lib-rand_chacha"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 2235018391756195449,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

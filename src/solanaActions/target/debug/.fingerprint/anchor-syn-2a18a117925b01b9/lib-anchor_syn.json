@@ -1,0 +1,32 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"cargo_toml\", \"hash\", \"idl-build\", \"init-if-needed\"]",
+  "declared_features": "[\"allow-missing-optionals\", \"anchor-debug\", \"cargo_toml\", \"event-cpi\", \"hash\", \"idl-build\", \"init-if-needed\", \"interface-instructions\"]",
+  "target": 1292585483180239540,
+  "profile": 17041838576523897687,
+  "path": 14877514627214688280,
+  "deps": [
+    [1954840786535925237, "bs58", false, 12261201599782363360],
+    [2298489633419329899, "thiserror", false, 6911152948822739395],
+    [5247968963080504553, "proc_macro2", false, 11144433011225228125],
+    [8475528613200856844, "cargo_toml", false, 11519909708518550939],
+    [10695905396679492879, "sha2", false, 14088680636179963285],
+    [14268468010440576439, "quote", false, 11871912575197694178],
+    [15072300735095579955, "serde_json", false, 3047883643806885812],
+    [15616241866830646667, "heck", false, 12733895725672695522],
+    [16045357212464686133, "anyhow", false, 12076362426009784736],
+    [17050486954677592869, "serde", false, 7461311373702382149],
+    [17143850428905299221, "syn", false, 5675169016156642769]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/anchor-syn-2a18a117925b01b9/dep-lib-anchor_syn"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 13335907173658770855,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

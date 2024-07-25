@@ -1,0 +1,24 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"idl-build\", \"init-if-needed\"]",
+  "declared_features": "[\"allow-missing-optionals\", \"anchor-debug\", \"idl-build\", \"init-if-needed\"]",
+  "target": 14938097871374442945,
+  "profile": 6707562999592697545,
+  "path": 1135619269705556281,
+  "deps": [
+    [11649200664329029886, "anchor_syn", false, 9279367600212034016],
+    [14268468010440576439, "quote", false, 11871912575197694178],
+    [17143850428905299221, "syn", false, 5675169016156642769]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/anchor-derive-accounts-16d1db08b6ff9f30/dep-lib-anchor_derive_accounts"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 3978454898349386712,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

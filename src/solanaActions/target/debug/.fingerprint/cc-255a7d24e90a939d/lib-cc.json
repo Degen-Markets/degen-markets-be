@@ -1,0 +1,24 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"jobserver\", \"libc\", \"once_cell\", \"parallel\"]",
+  "declared_features": "[\"jobserver\", \"libc\", \"once_cell\", \"parallel\"]",
+  "target": 15558527229170934796,
+  "profile": 6707562999592697545,
+  "path": 9593036960673657915,
+  "deps": [
+    [1438437697209609444, "jobserver", false, 17159471598696870311],
+    [4254328441789853856, "once_cell", false, 16336642210067987706],
+    [16859105048871006744, "libc", false, 1880661059866148182]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/cc-255a7d24e90a939d/dep-lib-cc"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 5862599371499774553,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

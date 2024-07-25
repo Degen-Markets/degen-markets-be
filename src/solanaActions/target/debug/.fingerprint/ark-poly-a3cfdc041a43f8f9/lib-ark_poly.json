@@ -1,0 +1,26 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[]",
+  "declared_features": "[\"default\", \"parallel\", \"rayon\", \"std\"]",
+  "target": 17471313845238594316,
+  "profile": 6609184196851301694,
+  "path": 13690156321480946218,
+  "deps": [
+    [1043979679572436616, "ark_std", false, 6517681458846354813],
+    [10710785969369771473, "hashbrown", false, 6862096027942466958],
+    [14957310945697015811, "ark_serialize", false, 4804803929501910219],
+    [16546267729176824362, "ark_ff", false, 1175824334546168019],
+    [16945656986238552556, "derivative", false, 4761312574319569922]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/ark-poly-a3cfdc041a43f8f9/dep-lib-ark_poly"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 6618791900791855268,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

@@ -1,0 +1,25 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"default\", \"std\"]",
+  "declared_features": "[\"alloc\", \"arbitrary_precision\", \"default\", \"float_roundtrip\", \"indexmap\", \"preserve_order\", \"raw_value\", \"std\", \"unbounded_depth\"]",
+  "target": 8359091782433235722,
+  "profile": 6609184196851301694,
+  "path": 8383896836841764240,
+  "deps": [
+    [711435865661041740, "ryu", false, 11190602094674622219],
+    [11284357528473424989, "itoa", false, 3985152120896848507],
+    [15072300735095579955, "build_script_build", false, 11900437303264597255],
+    [17050486954677592869, "serde", false, 3645437277050292551]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/serde_json-badd94b1ced8b015/dep-lib-serde_json"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 16261601059619201932,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

@@ -1,0 +1,31 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"default\", \"hmac\", \"hmac-drbg\", \"sha2\", \"static-context\", \"std\", \"typenum\"]",
+  "declared_features": "[\"default\", \"hmac\", \"hmac-drbg\", \"lazy-static-context\", \"lazy_static\", \"sha2\", \"static-context\", \"std\", \"typenum\"]",
+  "target": 495896457117318941,
+  "profile": 6609184196851301694,
+  "path": 11345944840839234970,
+  "deps": [
+    [288937492735761168, "sha2", false, 3253561966292495715],
+    [3295880431640478758, "libsecp256k1_core", false, 1177649484680439097],
+    [3527584147357923955, "hmac_drbg", false, 3010750682748500342],
+    [4748012609204464776, "arrayref", false, 12771967632953389440],
+    [9016345675084533434, "base64", false, 6938526094895239300],
+    [12829070662860118430, "digest", false, 10062874412490418407],
+    [13397720212340089241, "build_script_build", false, 8379548656616054111],
+    [14410322725430510490, "typenum", false, 10454246451834225021],
+    [14778545527639897399, "rand", false, 7505480850124402885],
+    [17050486954677592869, "serde", false, 3645437277050292551]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/libsecp256k1-603a7b33399db090/dep-lib-libsecp256k1"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 3263194484435270234,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

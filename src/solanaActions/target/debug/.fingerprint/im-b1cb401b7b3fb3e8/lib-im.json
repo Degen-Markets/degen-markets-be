@@ -1,0 +1,29 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"rayon\", \"serde\"]",
+  "declared_features": "[\"arbitrary\", \"debug\", \"proptest\", \"quickcheck\", \"rayon\", \"refpool\", \"serde\"]",
+  "target": 1349436982744339988,
+  "profile": 6609184196851301694,
+  "path": 5020208573819509569,
+  "deps": [
+    [1565494060434293766, "rand_core", false, 4814125109479986100],
+    [8230026845309110726, "sized_chunks", false, 1143893507291529129],
+    [13268347725503630911, "build_script_build", false, 7518175259906286554],
+    [14410322725430510490, "typenum", false, 10454246451834225021],
+    [15191189118421006103, "rand_xoshiro", false, 1785835543428451421],
+    [17050486954677592869, "serde", false, 3645437277050292551],
+    [17663762294168282605, "bitmaps", false, 9485022496304171901],
+    [17775862536196513609, "rayon", false, 16881896747096970116]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/im-b1cb401b7b3fb3e8/dep-lib-im"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 2136560536512496294,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

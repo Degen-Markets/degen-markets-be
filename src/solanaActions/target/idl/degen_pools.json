@@ -1,0 +1,342 @@
+{
+  "address": "5nxUTpb7KpQU3jPvKDtpxT1wYu13ffMQCKLyxKXUNa4Z",
+  "metadata": {
+    "name": "degen_pools",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "claim_win",
+      "discriminator": [163, 215, 101, 246, 25, 134, 110, 194],
+      "accounts": [
+        {
+          "name": "pool_account",
+          "writable": true
+        },
+        {
+          "name": "winner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "entry_account",
+          "writable": true
+        },
+        {
+          "name": "option_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_entry_account",
+      "discriminator": [213, 5, 140, 23, 10, 150, 49, 6],
+      "accounts": [
+        {
+          "name": "entrant",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "entry_account",
+          "writable": true
+        },
+        {
+          "name": "option_account"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_option_account",
+      "discriminator": [46, 121, 107, 240, 123, 190, 229, 1],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+        },
+        {
+          "name": "option_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_pool_account",
+      "discriminator": [242, 65, 17, 36, 124, 151, 197, 198],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+        },
+        {
+          "name": "pool_account",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "conclude_pool",
+      "discriminator": [199, 173, 61, 93, 106, 141, 5, 133],
+      "accounts": [
+        {
+          "name": "pool_account",
+          "writable": true
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "winning_option",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "create_option",
+      "discriminator": [226, 92, 124, 94, 113, 96, 60, 172],
+      "accounts": [
+        {
+          "name": "option_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "option_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "pool_account",
+          "writable": true
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "option_title",
+          "type": "string"
+        },
+        {
+          "name": "option_hash",
+          "type": {
+            "array": ["u8", 32]
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_pool",
+      "discriminator": [233, 146, 209, 142, 207, 104, 64, 188],
+      "accounts": [
+        {
+          "name": "pool_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "arg",
+                "path": "title_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "title_hash",
+          "type": {
+            "array": ["u8", 32]
+          }
+        }
+      ]
+    },
+    {
+      "name": "enter_pool",
+      "discriminator": [73, 134, 141, 203, 63, 251, 217, 169],
+      "accounts": [
+        {
+          "name": "entry_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "option_account"
+              },
+              {
+                "kind": "account",
+                "path": "entrant"
+              }
+            ]
+          }
+        },
+        {
+          "name": "option_account",
+          "writable": true
+        },
+        {
+          "name": "pool_account",
+          "writable": true
+        },
+        {
+          "name": "entrant",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "value",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Entry",
+      "discriminator": [63, 18, 152, 113, 215, 246, 221, 250]
+    },
+    {
+      "name": "Pool",
+      "discriminator": [241, 154, 109, 4, 17, 177, 109, 188]
+    },
+    {
+      "name": "PoolOption",
+      "discriminator": [42, 22, 142, 109, 158, 112, 199, 199]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "TitleDoesNotMatchHash",
+      "msg": "Title hash does not match title!"
+    },
+    {
+      "code": 6001,
+      "name": "PoolOptionDoesNotMatchHash",
+      "msg": "Pool option does not match hash!"
+    },
+    {
+      "code": 6002,
+      "name": "PoolConcluded",
+      "msg": "Pool has concluded!"
+    },
+    {
+      "code": 6003,
+      "name": "EntryAlreadyClaimed",
+      "msg": "Entry already claimed!"
+    },
+    {
+      "code": 6004,
+      "name": "LosingOption",
+      "msg": "Entry did not win"
+    },
+    {
+      "code": 6005,
+      "name": "EntryNotDerivedFromOptionOrSigner",
+      "msg": "This entry was not derived from the winning option or the signer"
+    }
+  ],
+  "types": [
+    {
+      "name": "Entry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "value",
+            "type": "u64"
+          },
+          {
+            "name": "is_claimed",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Pool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "has_concluded",
+            "type": "bool"
+          },
+          {
+            "name": "winning_option",
+            "type": "pubkey"
+          },
+          {
+            "name": "value",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolOption",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "value",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -76,7 +76,8 @@ Example test which mocks an AWS service can be found in `src/clients/SecretClien
 - bet-withdrawn handler (should set bet `isPaid = true`)
 - settler should have separate settle logic for each betType
 
-### After FE migrates:
+### Blinks:
 
-- set `"isPaid"` in `bets` table to true for V1 bets
-- delete old handlers
+- Example Link: https://dial.to/?action=solana-action:https://blinkeditor.com/api/actions/d591a76018
+- https://dial.to/?action=solana-action:https://actions.degenmarkets.com/pools/GFjDFXHkCPRj28JLgKnBQMoj3DuyRjL9FfZZowedHUMp
+- Solcasino blink pool tweet: https://x.com/Solcasinoio/status/1808847140036198778

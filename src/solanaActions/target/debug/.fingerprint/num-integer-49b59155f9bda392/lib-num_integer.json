@@ -1,0 +1,20 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"i128\", \"std\"]",
+  "declared_features": "[\"default\", \"i128\", \"std\"]",
+  "target": 18234088791683321910,
+  "profile": 6609184196851301694,
+  "path": 15065533661982214537,
+  "deps": [[10448766010662481490, "num_traits", false, 2578178508282982140]],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/num-integer-49b59155f9bda392/dep-lib-num_integer"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 58200369117550911,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

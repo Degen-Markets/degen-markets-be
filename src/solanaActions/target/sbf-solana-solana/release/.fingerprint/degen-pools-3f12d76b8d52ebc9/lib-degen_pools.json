@@ -1,0 +1,23 @@
+{
+  "rustc": 15193207150399759846,
+  "features": "[\"default\"]",
+  "target": 16787480323291217525,
+  "profile": 11169575320624729029,
+  "path": 17462554962932886410,
+  "deps": [
+    [2037962357507984653, "anchor_lang", false, 17982523431916498515],
+    [4485243235582659819, "hex", false, 10584723998621201346],
+    [14837358994568648540, "round", false, 13257371201940879796]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "sbf-solana-solana/release/.fingerprint/degen-pools-3f12d76b8d52ebc9/dep-lib-degen_pools"
+      }
+    }
+  ],
+  "rustflags": ["-Zremap-cwd-prefix="],
+  "metadata": 4016031212386852110,
+  "config": 2202906307356721367,
+  "compile_kind": 11910797420234664848
+}

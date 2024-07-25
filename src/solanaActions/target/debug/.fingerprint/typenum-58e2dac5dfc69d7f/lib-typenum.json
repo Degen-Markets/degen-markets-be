@@ -1,0 +1,22 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[]",
+  "declared_features": "[\"const-generics\", \"force_unix_path_separator\", \"i128\", \"no_std\", \"scale-info\", \"scale_info\", \"strict\"]",
+  "target": 9630224799314216758,
+  "profile": 6609184196851301694,
+  "path": 4026632009247785137,
+  "deps": [
+    [14410322725430510490, "build_script_main", false, 4353881142379173113]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/typenum-58e2dac5dfc69d7f/dep-lib-typenum"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 5976975242777358168,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

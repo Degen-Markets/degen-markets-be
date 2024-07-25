@@ -1,0 +1,19 @@
+{
+  "rustc": 15193207150399759846,
+  "features": "[]",
+  "target": 5679838123780096827,
+  "profile": 11169575320624729029,
+  "path": 10997941443760634265,
+  "deps": [],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "sbf-solana-solana/release/.fingerprint/round-7a6750264dad4d6d/dep-lib-round"
+      }
+    }
+  ],
+  "rustflags": ["-Zremap-cwd-prefix="],
+  "metadata": 1354241707746132207,
+  "config": 2202906307356721367,
+  "compile_kind": 11910797420234664848
+}

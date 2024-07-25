@@ -1,0 +1,22 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"default\", \"std\"]",
+  "declared_features": "[\"default\", \"serde\", \"std\"]",
+  "target": 12711028432612581655,
+  "profile": 6707562999592697545,
+  "path": 7953184565412993847,
+  "deps": [
+    [10391258677947610665, "build_script_build", false, 16896925878767729873]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/semver-e93e066d141910bd/dep-lib-semver"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 7480721012031345649,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

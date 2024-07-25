@@ -1,0 +1,22 @@
+{
+  "rustc": 15193207150399759846,
+  "features": "[\"borsh-derive\", \"default\", \"derive\", \"std\", \"unstable__schema\"]",
+  "target": 5127993436019407528,
+  "profile": 11169575320624729029,
+  "path": 6678025010664451929,
+  "deps": [
+    [8815817901830965509, "borsh_derive", false, 6780682232069809668],
+    [10718216491376776541, "build_script_build", false, 11386695597970488963]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "sbf-solana-solana/release/.fingerprint/borsh-22de8f0759638528/dep-lib-borsh"
+      }
+    }
+  ],
+  "rustflags": ["-Zremap-cwd-prefix="],
+  "metadata": 18017322586751369650,
+  "config": 2202906307356721367,
+  "compile_kind": 11910797420234664848
+}

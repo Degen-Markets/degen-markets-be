@@ -1,0 +1,24 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[]",
+  "declared_features": "[]",
+  "target": 4519676172279481438,
+  "profile": 6707562999592697545,
+  "path": 9956913245418130776,
+  "deps": [
+    [5247968963080504553, "proc_macro2", false, 11144433011225228125],
+    [14268468010440576439, "quote", false, 11871912575197694178],
+    [17143850428905299221, "syn", false, 5675169016156642769]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/borsh-schema-derive-internal-bf2667770dddb90c/dep-lib-borsh_schema_derive_internal"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 7685215035480038221,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

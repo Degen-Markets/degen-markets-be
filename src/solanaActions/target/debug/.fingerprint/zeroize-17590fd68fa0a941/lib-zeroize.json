@@ -1,0 +1,22 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"alloc\", \"default\", \"zeroize_derive\"]",
+  "declared_features": "[\"alloc\", \"default\", \"zeroize_derive\"]",
+  "target": 6279641764186777096,
+  "profile": 6609184196851301694,
+  "path": 4951655170980255388,
+  "deps": [
+    [17194429470758112918, "zeroize_derive", false, 4844033514320336185]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/zeroize-17590fd68fa0a941/dep-lib-zeroize"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 4317945585732210332,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

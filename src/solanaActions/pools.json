@@ -1,0 +1,16 @@
+{
+  "D8SfJjy8JErWHzPrfV9w71Feuui8jWxjDRjab257BpBb": {
+    "title": "Who will be named the next president of the United States?",
+    "options": [
+      {
+        "title": "Trump",
+        "id": "HUhKSLXWyKPLNyjCoDHJzTBYmUWcGeeVxTFKP93AKYJ3"
+      },
+      {
+        "title": "Harris",
+        "id": "DVnTcqGcGWCJqsC8UEAtmT6QFJArkUp5ZrCjEnXdaALL"
+      },
+      { "title": "Other", "id": "2huziBiX1NSvzF31qUisx2iGmJY2JzmcW45RsshBc16N" }
+    ]
+  }
+}

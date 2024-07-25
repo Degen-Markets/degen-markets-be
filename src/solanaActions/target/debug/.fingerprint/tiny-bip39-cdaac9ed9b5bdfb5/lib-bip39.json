@@ -1,0 +1,31 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"chinese-simplified\", \"chinese-traditional\", \"default\", \"french\", \"italian\", \"japanese\", \"korean\", \"spanish\"]",
+  "declared_features": "[\"chinese-simplified\", \"chinese-traditional\", \"default\", \"french\", \"italian\", \"japanese\", \"korean\", \"spanish\"]",
+  "target": 10143732596942065694,
+  "profile": 6609184196851301694,
+  "path": 10889938185992869065,
+  "deps": [
+    [288937492735761168, "sha2", false, 3253561966292495715],
+    [1098045598771442027, "rustc_hash", false, 7049510399096271308],
+    [2298489633419329899, "thiserror", false, 6911152948822739395],
+    [4192557874542178643, "hmac", false, 16294463533439442336],
+    [4254328441789853856, "once_cell", false, 16336642210067987706],
+    [7879775654530620242, "zeroize", false, 494528579997472426],
+    [14778545527639897399, "rand", false, 7505480850124402885],
+    [15385174687058817474, "unicode_normalization", false, 2104205092998300255],
+    [16045357212464686133, "anyhow", false, 12076362426009784736],
+    [16491198307650699111, "pbkdf2", false, 17546240268306245788]
+  ],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/tiny-bip39-cdaac9ed9b5bdfb5/dep-lib-bip39"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 4238724394037399451,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

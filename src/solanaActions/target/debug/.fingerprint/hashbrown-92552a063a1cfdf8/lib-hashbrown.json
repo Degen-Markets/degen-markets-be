@@ -1,0 +1,20 @@
+{
+  "rustc": 2875840490727724988,
+  "features": "[\"ahash\", \"default\", \"inline-more\"]",
+  "declared_features": "[\"ahash\", \"ahash-compile-time-rng\", \"alloc\", \"bumpalo\", \"compiler_builtins\", \"core\", \"default\", \"inline-more\", \"nightly\", \"raw\", \"rayon\", \"rustc-dep-of-std\", \"rustc-internal-api\", \"serde\"]",
+  "target": 18153582625530333476,
+  "profile": 6609184196851301694,
+  "path": 9271076138672645391,
+  "deps": [[1385435641494999048, "ahash", false, 15794734863897409629]],
+  "local": [
+    {
+      "CheckDepInfo": {
+        "dep_info": "debug/.fingerprint/hashbrown-92552a063a1cfdf8/dep-lib-hashbrown"
+      }
+    }
+  ],
+  "rustflags": ["--cfg", "procmacro2_semver_exempt"],
+  "metadata": 6228333144549390726,
+  "config": 2202906307356721367,
+  "compile_kind": 0
+}

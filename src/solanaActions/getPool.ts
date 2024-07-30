@@ -41,7 +41,7 @@ export const getPool = async (event: APIGatewayEvent) => {
     })),
   ];
   const metadata: ActionGetResponse = {
-    icon: "https://ucarecdn.com/bb6ebebc-a810-4943-906d-5e3c2ca17b8d/-/preview/880x880/-/quality/smart/-/format/auto/",
+    icon: pool.image,
     label: poolAccount.title,
     title: poolAccount.title,
     description: "",

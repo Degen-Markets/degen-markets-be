@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/degen_pools.json`.
  */
 export type DegenPools = {
-  address: "5nxUTpb7KpQU3jPvKDtpxT1wYu13ffMQCKLyxKXUNa4Z";
+  address: "NkpN7R4m8cji3vLsdxubj87WnCPij322XdEvqc6TYc2";
   metadata: {
     name: "degenPools";
     version: "0.1.0";
@@ -255,6 +255,12 @@ export type DegenPools = {
       discriminator: [42, 22, 142, 109, 158, 112, 199, 199];
     },
   ];
+  events: [
+    {
+      name: "poolEntered";
+      discriminator: [224, 196, 156, 64, 200, 219, 71, 199];
+    },
+  ];
   errors: [
     {
       code: 6000;
@@ -319,6 +325,30 @@ export type DegenPools = {
           },
           {
             name: "winningOption";
+            type: "pubkey";
+          },
+          {
+            name: "value";
+            type: "u64";
+          },
+        ];
+      };
+    },
+    {
+      name: "poolEntered";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "pool";
+            type: "pubkey";
+          },
+          {
+            name: "option";
+            type: "pubkey";
+          },
+          {
+            name: "entry";
             type: "pubkey";
           },
           {

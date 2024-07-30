@@ -24,10 +24,22 @@ export const getPool = async (event: APIGatewayEvent) => {
     // TODO: handle disabled button response
   }
   logger.info(JSON.stringify(poolAccount, null, 3));
-  const actions = pool.options.map((option) => ({
-    label: `Bet 1 SOL on ${option.title}`,
-    href: `/pools/${id}/options/${option.id}?value=1`,
-  }));
+  const actions = [
+    ...pool.options.map((option) => ({
+      label: `Bet 1 SOL on ${option.title}`,
+      href: `/pools/${id}/options/${option.id}?value=1`,
+    })),
+    ...pool.options.map((option) => ({
+      label: `Bet on ${option.title}`,
+      href: `/pools/${id}/options/${option.id}?value={amount}`,
+      parameters: [
+        {
+          name: "amount",
+          label: "Enter a SOL amount",
+        },
+      ],
+    })),
+  ];
   const metadata: ActionGetResponse = {
     icon: "https://ucarecdn.com/bb6ebebc-a810-4943-906d-5e3c2ca17b8d/-/preview/880x880/-/quality/smart/-/format/auto/",
     label: poolAccount.title,

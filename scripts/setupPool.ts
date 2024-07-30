@@ -1,15 +1,17 @@
 import pools from "../src/solanaActions/pools.json";
 import fs from "fs";
 import { adminAccount } from "./utils/constants";
-import { createPool } from "./utils/pools";
-import { createOption } from "./utils/options";
+import { createPool, derivePoolAccountKey } from "./utils/pools";
+import { createOption, deriveOptionAccountKey } from "./utils/options";
 
 const main = async () => {
-  const title = "Who will be named the next president of the United States?";
+  const title = "Who will win the 2024 US Presidential Elections?";
   const optionTitles = ["Trump", "Harris", "Other"];
+  // const poolAccountKey = await derivePoolAccountKey(title);
   const poolAccountKey = await createPool(title, adminAccount);
   const optionAccountKeys = await Promise.all(
     optionTitles.map((optionTitle) => {
+      // return deriveOptionAccountKey(optionTitle, poolAccountKey);
       return createOption(optionTitle, adminAccount, poolAccountKey);
     }),
   );

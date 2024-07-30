@@ -79,5 +79,5 @@ Example test which mocks an AWS service can be found in `src/clients/SecretClien
 ### Blinks:
 
 - Example Link: https://dial.to/?action=solana-action:https://blinkeditor.com/api/actions/d591a76018
-- https://dial.to/?action=solana-action:https://actions.degenmarkets.com/pools/GFjDFXHkCPRj28JLgKnBQMoj3DuyRjL9FfZZowedHUMp
+- https://dial.to/?action=solana-action:https://actions.degenmarkets.com/pools/FxGx236ZED36HJdcqkCF4Wb5WNpsmPKjQuGbPuaJaVRi
 - Solcasino blink pool tweet: https://x.com/Solcasinoio/status/1808847140036198778

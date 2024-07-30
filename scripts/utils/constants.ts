@@ -4,11 +4,12 @@ import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import idl from "../../src/solanaActions/target/idl/degen_pools.json";
 import { getLocalAccount } from "./keypairs";
 
-export const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-
-export const programId = new PublicKey(
-  "5nxUTpb7KpQU3jPvKDtpxT1wYu13ffMQCKLyxKXUNa4Z",
+export const connection = new Connection(
+  clusterApiUrl("mainnet-beta"),
+  "confirmed",
 );
+
+export const programId = new PublicKey(idl.address);
 
 export const adminAccount = getLocalAccount();
 

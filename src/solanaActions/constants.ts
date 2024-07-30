@@ -3,11 +3,12 @@ import idl from "./target/idl/degen_pools.json";
 import * as anchor from "@coral-xyz/anchor";
 import { DegenPools } from "./target/types/degen_pools";
 
-export const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-
-export const programId = new PublicKey(
-  "5nxUTpb7KpQU3jPvKDtpxT1wYu13ffMQCKLyxKXUNa4Z",
+export const connection = new Connection(
+  clusterApiUrl("mainnet-beta"),
+  "confirmed",
 );
+
+export const programId = new PublicKey(idl.address);
 
 export const provider = new anchor.AnchorProvider(
   connection,

@@ -26,20 +26,9 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
       async (): Promise<APIGatewayProxyResultV2> => ({
         statusCode: 200,
         body: "success",
+        headers: ACTIONS_CORS_HEADERS,
       }),
     ),
-  },
-  {
-    method: "GET",
-    path: "/actions.json",
-    handler: middy().handler(async () => {
-      const actionsJson = await getActionsJSON();
-      return {
-        statusCode: 200,
-        body: JSON.stringify(actionsJson),
-        headers: ACTIONS_CORS_HEADERS,
-      };
-    }),
   },
   {
     method: "GET",

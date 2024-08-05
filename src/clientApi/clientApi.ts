@@ -15,6 +15,7 @@ import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { BetService } from "../bets/BetService";
 import { buildOkResponse } from "../utils/httpResponses";
 import * as PlayerService from "../players/PlayerService";
+import PoolsJson from "../solanaActions/pools.json";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -74,6 +75,17 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
         event.queryStringParameters,
       );
       return buildOkResponse(players);
+    }),
+  },
+  {
+    method: "GET",
+    path: "/pools",
+    handler: middy().handler(async (event: APIGatewayEvent) => {
+      const pools = Object.entries(PoolsJson).map(([id, pool]) => ({
+        id,
+        ...pool,
+      }));
+      return buildOkResponse(pools);
     }),
   },
   {

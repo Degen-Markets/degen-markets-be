@@ -24,8 +24,7 @@ export class SettlementService {
   private betService = new BetService();
   private quotesService = new QuotesService();
   private readonly rpcUrl = getMandatoryEnvVariable("BASE_RPC_URL");
-  private readonly degenBetsAddress =
-    getMandatoryEnvVariable<`0x${string}`>("DEGEN_BETS_ADDRESS");
+
   private readonly degenBetsV2Address = getMandatoryEnvVariable<`0x${string}`>(
     "DEGEN_BETS_V2_ADDRESS",
   );

@@ -40,7 +40,6 @@ export class SettlementStack extends TaggedStack {
         DATABASE_PORT: database.instanceEndpoint.port.toString(),
         CMC_API_KEY: getMandatoryEnvVariable("CMC_API_KEY"),
         BASE_RPC_URL: getMandatoryEnvVariable("BASE_RPC_URL"),
-        DEGEN_BETS_ADDRESS: getMandatoryEnvVariable("DEGEN_BETS_ADDRESS"),
         DEGEN_BETS_V2_ADDRESS: getMandatoryEnvVariable("DEGEN_BETS_V2_ADDRESS"),
         TELEGRAM_BOT_KEY: getMandatoryEnvVariable("TELEGRAM_BOT_KEY"),
         TELEGRAM_CHAT_ID: getMandatoryEnvVariable("TELEGRAM_CHAT_ID"),

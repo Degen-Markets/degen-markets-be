@@ -68,7 +68,7 @@ export class DatabaseClient {
     }
   };
 
-  private createConnection = async () => {
+  createConnection = async (): Promise<Client> => {
     const config: ClientConfig = {
       user: this.user,
       host: this.host,

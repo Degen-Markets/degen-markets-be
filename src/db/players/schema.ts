@@ -1,13 +1,4 @@
-import {
-  index,
-  integer,
-  pgEnum,
-  pgTable,
-  text,
-  varchar,
-} from "drizzle-orm/pg-core";
-
-export const chainEnum = pgEnum("chain", ["base"]);
+import { index, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
 
 export const playersTable = pgTable(
   "players",
@@ -15,7 +6,7 @@ export const playersTable = pgTable(
     address: varchar("address").primaryKey(),
     name: varchar("name", { length: 20 }),
     avatarUrl: text("avatarUrl"),
-    chain: chainEnum("chain").notNull().default("base"),
+    chain: varchar("chain", { length: 20 }).notNull().default("base"),
     points: integer("points").notNull().default(0),
   },
   (table) => {

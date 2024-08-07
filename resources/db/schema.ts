@@ -1,4 +1,5 @@
-import { playersTable, chainEnum } from "../../src/db/players/schema";
+import { playersTable } from "../../src/db/players/schema";
+import { betsTable } from "../../src/db/bets/schema";
 
 // export all tables in db from this file
-export { playersTable, chainEnum };
+export { playersTable, betsTable };

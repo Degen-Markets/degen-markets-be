@@ -1,0 +1,370 @@
+{
+  "id": "3256d409-b15e-4920-aabb-4aaa3df91136",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.bets": {
+      "name": "bets",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "creator": {
+          "name": "creator",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creationTimestamp": {
+          "name": "creationTimestamp",
+          "type": "numeric(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "acceptor": {
+          "name": "acceptor",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acceptanceTimestamp": {
+          "name": "acceptanceTimestamp",
+          "type": "numeric(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ticker": {
+          "name": "ticker",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metric": {
+          "name": "metric",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "isBetOnUp": {
+          "name": "isBetOnUp",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expirationTimestamp": {
+          "name": "expirationTimestamp",
+          "type": "numeric(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric(256)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "startingMetricValue": {
+          "name": "startingMetricValue",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "endingMetricValue": {
+          "name": "endingMetricValue",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "winner": {
+          "name": "winner",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isWithdrawn": {
+          "name": "isWithdrawn",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "withdrawalTimestamp": {
+          "name": "withdrawalTimestamp",
+          "type": "numeric(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "lastActivityTimestamp": {
+          "name": "lastActivityTimestamp",
+          "type": "numeric(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "winTimestamp": {
+          "name": "winTimestamp",
+          "type": "numeric(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "strikePriceCreator": {
+          "name": "strikePriceCreator",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "strikePriceAcceptor": {
+          "name": "strikePriceAcceptor",
+          "type": "varchar(42)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "name": "type",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'binary'"
+        },
+        "isPaid": {
+          "name": "isPaid",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "chain": {
+          "name": "chain",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'base'"
+        },
+        "paidTx": {
+          "name": "paidTx",
+          "type": "varchar(66)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_currency": {
+          "name": "idx_currency",
+          "columns": [
+            {
+              "expression": "currency",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_ticker": {
+          "name": "idx_ticker",
+          "columns": [
+            {
+              "expression": "ticker",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_acceptor": {
+          "name": "idx_acceptor",
+          "columns": [
+            {
+              "expression": "acceptor",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_creator": {
+          "name": "idx_creator",
+          "columns": [
+            {
+              "expression": "creator",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_winner": {
+          "name": "idx_winner",
+          "columns": [
+            {
+              "expression": "winner",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_expirationTimestamp": {
+          "name": "idx_expirationTimestamp",
+          "columns": [
+            {
+              "expression": "expirationTimestamp",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_lastActivityTimestamp": {
+          "name": "idx_lastActivityTimestamp",
+          "columns": [
+            {
+              "expression": "lastActivityTimestamp",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_acceptanceTimestamp": {
+          "name": "idx_acceptanceTimestamp",
+          "columns": [
+            {
+              "expression": "acceptanceTimestamp",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_withdrawalTimestamp": {
+          "name": "idx_withdrawalTimestamp",
+          "columns": [
+            {
+              "expression": "withdrawalTimestamp",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_creationTimestamp": {
+          "name": "idx_creationTimestamp",
+          "columns": [
+            {
+              "expression": "creationTimestamp",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_winTimestamp": {
+          "name": "idx_winTimestamp",
+          "columns": [
+            {
+              "expression": "winTimestamp",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_chain": {
+          "name": "idx_chain",
+          "columns": [
+            {
+              "expression": "chain",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_type": {
+          "name": "idx_type",
+          "columns": [
+            {
+              "expression": "type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

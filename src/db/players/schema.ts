@@ -14,7 +14,7 @@ export const playersTable = pgTable(
   {
     address: varchar("address").primaryKey(),
     name: varchar("name", { length: 20 }),
-    avatarUrl: text('"avatarUrl"'),
+    avatarUrl: text("avatarUrl"),
     chain: chainEnum("chain").notNull().default("base"),
     points: integer("points").notNull().default(0),
   },

@@ -12,6 +12,7 @@
     "cdk": "cdk",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --fix --ext .ts",
+    "generate-migrations": "drizzle-kit generate --config drizzle.config.ts",
     "prepare": "husky"
   },
   "lint-staged": {

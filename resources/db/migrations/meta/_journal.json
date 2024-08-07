@@ -8,6 +8,13 @@
       "when": 1723020079935,
       "tag": "0000_romantic_whirlwind",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1723021780413,
+      "tag": "0001_perpetual_strong_guy",
+      "breakpoints": true
     }
   ]
 }

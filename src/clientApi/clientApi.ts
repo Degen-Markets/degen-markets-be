@@ -16,6 +16,7 @@ import { BetService } from "../bets/BetService";
 import { buildOkResponse } from "../utils/httpResponses";
 import * as PlayerService from "../players/PlayerService";
 import PoolsJson from "../solanaActions/pools.json";
+import { tickerToCmcId } from "../utils/cmcApi";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -86,6 +87,17 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
         ...pool,
       }));
       return buildOkResponse(pools);
+    }),
+  },
+  {
+    method: "GET",
+    path: "/tickers",
+    handler: middy().handler(async (event: APIGatewayEvent) => {
+      const tickers = Object.entries(tickerToCmcId).map(([ticker, id]) => ({
+        id,
+        ticker,
+      }));
+      return buildOkResponse(tickers);
     }),
   },
   {

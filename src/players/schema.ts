@@ -1,14 +1,17 @@
 import { index, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { typedObjectKeys } from "../../lib/utils";
+
+const playersTableColumnsConfig = {
+  address: varchar("address").primaryKey(),
+  name: varchar("name", { length: 20 }),
+  avatarUrl: text("avatarUrl"),
+  chain: varchar("chain", { length: 20 }).notNull().default("base"),
+  points: integer("points").notNull().default(0),
+};
 
 export const playersTable = pgTable(
   "players",
-  {
-    address: varchar("address").primaryKey(),
-    name: varchar("name", { length: 20 }),
-    avatarUrl: text("avatarUrl"),
-    chain: varchar("chain", { length: 20 }).notNull().default("base"),
-    points: integer("points").notNull().default(0),
-  },
+  playersTableColumnsConfig,
   (table) => {
     return {
       idxPoints: index("idx_points").on(table.points),
@@ -16,5 +19,6 @@ export const playersTable = pgTable(
   },
 );
 
-export type PlayerEntity = typeof playersTable.$inferSelect;
-export type PlayerInsertEntity = typeof playersTable.$inferInsert;
+export const playersTableColumnNames = typedObjectKeys(
+  playersTableColumnsConfig,
+);

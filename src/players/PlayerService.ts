@@ -1,65 +1,69 @@
-import { DatabaseClient } from "../clients/DatabaseClient";
-import { APIGatewayProxyEventQueryStringParameters } from "aws-lambda/trigger/api-gateway-proxy";
 import { Logger } from "@aws-lambda-powertools/logger";
-import { Player } from "./types";
+import { PlayerEntity } from "./types";
+import { DrizzleClient } from "../clients/DrizzleClient";
+import { playersTable, playersTableColumnNames } from "./schema";
+import { typedObjectEntries, typedObjectKeys } from "../../lib/utils";
+import { asc, desc } from "drizzle-orm";
 
-const databaseClient = new DatabaseClient();
+const MAX_PLAYERS_RETURNED_LIMIT = 10;
+const DEFAULT_PLAYERS_OFFSET = 0;
+
+// This should probably be in a separate file, cause it deals with query string details
+export enum ESortDirections {
+  ASC = "ASC", // ascending
+  DESC = "DESC", // descending
+}
 
 const logger = new Logger({ serviceName: "PlayerService" });
 
-export const getSafeOrderByColumn = (queryParam: string): string => {
-  switch (queryParam) {
-    case "betCount":
-    default:
-      return "betCount";
-  }
+export const getIsValidFieldName = (
+  inputStr: string,
+): inputStr is keyof PlayerEntity => {
+  return playersTableColumnNames.includes(inputStr as any);
 };
 
-export const findAllPlayers = async (
-  queryStringParameters: APIGatewayProxyEventQueryStringParameters | null,
-): Promise<Player[]> => {
+export const getIsValidSortDirection = (
+  inputStr: string,
+): inputStr is ESortDirections => {
+  return typedObjectKeys(ESortDirections).includes(inputStr as any);
+};
+
+export const findAllPlayers = async ({
+  limit: limitVal = MAX_PLAYERS_RETURNED_LIMIT,
+  offset: offsetVal = DEFAULT_PLAYERS_OFFSET,
+  orderBy: orderByVal = { points: ESortDirections.DESC },
+}: {
+  limit?: number;
+  offset?: number;
+  orderBy?: Partial<Record<keyof PlayerEntity, ESortDirections>>;
+} = {}): Promise<PlayerEntity[]> => {
+  // refine args
+  const effectiveLimitVal =
+    limitVal < MAX_PLAYERS_RETURNED_LIMIT
+      ? limitVal
+      : MAX_PLAYERS_RETURNED_LIMIT;
+
   logger.info(
-    `fetching players with query params: ${JSON.stringify(queryStringParameters)}`,
+    `fetching players with params: ${JSON.stringify({ limit: effectiveLimitVal, offset: offsetVal, orderByVal })}`,
   );
-  let limit = 10;
-  if (!isNaN(Number(queryStringParameters?.limit))) {
-    limit = Number(queryStringParameters?.limit);
-  }
-  logger.info(`Limit is ${limit}`);
 
-  let offset = 0;
-  if (!isNaN(Number(queryStringParameters?.offset))) {
-    offset = Number(queryStringParameters?.offset);
-  }
-  logger.info(`Offset is ${offset}`);
+  // transformations
+  // TODO; Make this a map which checks if direction is undefined (Partial<>)
+  const orderByValEntries = typedObjectEntries(orderByVal).map(
+    ([fieldName, direction]) =>
+      direction === ESortDirections.ASC
+        ? asc(playersTable[fieldName])
+        : desc(playersTable[fieldName]),
+  );
 
-  let orderBy = "betCount";
-  let orderByDirection = "DESC";
-  if (queryStringParameters?.sort) {
-    const includesOrderByDirection = queryStringParameters.sort.includes(":");
-    const orderByField = includesOrderByDirection
-      ? queryStringParameters.sort.split(":")[0]
-      : queryStringParameters.sort;
-    if (
-      includesOrderByDirection &&
-      queryStringParameters.sort.split(":")[1].toLowerCase() === "asc"
-    ) {
-      orderByDirection = "ASC";
-    }
-    orderBy = getSafeOrderByColumn(orderByField);
-  }
+  const db = await DrizzleClient.makeDb();
+  const playersArr = await db
+    .select()
+    .from(playersTable)
+    .orderBy(...orderByValEntries)
+    .limit(effectiveLimitVal)
+    .offset(offsetVal);
 
-  const query = `
-      SELECT id, COUNT(*) as "betCount"
-          FROM (
-               SELECT creator AS id FROM bets
-               UNION ALL
-               SELECT acceptor AS id FROM bets WHERE acceptor IS NOT NULL
-           ) AS combined
-          GROUP BY id ORDER BY "${orderBy}" ${orderByDirection} LIMIT ${limit} OFFSET ${offset};
-  `;
-
-  const result = await databaseClient.executeStatement<Player>(query);
-  logger.debug(JSON.stringify(result));
-  return result.rows;
+  logger.debug(JSON.stringify(playersArr));
+  return playersArr;
 };

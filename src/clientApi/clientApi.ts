@@ -14,9 +14,8 @@ import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { BetService } from "../bets/BetService";
 import { buildOkResponse } from "../utils/httpResponses";
-import * as PlayerService from "../players/PlayerService";
 import PoolsJson from "../solanaActions/pools.json";
-import { buildBadRequestError } from "../utils/errors";
+import playersHandler from "./handlers/playersHandler";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -71,45 +70,7 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/players",
-    handler: middy().handler(
-      async ({ queryStringParameters: qs }: APIGatewayEvent) => {
-        const playerListParams: Parameters<
-          typeof PlayerService.findAllPlayers
-        >[0] = {};
-        if (qs) {
-          if (qs.limit) {
-            const limit = Number(qs.limit);
-            if (isNaN(limit))
-              return buildBadRequestError(
-                `Invalid limit parameter(${qs.limit})`,
-              );
-
-            playerListParams.limit = limit;
-          }
-          if (qs.offset) {
-            const offset = Number(qs.offset);
-            if (isNaN(offset))
-              return buildBadRequestError(
-                `Invalid offset parameter(${qs.offset})`,
-              );
-
-            playerListParams.offset = offset;
-          }
-          if (qs.sort) {
-            const [sortByField = "", sortDir = ""] = qs.sort.split(":");
-            if (
-              PlayerService.getIsValidFieldName(sortByField) &&
-              PlayerService.getIsValidSortDirection(sortDir)
-            ) {
-              playerListParams.orderBy = { [sortByField]: sortDir };
-            } else
-              return buildBadRequestError(`Invalid sort parameter(${qs.sort})`);
-          }
-        }
-        const players = await PlayerService.findAllPlayers(playerListParams);
-        return buildOkResponse(players);
-      },
-    ),
+    handler: middy().handler(playersHandler),
   },
   {
     method: "GET",

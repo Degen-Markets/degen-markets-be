@@ -31,7 +31,8 @@ const playersHandler = async ({
       playerListParams.offset = offset;
     }
     if (qs.sort) {
-      const [sortByField = "", sortDir = ""] = qs.sort.split(":");
+      const [sortByField = "", sortDir = PlayerService.ESortDirections.DESC] =
+        qs.sort.split(":");
       if (
         PlayerService.getIsValidFieldName(sortByField) &&
         PlayerService.getIsValidSortDirection(sortDir)

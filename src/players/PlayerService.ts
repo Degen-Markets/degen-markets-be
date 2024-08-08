@@ -3,7 +3,7 @@ import { PlayerEntity } from "./types";
 import { DrizzleClient } from "../clients/DrizzleClient";
 import { playersTable, playersTableColumnNames } from "./schema";
 import { typedObjectEntries, typedObjectKeys } from "../../lib/utils";
-import { asc, desc } from "drizzle-orm";
+import { SQL, asc, desc } from "drizzle-orm";
 
 const MAX_PLAYERS_RETURNED_LIMIT = 10;
 const DEFAULT_PLAYERS_OFFSET = 0;
@@ -48,12 +48,19 @@ export const findAllPlayers = async ({
   );
 
   // transformations
-  // TODO; Make this a map which checks if direction is undefined (Partial<>)
-  const orderByValEntries = typedObjectEntries(orderByVal).map(
-    ([fieldName, direction]) =>
-      direction === ESortDirections.ASC
-        ? asc(playersTable[fieldName])
-        : desc(playersTable[fieldName]),
+  const orderByValEntries = typedObjectEntries(orderByVal).reduce(
+    (list, [fieldName, direction]) => {
+      // only add as an orderBy clause, if there is a valid direction
+      if (direction && getIsValidSortDirection(direction)) {
+        const newOrderEntry =
+          direction === ESortDirections.ASC
+            ? asc(playersTable[fieldName])
+            : desc(playersTable[fieldName]);
+        return list.concat(newOrderEntry);
+      }
+      return list;
+    },
+    [] as SQL<unknown>[],
   );
 
   const db = await DrizzleClient.makeDb();

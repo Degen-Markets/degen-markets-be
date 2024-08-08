@@ -92,11 +92,19 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/tickers",
-    handler: middy().handler(async (event: APIGatewayEvent) => {
+    handler: middy().handler(async () => {
       const tickers = Object.entries(tickerToCmcId).map(([ticker, id]) => ({
         id,
         ticker,
       }));
+      return buildOkResponse(tickers);
+    }),
+  },
+  {
+    method: "GET",
+    path: "/ticker-popularity",
+    handler: middy().handler(async () => {
+      const tickers = await betService.findPopularTickers();
       return buildOkResponse(tickers);
     }),
   },

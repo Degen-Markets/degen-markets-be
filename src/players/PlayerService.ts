@@ -2,20 +2,12 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { PlayerEntity } from "./types";
 import { DrizzleClient } from "../clients/DrizzleClient";
 import { playersTable, playersTableColumnNames } from "./schema";
-import {
-  typedObjectEntries,
-  typedObjectKeys,
-} from "../utils/typedObjectMethods";
+import { typedObjectEntries } from "../utils/typedObjectMethods";
 import { SQL, asc, desc } from "drizzle-orm";
+import { ESortDirections } from "../utils/queryString";
 
 const MAX_PLAYERS_RETURNED_LIMIT = 10;
 const DEFAULT_PLAYERS_OFFSET = 0;
-
-// This should probably be in a separate file, cause it deals with query string details
-export enum ESortDirections {
-  ASC = "ASC", // ascending
-  DESC = "DESC", // descending
-}
 
 const logger = new Logger({ serviceName: "PlayerService" });
 
@@ -23,12 +15,6 @@ export const getIsValidFieldName = (
   inputStr: string,
 ): inputStr is keyof PlayerEntity => {
   return playersTableColumnNames.includes(inputStr as any);
-};
-
-export const getIsValidSortDirection = (
-  inputStr: string,
-): inputStr is ESortDirections => {
-  return typedObjectKeys(ESortDirections).includes(inputStr as any);
 };
 
 export const findAllPlayers = async ({
@@ -50,14 +36,13 @@ export const findAllPlayers = async ({
   const orderByValEntries = typedObjectEntries(orderByVal).reduce(
     (list, [fieldName, direction]) => {
       // only add as an orderBy clause, if there is a valid direction
-      if (direction && getIsValidSortDirection(direction)) {
-        const newOrderEntry =
-          direction === ESortDirections.ASC
-            ? asc(playersTable[fieldName])
-            : desc(playersTable[fieldName]);
-        return list.concat(newOrderEntry);
-      }
-      return list;
+      if (!direction) return list;
+
+      const newOrderEntry =
+        direction === ESortDirections.ASC
+          ? asc(playersTable[fieldName])
+          : desc(playersTable[fieldName]);
+      return list.concat(newOrderEntry);
     },
     [] as SQL<unknown>[],
   );

@@ -46,10 +46,6 @@ export const findAllPlayers = async ({
       ? limitVal
       : MAX_PLAYERS_RETURNED_LIMIT;
 
-  logger.info(
-    `fetching players with params: ${JSON.stringify({ limit: effectiveLimitVal, offset: offsetVal, orderByVal })}`,
-  );
-
   // transformations
   const orderByValEntries = typedObjectEntries(orderByVal).reduce(
     (list, [fieldName, direction]) => {

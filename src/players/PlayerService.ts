@@ -2,7 +2,10 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { PlayerEntity } from "./types";
 import { DrizzleClient } from "../clients/DrizzleClient";
 import { playersTable, playersTableColumnNames } from "./schema";
-import { typedObjectEntries, typedObjectKeys } from "../../lib/utils";
+import {
+  typedObjectEntries,
+  typedObjectKeys,
+} from "../utils/typedObjectMethods";
 import { SQL, asc, desc } from "drizzle-orm";
 
 const MAX_PLAYERS_RETURNED_LIMIT = 10;

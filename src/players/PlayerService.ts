@@ -9,8 +9,8 @@ import { betsTable } from "../bets/schema";
 
 const logger = new Logger({ serviceName: "PlayerService" });
 
-type ExtraFields = { betCount: number; winCount: number };
-type ExtendedPlayerEntity = PlayerEntity & ExtraFields;
+type CountsData = { betCount: number; winCount: number };
+type ExtendedPlayerEntity = PlayerEntity & CountsData;
 
 export const findAllPlayers = async ({
   limit: limitVal,
@@ -48,30 +48,36 @@ export const findAllPlayers = async ({
   const playersArr = await query;
 
   // extended data from bets table
-  let playersWithCountsArr: ExtendedPlayerEntity[] = [];
-  playersArr.forEach(async (player) => {
-    const res: ExtraFields | undefined = (
-      await db
-        .select({
-          betCount: count(),
-          winCount: sum(
-            sql`CASE WHEN ${betsTable.winner} = ${player.address} THEN 1 ELSE 0 END`,
-          ).mapWith(Number),
-        })
-        .from(betsTable)
-        .where(
-          or(
-            eq(betsTable.creator, player.address),
-            eq(betsTable.acceptor, player.address),
-          ),
-        )
-    )[0];
-    const playerWithCount = {
-      ...player,
-      ...(res || { betCount: 0, winCount: 0 }),
-    };
-    playersWithCountsArr.push(playerWithCount);
-  });
+  const playerCountsData: Record<PlayerEntity["address"], CountsData> = {};
+  await Promise.all(
+    playersArr.map(async (player) => {
+      const countData: CountsData | undefined = (
+        await db
+          .select({
+            betCount: count(),
+            winCount: sum(
+              sql`CASE WHEN LOWER(${betsTable.winner}) = LOWER(${player.address}) THEN 1 ELSE 0 END`,
+            ).mapWith(Number),
+          })
+          .from(betsTable)
+          .where(
+            or(
+              eq(betsTable.creator, player.address),
+              eq(betsTable.acceptor, player.address),
+            ),
+          )
+      )[0];
+      playerCountsData[player.address] = countData;
+    }),
+  );
+
+  // doing it this way ensures the order from the initial sort query is conserved
+  const playersWithCountsArr: ExtendedPlayerEntity[] = playersArr.map(
+    (playerBaseData) => ({
+      ...playerBaseData,
+      ...playerCountsData[playerBaseData.address],
+    }),
+  );
 
   logger.debug(
     `Players fetched with filter args ${JSON.stringify({ limit: limitVal, offset: offsetVal, orderBy: orderByVal })}. Result is ${JSON.stringify(playersWithCountsArr)}`,

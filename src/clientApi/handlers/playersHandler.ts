@@ -7,6 +7,8 @@ import { ESortDirections } from "../../utils/queryString";
 import { typedIncludes, typedObjectKeys } from "../../utils/typedStdLib";
 import { playersTableColumnNames } from "../../players/schema";
 
+const MAX_PLAYERS_RETURNED_LIMIT = 10;
+
 const logger = new Logger({
   serviceName: "GetPlayersHandler",
 });
@@ -17,8 +19,9 @@ const playersHandler = async ({
   logger.info(
     `fetching players with querystring params: ${JSON.stringify(qs)}`,
   );
-  const playerListParams: Parameters<typeof PlayerService.findAllPlayers>[0] =
-    {};
+  const playerListParams: Parameters<typeof PlayerService.findAllPlayers>[0] = {
+    limit: MAX_PLAYERS_RETURNED_LIMIT,
+  };
   if (qs) {
     if (qs.limit) {
       const limit = Number(qs.limit);
@@ -27,7 +30,8 @@ const playersHandler = async ({
         return buildBadRequestError(`Invalid limit parameter(${qs.limit})`);
       }
 
-      playerListParams.limit = limit;
+      playerListParams.limit =
+        limit < MAX_PLAYERS_RETURNED_LIMIT ? limit : MAX_PLAYERS_RETURNED_LIMIT;
     }
     if (qs.offset) {
       const offset = Number(qs.offset);

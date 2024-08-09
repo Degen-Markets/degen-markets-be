@@ -6,30 +6,21 @@ import { typedObjectEntries } from "../utils/typedStdLib";
 import { SQL, asc, desc } from "drizzle-orm";
 import { ESortDirections } from "../utils/queryString";
 
-const MAX_PLAYERS_RETURNED_LIMIT = 10;
-const DEFAULT_PLAYERS_OFFSET = 0;
-
 const logger = new Logger({ serviceName: "PlayerService" });
 
 export const findAllPlayers = async ({
-  limit: limitVal = MAX_PLAYERS_RETURNED_LIMIT,
-  offset: offsetVal = DEFAULT_PLAYERS_OFFSET,
+  limit: limitVal,
+  offset: offsetVal,
   orderBy: orderByVal = { points: ESortDirections.DESC },
 }: {
   limit?: number;
   offset?: number;
   orderBy?: Partial<Record<keyof PlayerEntity, ESortDirections>>;
 } = {}): Promise<PlayerEntity[]> => {
-  // refine args
-  const effectiveLimitVal =
-    limitVal < MAX_PLAYERS_RETURNED_LIMIT
-      ? limitVal
-      : MAX_PLAYERS_RETURNED_LIMIT;
-
   // transformations
   const orderByValEntries = typedObjectEntries(orderByVal).reduce(
     (list, [fieldName, direction]) => {
-      // only add as an orderBy clause, if there is a valid direction
+      // only add as an `orderBy` clause if there is a valid direction
       if (!direction) return list;
 
       const newOrderEntry =
@@ -42,13 +33,18 @@ export const findAllPlayers = async ({
   );
 
   const db = await DrizzleClient.makeDb();
-  const playersArr = await db
-    .select()
-    .from(playersTable)
-    .orderBy(...orderByValEntries)
-    .limit(effectiveLimitVal)
-    .offset(offsetVal);
+  let query = db.select().from(playersTable).$dynamic(); // base query
 
-  logger.debug(JSON.stringify(playersArr));
+  // conditionally filter
+  if (orderByValEntries.length) query = query.orderBy(...orderByValEntries);
+  if (limitVal) query = query.limit(limitVal);
+  if (offsetVal) query = query.offset(offsetVal);
+
+  // execute
+  const playersArr = await query;
+
+  logger.debug(
+    `Players fetched with filter args ${JSON.stringify({ limit: limitVal, offset: offsetVal, orderBy: orderByVal })}. Result is ${JSON.stringify(playersArr)}`,
+  );
   return playersArr;
 };

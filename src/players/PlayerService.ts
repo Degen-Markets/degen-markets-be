@@ -15,7 +15,7 @@ type ExtendedPlayerEntity = PlayerEntity & ExtraFields;
 export const findAllPlayers = async ({
   limit: limitVal,
   offset: offsetVal,
-  orderBy: orderByVal = { points: ESortDirections.DESC },
+  orderBy: orderByVal = {},
 }: {
   limit?: number;
   offset?: number;

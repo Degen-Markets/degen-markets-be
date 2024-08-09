@@ -1,5 +1,5 @@
 import { index, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { typedObjectKeys } from "../utils/typedObjectMethods";
+import { typedObjectKeys } from "../utils/typedStdLib";
 
 const playersTableColumnsConfig = {
   address: varchar("address").primaryKey(),

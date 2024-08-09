@@ -3,10 +3,9 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import * as PlayerService from "../../players/PlayerService";
 import { buildBadRequestError } from "../../utils/errors";
 import { buildOkResponse } from "../../utils/httpResponses";
-import {
-  ESortDirections,
-  getIsValidSortDirection,
-} from "../../utils/queryString";
+import { ESortDirections } from "../../utils/queryString";
+import { typedIncludes, typedObjectKeys } from "../../utils/typedStdLib";
+import { playersTableColumnNames } from "../../players/schema";
 
 const logger = new Logger({
   serviceName: "GetPlayersHandler",
@@ -43,8 +42,8 @@ const playersHandler = async ({
       const [sortByField = "", sortDir = ESortDirections.DESC] =
         qs.sort.split(":");
       if (
-        PlayerService.getIsValidFieldName(sortByField) &&
-        getIsValidSortDirection(sortDir)
+        typedIncludes(playersTableColumnNames, sortByField) &&
+        typedIncludes(typedObjectKeys(ESortDirections), sortDir)
       ) {
         playerListParams.orderBy = { [sortByField]: sortDir };
       } else {

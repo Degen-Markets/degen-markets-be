@@ -1,8 +1,8 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { PlayerEntity } from "./types";
 import { DrizzleClient } from "../clients/DrizzleClient";
-import { playersTable, playersTableColumnNames } from "./schema";
-import { typedObjectEntries } from "../utils/typedObjectMethods";
+import { playersTable } from "./schema";
+import { typedObjectEntries } from "../utils/typedStdLib";
 import { SQL, asc, desc } from "drizzle-orm";
 import { ESortDirections } from "../utils/queryString";
 
@@ -10,12 +10,6 @@ const MAX_PLAYERS_RETURNED_LIMIT = 10;
 const DEFAULT_PLAYERS_OFFSET = 0;
 
 const logger = new Logger({ serviceName: "PlayerService" });
-
-export const getIsValidFieldName = (
-  inputStr: string,
-): inputStr is keyof PlayerEntity => {
-  return playersTableColumnNames.includes(inputStr as any);
-};
 
 export const findAllPlayers = async ({
   limit: limitVal = MAX_PLAYERS_RETURNED_LIMIT,

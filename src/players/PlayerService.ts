@@ -3,10 +3,14 @@ import { PlayerEntity } from "./types";
 import { DrizzleClient } from "../clients/DrizzleClient";
 import { playersTable } from "./schema";
 import { typedObjectEntries } from "../utils/typedStdLib";
-import { SQL, asc, desc } from "drizzle-orm";
+import { SQL, asc, count, desc, eq, inArray, or, sql, sum } from "drizzle-orm";
 import { ESortDirections } from "../utils/queryString";
+import { betsTable } from "../bets/schema";
 
 const logger = new Logger({ serviceName: "PlayerService" });
+
+type ExtraFields = { betCount: number; winCount: number };
+type ExtendedPlayerEntity = PlayerEntity & ExtraFields;
 
 export const findAllPlayers = async ({
   limit: limitVal,
@@ -16,7 +20,7 @@ export const findAllPlayers = async ({
   limit?: number;
   offset?: number;
   orderBy?: Partial<Record<keyof PlayerEntity, ESortDirections>>;
-} = {}): Promise<PlayerEntity[]> => {
+} = {}): Promise<ExtendedPlayerEntity[]> => {
   // transformations
   const orderByValEntries = typedObjectEntries(orderByVal).reduce(
     (list, [fieldName, direction]) => {
@@ -43,8 +47,34 @@ export const findAllPlayers = async ({
   // execute
   const playersArr = await query;
 
+  // extended data from bets table
+  let playersWithCountsArr: ExtendedPlayerEntity[] = [];
+  playersArr.forEach(async (player) => {
+    const res: ExtraFields | undefined = (
+      await db
+        .select({
+          betCount: count(),
+          winCount: sum(
+            sql`CASE WHEN ${betsTable.winner} = ${player.address} THEN 1 ELSE 0 END`,
+          ).mapWith(Number),
+        })
+        .from(betsTable)
+        .where(
+          or(
+            eq(betsTable.creator, player.address),
+            eq(betsTable.acceptor, player.address),
+          ),
+        )
+    )[0];
+    const playerWithCount = {
+      ...player,
+      ...(res || { betCount: 0, winCount: 0 }),
+    };
+    playersWithCountsArr.push(playerWithCount);
+  });
+
   logger.debug(
-    `Players fetched with filter args ${JSON.stringify({ limit: limitVal, offset: offsetVal, orderBy: orderByVal })}. Result is ${JSON.stringify(playersArr)}`,
+    `Players fetched with filter args ${JSON.stringify({ limit: limitVal, offset: offsetVal, orderBy: orderByVal })}. Result is ${JSON.stringify(playersWithCountsArr)}`,
   );
-  return playersArr;
+  return playersWithCountsArr;
 };

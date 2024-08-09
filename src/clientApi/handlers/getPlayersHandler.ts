@@ -8,6 +8,7 @@ import { typedIncludes, typedObjectKeys } from "../../utils/typedStdLib";
 import { playersTableColumnNames } from "../../players/schema";
 
 const MAX_PLAYERS_RETURNED_LIMIT = 10;
+const ALLOWED_SORT_COLS = ["points"] satisfies typeof playersTableColumnNames;
 
 const logger = new Logger({
   serviceName: "GetPlayersHandler",
@@ -21,6 +22,7 @@ const playersHandler = async ({
   );
   const playerListParams: Parameters<typeof PlayerService.findAllPlayers>[0] = {
     limit: MAX_PLAYERS_RETURNED_LIMIT,
+    orderBy: { points: ESortDirections.DESC },
   };
   if (qs) {
     if (qs.limit) {
@@ -46,10 +48,13 @@ const playersHandler = async ({
       const [sortByField = "", sortDir = ESortDirections.DESC] =
         qs.sort.split(":");
       if (
-        typedIncludes(playersTableColumnNames, sortByField) &&
+        typedIncludes(ALLOWED_SORT_COLS, sortByField) &&
         typedIncludes(typedObjectKeys(ESortDirections), sortDir)
       ) {
-        playerListParams.orderBy = { [sortByField]: sortDir };
+        playerListParams.orderBy = {
+          [sortByField]:
+            sortDir === "ASC" ? ESortDirections.ASC : ESortDirections.DESC,
+        };
       } else {
         logger.error(`Invalid sort parameter(${qs.sort})`);
         return buildBadRequestError(`Invalid sort parameter(${qs.sort})`);

@@ -1,4 +1,4 @@
-import playersHandler from "../getPlayersHandler";
+import getPlayersHandler from "../getPlayersHandler";
 import * as PlayerService from "../../../players/PlayerService";
 import { buildBadRequestError } from "../../../utils/errors";
 import { buildOkResponse } from "../../../utils/httpResponses";
@@ -48,7 +48,7 @@ describe("getPlayersHandler", () => {
     spiedFindAllPlayers.mockResolvedValueOnce(playersListArr);
 
     // call the fn
-    const response = await playersHandler(event);
+    const response = await getPlayersHandler(event);
 
     // expects
     expect(logger.info).toHaveBeenCalledWith(
@@ -81,7 +81,7 @@ describe("getPlayersHandler", () => {
     });
 
     // call the fn
-    const response = await playersHandler(event);
+    const response = await getPlayersHandler(event);
 
     // expects
     expect(logger.info).toHaveBeenCalledWith(

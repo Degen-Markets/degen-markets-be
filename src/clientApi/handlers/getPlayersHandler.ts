@@ -16,7 +16,7 @@ const logger = new Logger({
   serviceName: "GetPlayersHandler",
 });
 
-const playersHandler = async ({
+const getPlayersHandler = async ({
   queryStringParameters: qs,
 }: APIGatewayEvent) => {
   logger.info(
@@ -31,7 +31,7 @@ const playersHandler = async ({
   );
   if (!getParamToListPlayersFromQsTrial.success) {
     const { err } = getParamToListPlayersFromQsTrial;
-    if (typeof err === "string") logger.error(err);
+    if (err instanceof Error) logger.error(err.message);
     return buildBadRequestError(
       `Bad query string parameters (${JSON.stringify(qs)})`,
     );
@@ -44,4 +44,4 @@ const playersHandler = async ({
   return buildOkResponse(playersList);
 };
 
-export default playersHandler;
+export default getPlayersHandler;

@@ -37,7 +37,7 @@ const getPlayersHandler = async ({
     );
   }
 
-  const playersList = await PlayerService.findAllPlayers(
+  const playersList = await PlayerService.findPlayers(
     getParamToListPlayersFromQsTrial.data,
   );
   logger.info(`Successfully fetched players for qs=${JSON.stringify(qs)}`);

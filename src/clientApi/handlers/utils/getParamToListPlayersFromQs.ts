@@ -6,7 +6,7 @@ import { playersTableColumnNames } from "../../../players/schema";
 import { typedIncludes, typedObjectKeys } from "../../../utils/typedStdLib";
 
 type ParamToListPlayers = NonNullable<
-  Parameters<typeof PlayerService.findAllPlayers>[0]
+  Parameters<typeof PlayerService.findPlayers>[0]
 >;
 
 export default function getParamToListPlayersFromQs(
@@ -21,7 +21,7 @@ export default function getParamToListPlayersFromQs(
     allowedSortCols: typeof playersTableColumnNames;
   },
 ): ParamToListPlayers {
-  const result: Parameters<typeof PlayerService.findAllPlayers>[0] = {
+  const result: Parameters<typeof PlayerService.findPlayers>[0] = {
     limit: maxPlayersReturned,
     orderBy: defaultOrderBy,
   };

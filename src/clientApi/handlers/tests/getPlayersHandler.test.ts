@@ -7,7 +7,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { createApiGwEvent } from "./utils/createEvent";
 
 jest.mock("../../../players/PlayerService");
-const spiedFindAllPlayers = jest.spyOn(PlayerService, "findAllPlayers");
+const spiedFindPlayers = jest.spyOn(PlayerService, "findPlayers");
 
 jest.mock("../utils/getParamToListPlayersFromQs");
 const mockedGetParamToListPlayersFromQs = jest.mocked(
@@ -33,7 +33,7 @@ describe("getPlayersHandler", () => {
     mockedGetParamToListPlayersFromQs.mockReturnValueOnce(paramToListPlayers);
 
     const playersListArr: Awaited<
-      ReturnType<typeof PlayerService.findAllPlayers>
+      ReturnType<typeof PlayerService.findPlayers>
     > = [
       {
         address: "0xabc",
@@ -45,7 +45,7 @@ describe("getPlayersHandler", () => {
         avatarUrl: null,
       },
     ];
-    spiedFindAllPlayers.mockResolvedValueOnce(playersListArr);
+    spiedFindPlayers.mockResolvedValueOnce(playersListArr);
 
     // call the fn
     const response = await getPlayersHandler(event);
@@ -58,9 +58,7 @@ describe("getPlayersHandler", () => {
       queryStringParameters,
       expect.any(Object),
     );
-    expect(PlayerService.findAllPlayers).toHaveBeenCalledWith(
-      paramToListPlayers,
-    );
+    expect(PlayerService.findPlayers).toHaveBeenCalledWith(paramToListPlayers);
     logger.info(
       `Successfully fetched players for qs=${JSON.stringify(queryStringParameters)}`,
     );

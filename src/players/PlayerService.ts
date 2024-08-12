@@ -12,7 +12,7 @@ const logger = new Logger({ serviceName: "PlayerService" });
 type CountsData = { betCount: number; winCount: number };
 type ExtendedPlayerEntity = PlayerEntity & CountsData;
 
-export const findAllPlayers = async ({
+export const findPlayers = async ({
   limit: limitVal,
   offset: offsetVal,
   orderBy: orderByVal = {},

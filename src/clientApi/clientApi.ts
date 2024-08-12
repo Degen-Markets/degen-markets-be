@@ -14,9 +14,9 @@ import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { BetService } from "../bets/BetService";
 import { buildOkResponse } from "../utils/httpResponses";
-import * as PlayerService from "../players/PlayerService";
 import PoolsJson from "../solanaActions/pools.json";
 import { tickerToCmcId } from "../utils/cmcApi";
+import getPlayersHandler from "./handlers/getPlayersHandler";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -71,12 +71,7 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/players",
-    handler: middy().handler(async (event: APIGatewayEvent) => {
-      const players = await PlayerService.findAllPlayers(
-        event.queryStringParameters,
-      );
-      return buildOkResponse(players);
-    }),
+    handler: middy().handler(getPlayersHandler),
   },
   {
     method: "GET",

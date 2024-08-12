@@ -3,6 +3,10 @@
 *.d.ts
 node_modules
 
+# Dev temp files
+*.dev.*
+*.dev/
+
 # CDK asset staging directory
 .cdk.staging
 cdk.out

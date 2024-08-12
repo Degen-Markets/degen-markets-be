@@ -15,6 +15,7 @@ import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { BetService } from "../bets/BetService";
 import { buildOkResponse } from "../utils/httpResponses";
 import PoolsJson from "../solanaActions/pools.json";
+import { tickerToCmcId } from "../utils/cmcApi";
 import getPlayersHandler from "./handlers/getPlayersHandler";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
@@ -81,6 +82,25 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
         ...pool,
       }));
       return buildOkResponse(pools);
+    }),
+  },
+  {
+    method: "GET",
+    path: "/tickers",
+    handler: middy().handler(async () => {
+      const tickers = Object.entries(tickerToCmcId).map(([ticker, id]) => ({
+        id,
+        ticker,
+      }));
+      return buildOkResponse(tickers);
+    }),
+  },
+  {
+    method: "GET",
+    path: "/ticker-popularity",
+    handler: middy().handler(async () => {
+      const tickers = await betService.findPopularTickers();
+      return buildOkResponse(tickers);
     }),
   },
   {

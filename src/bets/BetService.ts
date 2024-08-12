@@ -307,4 +307,10 @@ export class BetService {
       acceptors: Number(results[2].rows[0].count),
     };
   };
+
+  findPopularTickers = async () => {
+    const statement = `SELECT ticker, COUNT(*) as "betCount" FROM bets GROUP BY ticker ORDER BY "betCount" DESC;`;
+    const result = await this.databaseClient.executeStatement(statement, []);
+    return result.rows;
+  };
 }

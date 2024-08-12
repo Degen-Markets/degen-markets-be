@@ -1,66 +1,101 @@
 import playersHandler from "../getPlayersHandler";
-import { createApiGwEvent } from "./utils/createEvent";
 import * as PlayerService from "../../../players/PlayerService";
-import { ESortDirections } from "../../../utils/queryString";
-import { playersTableColumnNames } from "../../../players/schema";
+import { buildBadRequestError } from "../../../utils/errors";
+import { buildOkResponse } from "../../../utils/httpResponses";
+import getParamToListPlayersFromQs from "../utils/getParamToListPlayersFromQs";
+import { Logger } from "@aws-lambda-powertools/logger";
+import { createApiGwEvent } from "./utils/createEvent";
+
+jest.mock("../../../players/PlayerService");
+const spiedFindAllPlayers = jest.spyOn(PlayerService, "findAllPlayers");
+
+jest.mock("../utils/getParamToListPlayersFromQs");
+const mockedGetParamToListPlayersFromQs = jest.mocked(
+  getParamToListPlayersFromQs,
+);
+
+jest.mock("@aws-lambda-powertools/logger");
 
 describe("getPlayersHandler", () => {
-  const spiedFindAllPlayers = jest.spyOn(PlayerService, "findAllPlayers");
-  spiedFindAllPlayers.mockImplementation(async () => undefined as any);
+  let logger: jest.Mocked<Logger>;
 
-  it("has default limit", async () => {
-    await playersHandler(createApiGwEvent({ queryStringParameters: {} }));
-    expect(spiedFindAllPlayers).toHaveBeenCalledWith({ limit: 10 });
+  beforeEach(() => {
+    logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
   });
 
-  it("bounds the limit to 10", async () => {
-    // less than 10
-    await playersHandler(
-      createApiGwEvent({ queryStringParameters: { limit: "3" } }),
-    );
-    expect(spiedFindAllPlayers).toHaveBeenCalledWith({ limit: 3 });
-    await playersHandler(
-      createApiGwEvent({ queryStringParameters: { limit: "7" } }),
-    );
-    expect(spiedFindAllPlayers).toHaveBeenCalledWith({ limit: 7 });
+  it("should return a successful response with player data", async () => {
+    // inputs
+    const queryStringParameters = { someParam: "value" };
+    const event = createApiGwEvent({ queryStringParameters });
 
-    // more than 10
-    await playersHandler(
-      createApiGwEvent({ queryStringParameters: { limit: "13" } }),
+    // Mocks
+    const paramToListPlayers = { limit: 2, offset: 234 };
+    mockedGetParamToListPlayersFromQs.mockReturnValueOnce(paramToListPlayers);
+
+    const playersListArr: Awaited<
+      ReturnType<typeof PlayerService.findAllPlayers>
+    > = [
+      {
+        address: "0xabc",
+        betCount: 4,
+        winCount: 2,
+        points: 10,
+        chain: "base",
+        name: null,
+        avatarUrl: null,
+      },
+    ];
+    spiedFindAllPlayers.mockResolvedValueOnce(playersListArr);
+
+    // call the fn
+    const response = await playersHandler(event);
+
+    // expects
+    expect(logger.info).toHaveBeenCalledWith(
+      `fetching players with querystring params: ${JSON.stringify(queryStringParameters)}`,
     );
-    expect(spiedFindAllPlayers).toHaveBeenCalledWith({ limit: 10 });
-    await playersHandler(
-      createApiGwEvent({ queryStringParameters: { limit: "57" } }),
+    expect(mockedGetParamToListPlayersFromQs).toHaveBeenCalledWith(
+      queryStringParameters,
+      expect.any(Object),
     );
-    expect(spiedFindAllPlayers).toHaveBeenCalledWith({ limit: 10 });
+    expect(PlayerService.findAllPlayers).toHaveBeenCalledWith(
+      paramToListPlayers,
+    );
+    logger.info(
+      `Successfully fetched players for qs=${JSON.stringify(queryStringParameters)}`,
+    );
+    expect(response).toEqual(buildOkResponse(playersListArr));
   });
 
-  it("has offset parameter", async () => {
-    await playersHandler(
-      createApiGwEvent({ queryStringParameters: { offset: "12" } }),
+  it("should return a bad request error for invalid query string parameters", async () => {
+    // inputs
+    const queryStringParameters = { someParam: "invalidValue" };
+    const event = createApiGwEvent({
+      queryStringParameters,
+    });
+
+    // Mocks
+    const errMsg = "Bad query string";
+    mockedGetParamToListPlayersFromQs.mockImplementationOnce(() => {
+      throw new Error(errMsg);
+    });
+
+    // call the fn
+    const response = await playersHandler(event);
+
+    // expects
+    expect(logger.info).toHaveBeenCalledWith(
+      `fetching players with querystring params: ${JSON.stringify(queryStringParameters)}`,
     );
-    expect(spiedFindAllPlayers).toHaveBeenCalledWith({ limit: 10, offset: 12 });
-
-    await playersHandler(
-      createApiGwEvent({ queryStringParameters: { offset: "92" } }),
+    expect(mockedGetParamToListPlayersFromQs).toHaveBeenCalledWith(
+      queryStringParameters,
+      expect.any(Object),
     );
-    expect(spiedFindAllPlayers).toHaveBeenCalledWith({ limit: 10, offset: 92 });
-  });
-
-  it("has sort parameter", async () => {
-    for (const colName of playersTableColumnNames) {
-      for (const sortDir of [ESortDirections.ASC, ESortDirections.DESC]) {
-        await playersHandler(
-          createApiGwEvent({
-            queryStringParameters: { sort: `${colName}:${sortDir}` },
-          }),
-        );
-
-        expect(spiedFindAllPlayers).toHaveBeenCalledWith({
-          limit: 10,
-          orderBy: { [colName]: sortDir },
-        });
-      }
-    }
+    expect(logger.error).toHaveBeenCalledWith(errMsg);
+    expect(response).toEqual(
+      buildBadRequestError(
+        `Bad query string parameters (${JSON.stringify(queryStringParameters)})`,
+      ),
+    );
   });
 });

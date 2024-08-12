@@ -26,6 +26,10 @@ export const getPool = async (event: APIGatewayEvent) => {
   logger.info(JSON.stringify(poolAccount, null, 3));
   const actions = [
     ...pool.options.map((option) => ({
+      label: `Bet 1 SOL on "${option.title}"`,
+      href: `/pools/${id}/options/${option.id}?value=1`,
+    })),
+    ...pool.options.map((option) => ({
       label: `${option.title}`,
       href: `/pools/${id}/options/${option.id}?value={amount}`,
       parameters: [

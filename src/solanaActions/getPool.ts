@@ -20,9 +20,6 @@ export const getPool = async (event: APIGatewayEvent) => {
 
   logger.info(`loading pool with id: ${id}`);
   const poolAccount = await program.account.pool.fetch(id);
-  if (poolAccount.hasConcluded) {
-    // TODO: handle disabled button response
-  }
   logger.info(JSON.stringify(poolAccount, null, 3));
   const actions = [
     ...pool.options.map((option) => ({
@@ -48,6 +45,7 @@ export const getPool = async (event: APIGatewayEvent) => {
     links: {
       actions: actions,
     },
+    disabled: poolAccount.hasConcluded,
   };
   return {
     statusCode: 200,

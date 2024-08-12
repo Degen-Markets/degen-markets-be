@@ -1,6 +1,5 @@
 import { InternalServerError, Unauthorized } from "http-errors";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const createHttpError = require("http-errors");
+import createHttpError from "http-errors";
 
 export type ErrorProps = {
   status: number;

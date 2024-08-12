@@ -13,7 +13,7 @@ import { connection, program, programId } from "./constants";
 
 const logger: Logger = new Logger({ serviceName: "enterPoolService" });
 
-export const deriveEntryAccountKey = async (
+export const deriveEntryAccountKey = (
   optionAccountKey: PublicKey,
   entrant: PublicKey,
 ) => {
@@ -46,7 +46,7 @@ export const generateEnterPoolTx = async (event: APIGatewayEvent) => {
     : LAMPORTS_PER_SOL;
   const value = new BN(valueInLamports);
 
-  const entryAccountPubkey = await deriveEntryAccountKey(
+  const entryAccountPubkey = deriveEntryAccountKey(
     optionAccountPubkey,
     entrant,
   );

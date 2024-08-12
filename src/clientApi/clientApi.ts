@@ -15,7 +15,7 @@ import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { BetService } from "../bets/BetService";
 import { buildOkResponse } from "../utils/httpResponses";
 import PoolsJson from "../solanaActions/pools.json";
-import playersHandler from "./handlers/playersHandler";
+import getPlayersHandler from "./handlers/getPlayersHandler";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -70,7 +70,7 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/players",
-    handler: middy().handler(playersHandler),
+    handler: middy().handler(getPlayersHandler),
   },
   {
     method: "GET",

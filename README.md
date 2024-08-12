@@ -79,6 +79,3 @@ Example test which mocks an AWS service can be found in `src/clients/SecretClien
 ### Blinks:
 
 - Blink URL format: https://dial.to/?action=solana-action:https://actions.degenmarkets.com/pools/<POOL_ID>
-
-Concluded Pool must be disabled
-Options Table: Correct?

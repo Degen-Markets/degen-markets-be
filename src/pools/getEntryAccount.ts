@@ -19,6 +19,7 @@ const getEntryAccount = async (
     return buildOkResponse({
       ...entryAccount,
       value: Number(entryAccount.value),
+      id: entryAccountKey.toString(),
     });
   } catch (error) {
     return buildHttpResponse({ status: 204, body: {} });

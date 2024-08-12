@@ -19,6 +19,7 @@ import { tickerToCmcId } from "../utils/cmcApi";
 import getPlayersHandler from "./handlers/getPlayersHandler";
 import { buildBadRequestError } from "../utils/errors";
 import getEntryAccount from "../pools/getEntryAccount";
+import { claimWin } from "../pools/claimWin";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -96,6 +97,19 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
         return buildBadRequestError("Missing Account or Option Key");
       }
       return getEntryAccount(optionAccountKey, account);
+    }),
+  },
+  {
+    method: "POST",
+    path: "/pools/{poolId}/options/{optionId}",
+    handler: middy().handler(async (event: APIGatewayEvent) => {
+      const poolAccountKeyString = event.pathParameters?.poolId;
+      const optionAccountKeyString = event.pathParameters?.optionId;
+      const { account } = JSON.parse(event.body || "{}");
+      if (!poolAccountKeyString || !optionAccountKeyString || !account) {
+        return buildBadRequestError("");
+      }
+      return claimWin(poolAccountKeyString, optionAccountKeyString, account);
     }),
   },
   {

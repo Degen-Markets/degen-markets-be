@@ -124,15 +124,14 @@ export class BetService {
     return response.rows[0];
   };
 
-  findMany = async (ids: BetEntity['id'][]): Promise<BetEntity[]> {
+  findMany = async (ids: BetEntity["id"][]): Promise<BetEntity[]> => {
     const query = "SELECT * FROM bets WHERE id = ANY($1)";
     const response = await this.databaseClient.executeStatement<BetEntity>(
       query,
       ids,
     );
     return response.rows;
-
-  }
+  };
 
   findUnsettledBets = async (): Promise<BetEntity[]> => {
     const query = `SELECT * FROM bets WHERE winner IS NULL AND acceptor IS NOT NULL AND "expirationTimestamp" < ${Date.now() / 1000}`;

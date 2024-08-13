@@ -82,10 +82,11 @@ export class SmartContractEventService {
     );
     try {
       await this.betService.acceptV2Bets(finalBetAcceptedInfoArr);
+
+      // increment points
       const ethUsdVal = Number(
         await this.quotesService.getLatestQuote(getCmcId("ETH"), "price"),
       );
-
       await Promise.all(
         finalBetAcceptedInfoArr.map(async (betAcceptedInfo) => {
           const { id: betId, acceptor } = betAcceptedInfo;
@@ -166,29 +167,31 @@ export class SmartContractEventService {
     ); // ASK_ANGAD: Should we take the value of the bet when it was accepted instead of real time? Is there a field for the bet fiat value in the _bets_ table?
     const paidBetIds = betPaidInfoArr.map(({ id }) => id);
     const fullBetInfoArr = await this.betService.findMany(paidBetIds);
-    fullBetInfoArr.map(async ({ winner, id: betId, value, currency }) => {
-      if (!winner)
-        throw new Error(
-          `Paid out bet doesn't contain winner ${JSON.stringify({ betId })}`,
-        );
-      const betUsdVal = currency === zeroAddress ? ethUsdVal * value : value;
-      const pointsToAward =
-        Math.floor(betUsdVal) * this.POINTS_PER_USD_FOR_WON_BET;
+    await Promise.all(
+      fullBetInfoArr.map(async ({ winner, id: betId, value, currency }) => {
+        if (!winner)
+          throw new Error(
+            `Paid out bet doesn't contain winner ${JSON.stringify({ betId })}`,
+          );
+        const betUsdVal = currency === zeroAddress ? ethUsdVal * value : value;
+        const pointsToAward =
+          Math.floor(betUsdVal) * this.POINTS_PER_USD_FOR_WON_BET;
 
-      const awardPointsTrial = await tryItAsync(() =>
-        PlayerService.changePoints([winner], pointsToAward),
-      );
-      if (!awardPointsTrial.success) {
-        this.logger.error(
-          `Couldn't award points for bet paid out ${JSON.stringify({ betId })}`,
+        const awardPointsTrial = await tryItAsync(() =>
+          PlayerService.changePoints([winner], pointsToAward),
         );
-        return;
-      }
+        if (!awardPointsTrial.success) {
+          this.logger.error(
+            `Couldn't award points for bet paid out ${JSON.stringify({ betId })}`,
+          );
+          return;
+        }
 
-      this.logger.info(
-        `Awarded points for bet paid out ${JSON.stringify({ betId })}`,
-      );
-    });
+        this.logger.info(
+          `Awarded points for bet paid out ${JSON.stringify({ betId })}`,
+        );
+      }),
+    );
   };
 
   handleSmartContractEvents = async (

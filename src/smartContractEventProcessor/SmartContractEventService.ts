@@ -39,14 +39,14 @@ export class SmartContractEventService {
     const sqsBetAcceptedInfoArr = acceptBetSqsEvents.bets;
     const acceptedBetIds = sqsBetAcceptedInfoArr.map(({ id }) => id);
     const acceptedBets = await this.betService.findMany(acceptedBetIds);
-    const mapBetIdToFullInfo = new Map(
-      acceptedBets.map((bet) => [bet.id, bet]),
+    const betIdToFullInfoMap = new Map(
+      acceptedBets.map((betFullInfo) => [betFullInfo.id, betFullInfo]),
     );
     const setOfUniqueTickersInBets = [
       ...new Set(acceptedBets.map(({ ticker }) => ticker)).values(),
     ];
 
-    const mapTickerToLatestMetrics = new Map(
+    const tickerToLatestMetricsMap = new Map(
       await Promise.all(
         setOfUniqueTickersInBets.map(
           async (ticker) =>
@@ -60,14 +60,14 @@ export class SmartContractEventService {
 
     const finalBetAcceptedInfoArr = sqsBetAcceptedInfoArr.map(
       (betAcceptedInfo) => {
-        const betFullInfo = mapBetIdToFullInfo.get(betAcceptedInfo.id);
+        const betFullInfo = betIdToFullInfoMap.get(betAcceptedInfo.id);
         if (!betFullInfo)
           throw new Error(
             `Bet info not available for id ${betAcceptedInfo.id}`,
           );
 
         const ticker = betFullInfo.ticker;
-        const metrics = mapTickerToLatestMetrics.get(ticker);
+        const metrics = tickerToLatestMetricsMap.get(ticker);
         if (!metrics)
           throw new Error(`Metrics not available for ticker=${ticker}`);
         return {
@@ -90,7 +90,7 @@ export class SmartContractEventService {
       await Promise.all(
         finalBetAcceptedInfoArr.map(async (betAcceptedInfo) => {
           const { id: betId, acceptor } = betAcceptedInfo;
-          const fullBetInfo = mapBetIdToFullInfo.get(betId);
+          const fullBetInfo = betIdToFullInfoMap.get(betId);
           if (!fullBetInfo)
             throw new Error(`Bet info not available for id ${betId}`);
 

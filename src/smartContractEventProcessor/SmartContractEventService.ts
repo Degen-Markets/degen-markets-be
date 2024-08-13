@@ -30,20 +30,51 @@ export class SmartContractEventService {
   };
 
   handleAcceptBets = async (acceptBetSqsEvents: BetAcceptedSqsEvents) => {
-    const bets = await Promise.all(
-      acceptBetSqsEvents.bets.map(async (bet) => {
-        const storedBet = await this.betService.findOne(bet.id);
+    const sqsBetAcceptedInfoArr = acceptBetSqsEvents.bets;
+    const acceptedBetIds = sqsBetAcceptedInfoArr.map(({ id }) => id);
+    const acceptedBets = await this.betService.findMany(acceptedBetIds);
+    const mapBetIdToFullInfo = new Map(
+      acceptedBets.map((bet) => [bet.id, bet]),
+    );
+    const setOfUniqueTickersInBets = [
+      ...new Set(acceptedBets.map(({ ticker }) => ticker)).values(),
+    ];
+
+    const mapTickerToLatestMetrics = new Map(
+      await Promise.all(
+        setOfUniqueTickersInBets.map(
+          async (ticker) =>
+            [
+              ticker,
+              await this.quotesService.getLatestMetrics(getCmcId(ticker)),
+            ] as const,
+        ),
+      ),
+    );
+
+    const finalBetAcceptedInfoArr = sqsBetAcceptedInfoArr.map(
+      (betAcceptedInfo) => {
+        const betFullInfo = mapBetIdToFullInfo.get(betAcceptedInfo.id);
+        if (!betFullInfo)
+          throw new Error(
+            `Bet info not available for id ${betAcceptedInfo.id}`,
+          );
+
+        const ticker = betFullInfo.ticker;
+        const metrics = mapTickerToLatestMetrics.get(ticker);
+        if (!metrics)
+          throw new Error(`Metrics not available for ticker=${ticker}`);
         return {
-          ...bet,
-          startingMetricValue: await this.quotesService.getLatestQuote(
-            getCmcId(storedBet.ticker),
-            storedBet.metric,
+          ...betAcceptedInfo,
+          startingMetricValue: String(
+            metrics[
+              betFullInfo.metric as keyof typeof metrics /* TODO: Make this typesafe */
+            ],
           ),
         };
-      }),
-    );
+      });
     try {
-      await this.betService.acceptV2Bets(bets);
+      await this.betService.acceptV2Bets(finalBetAcceptedInfoArr);
     } catch (e) {
       this.logger.error(`Error inserting V2 Bet:`, e as Error);
     }

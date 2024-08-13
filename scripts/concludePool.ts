@@ -14,4 +14,7 @@ const concludePool = async (poolId: string, optionId: string) => {
     .rpc();
 };
 
-concludePool("", "");
+concludePool(
+  "9o3t3HnhrzZrmsU69XYNqAq1x2KwdruXCtr8KeQ86jb5",
+  "DCKjyxN4rr9Tk4mbTj9wLcWLXkpCkDRibvx1V7SwyqEb",
+);

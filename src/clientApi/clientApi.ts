@@ -20,6 +20,7 @@ import getPlayersHandler from "./handlers/getPlayersHandler";
 import { buildBadRequestError } from "../utils/errors";
 import getEntryAccount from "../pools/getEntryAccount";
 import { claimWin } from "../pools/claimWin";
+import getPoolAccount from "../pools/getPoolAccount";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -85,6 +86,17 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
         ...pool,
       }));
       return buildOkResponse(pools);
+    }),
+  },
+  {
+    method: "GET",
+    path: "/pool-accounts/{id}",
+    handler: middy().handler(async (event: APIGatewayEvent) => {
+      const poolId = event.pathParameters?.id;
+      if (!poolId) {
+        return buildBadRequestError("Missing pool id!");
+      }
+      return getPoolAccount(poolId);
     }),
   },
   {

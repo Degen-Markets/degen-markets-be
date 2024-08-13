@@ -86,12 +86,12 @@ export const findPlayers = async ({
 };
 
 export const changePoints = async (
-  address: PlayerEntity["address"],
+  addresses: PlayerEntity["address"][],
   pointsDelta: PlayerEntity["points"],
 ) => {
   const db = await DrizzleClient.makeDb();
   await db
     .update(playersTable)
     .set({ points: sql`${playersTable.points} + ${pointsDelta}` })
-    .where(eq(playersTable.address, address));
+    .where(inArray(playersTable.address, addresses));
 };

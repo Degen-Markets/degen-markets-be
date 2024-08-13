@@ -13,6 +13,9 @@ import { BetWithdrawnSqsEvents } from "../webhookApi/types/BetWithdrawnTypes";
 import { QuotesService } from "../quotes/QuotesService";
 import { getCmcId } from "../utils/cmcApi";
 import { BetPaidSqsEvents } from "../webhookApi/types/BetPaidTypes";
+import * as PlayerService from "../players/PlayerService";
+import { zeroAddress } from "viem";
+import { tryItAsync } from "../utils/tryIt";
 
 export class SmartContractEventService {
   private readonly logger = new Logger({
@@ -21,6 +24,8 @@ export class SmartContractEventService {
 
   private betService = new BetService();
   private quotesService = new QuotesService();
+  private POINTS_PER_USD_FOR_ACCEPTED_BET = 8;
+
   handleCreateBets = async (createBetSqsEvents: BetCreatedSqsEvents) => {
     try {
       await this.betService.createV2Bets(createBetSqsEvents.bets);
@@ -72,9 +77,42 @@ export class SmartContractEventService {
             ],
           ),
         };
-      });
+      },
+    );
     try {
       await this.betService.acceptV2Bets(finalBetAcceptedInfoArr);
+      const ethUsdVal = Number(
+        await this.quotesService.getLatestQuote(getCmcId("ETH"), "price"),
+      );
+
+      await Promise.all(
+        finalBetAcceptedInfoArr.map(async (betAcceptedInfo) => {
+          const { id: betId, acceptor } = betAcceptedInfo;
+          const fullBetInfo = mapBetIdToFullInfo.get(betId);
+          if (!fullBetInfo)
+            throw new Error(`Bet info not available for id ${betId}`);
+
+          const { creator, value, currency } = fullBetInfo;
+          const betUsdVal =
+            currency === zeroAddress ? ethUsdVal * value : value;
+          const pointsToAward =
+            Math.floor(betUsdVal) * this.POINTS_PER_USD_FOR_ACCEPTED_BET;
+
+          const awardPointsTrial = await tryItAsync(() =>
+            PlayerService.changePoints([creator, acceptor], pointsToAward),
+          );
+          if (!awardPointsTrial.success) {
+            this.logger.error(
+              `Couldn't award points for bet acceptance ${JSON.stringify({ betId })}`,
+            );
+            return;
+          }
+
+          this.logger.info(
+            `Awarded points for bet acceptance ${JSON.stringify({ betId })}`,
+          );
+        }),
+      );
     } catch (e) {
       this.logger.error(`Error inserting V2 Bet:`, e as Error);
     }

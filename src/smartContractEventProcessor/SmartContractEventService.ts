@@ -120,7 +120,40 @@ export class SmartContractEventService {
   };
 
   handleWithdrawBets = async (withdrawBetSqsEvents: BetWithdrawnSqsEvents) => {
-    await this.betService.withdrawBets(withdrawBetSqsEvents.bets);
+    const betWithdrawnInfoArr = withdrawBetSqsEvents.bets;
+    await this.betService.withdrawBets(betWithdrawnInfoArr);
+
+    // decrement points
+    const ethUsdVal = Number(
+      await this.quotesService.getLatestQuote(getCmcId("ETH"), "price"),
+    ); // ASK_ANGAD: Should we take the value of the bet when it was accepted instead of real time? Is there a field for the bet fiat value in the _bets_ table?
+    const withdrawnBetIds = betWithdrawnInfoArr.map(({ id }) => id);
+    const fullBetInfoArr = await this.betService.findMany(withdrawnBetIds);
+    await Promise.all(
+      fullBetInfoArr.map(async ({ winner, id: betId, value, currency }) => {
+        if (!winner)
+          throw new Error(
+            `Withdrawn bet doesn't contain winner ${JSON.stringify({ betId })}`,
+          );
+        const betUsdVal = currency === zeroAddress ? ethUsdVal * value : value;
+        const pointsToDetract =
+          Math.floor(betUsdVal) * this.POINTS_PER_USD_FOR_ACCEPTED_BET;
+
+        const detractPointsTrial = await tryItAsync(() =>
+          PlayerService.changePoints([winner], -pointsToDetract),
+        );
+        if (!detractPointsTrial.success) {
+          this.logger.error(
+            `Couldn't detract points for bet withdrawn ${JSON.stringify({ betId })}`,
+          );
+          return;
+        }
+
+        this.logger.info(
+          `Detracted points for bet withdrawn ${JSON.stringify({ betId })}`,
+        );
+      }),
+    );
   };
 
   handlePayBets = async (betPaidSqsEvents: BetPaidSqsEvents) => {

@@ -131,17 +131,13 @@ export class SmartContractEventService {
     const withdrawnBetIds = betWithdrawnInfoArr.map(({ id }) => id);
     const fullBetInfoArr = await this.betService.findMany(withdrawnBetIds);
     await Promise.all(
-      fullBetInfoArr.map(async ({ winner, id: betId, value, currency }) => {
-        if (!winner)
-          throw new Error(
-            `Withdrawn bet doesn't contain winner ${JSON.stringify({ betId })}`,
-          );
+      fullBetInfoArr.map(async ({ creator, id: betId, value, currency }) => {
         const betUsdVal = currency === zeroAddress ? ethUsdVal * value : value;
         const pointsToDetract =
           Math.floor(betUsdVal) * this.POINTS_PER_USD_FOR_ACCEPTED_BET;
 
         const detractPointsTrial = await tryItAsync(() =>
-          PlayerService.changePoints([winner], -pointsToDetract),
+          PlayerService.changePoints([creator], -pointsToDetract),
         );
         if (!detractPointsTrial.success) {
           this.logger.error(

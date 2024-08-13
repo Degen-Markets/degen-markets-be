@@ -10,6 +10,7 @@ import { BetCreatedSqsEvent } from "../webhookApi/types/BetCreatedTypes";
 import { isNumeric } from "../utils/numbers";
 import { BetPaidSqsEvent } from "../webhookApi/types/BetPaidTypes";
 import { TickerRow } from "./types";
+import { NonNullableRecord } from "../utils/types";
 
 export class BetService {
   private readonly logger = new Logger({ serviceName: "BetService" });
@@ -186,7 +187,16 @@ export class BetService {
   };
 
   acceptV2Bets = async (
-    bets: Partial<BetEntity>[],
+    bets: NonNullableRecord<
+      Pick<
+        BetEntity,
+        | "acceptor"
+        | "acceptanceTimestamp"
+        | "startingMetricValue"
+        | "strikePriceAcceptor"
+        | "id"
+      >
+    >[],
   ): Promise<BetEntity[] | null> => {
     try {
       const statements = bets.map(
@@ -194,7 +204,7 @@ export class BetService {
         UPDATE bets
         SET acceptor = $1,
             "acceptanceTimestamp" = $2,
-            "lastActivityTimestamp" = $2,
+            "lastActivityTimestamp" = $2, // TODO: This is currently missing from schema. Using drizzle schema will fix this
             "startingMetricValue" = $3,
             "strikePriceAcceptor" = $4
         WHERE id = $5;

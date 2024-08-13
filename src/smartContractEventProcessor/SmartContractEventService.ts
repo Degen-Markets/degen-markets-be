@@ -25,6 +25,7 @@ export class SmartContractEventService {
   private betService = new BetService();
   private quotesService = new QuotesService();
   private POINTS_PER_USD_FOR_ACCEPTED_BET = 8;
+  private POINTS_PER_USD_FOR_WON_BET = 17;
 
   handleCreateBets = async (createBetSqsEvents: BetCreatedSqsEvents) => {
     try {
@@ -123,7 +124,38 @@ export class SmartContractEventService {
   };
 
   handlePayBets = async (betPaidSqsEvents: BetPaidSqsEvents) => {
-    await this.betService.payBets(betPaidSqsEvents.bets);
+    const betPaidInfoArr = betPaidSqsEvents.bets;
+    await this.betService.payBets(betPaidInfoArr);
+
+    // increment points
+    const ethUsdVal = Number(
+      await this.quotesService.getLatestQuote(getCmcId("ETH"), "price"),
+    ); // ASK_ANGAD: Should we take the value of the bet when it was accepted instead of real time? Is there a field for the bet fiat value in the _bets_ table?
+    const paidBetIds = betPaidInfoArr.map(({ id }) => id);
+    const fullBetInfoArr = await this.betService.findMany(paidBetIds);
+    fullBetInfoArr.map(async ({ winner, id: betId, value, currency }) => {
+      if (!winner)
+        throw new Error(
+          `Paid out bet doesn't contain winner ${JSON.stringify({ betId })}`,
+        );
+      const betUsdVal = currency === zeroAddress ? ethUsdVal * value : value;
+      const pointsToAward =
+        Math.floor(betUsdVal) * this.POINTS_PER_USD_FOR_WON_BET;
+
+      const awardPointsTrial = await tryItAsync(() =>
+        PlayerService.changePoints([winner], pointsToAward),
+      );
+      if (!awardPointsTrial.success) {
+        this.logger.error(
+          `Couldn't award points for bet paid out ${JSON.stringify({ betId })}`,
+        );
+        return;
+      }
+
+      this.logger.info(
+        `Awarded points for bet paid out ${JSON.stringify({ betId })}`,
+      );
+    });
   };
 
   handleSmartContractEvents = async (

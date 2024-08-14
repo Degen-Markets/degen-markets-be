@@ -8,10 +8,10 @@ import { Logger } from "@aws-lambda-powertools/logger";
 
 const logger = new Logger({ serviceName: "awardWinPoints" });
 
-export const awardWinPoints = async (
+export default async function awardWinPoints(
   bets: BetEntity[],
   pointPerUsdForWonBet: number,
-) => {
+) {
   const ethUsdVal = Number(
     new QuotesService().getLatestQuote(getCmcId("ETH"), "price"),
   );
@@ -21,7 +21,7 @@ export const awardWinPoints = async (
     ),
   );
   const [successfulAwardBetIds, failedAwardBetIds] =
-    getSuccessfulAndFailedAwardBetIds(winPointAwardTrialsArr);
+    getAwardBetIdsFilteredBySuccessOrFail(winPointAwardTrialsArr);
   if (successfulAwardBetIds.length)
     logger.info(
       `Awarded win points for the following betIds [${successfulAwardBetIds.join(", ")}]`,
@@ -30,15 +30,15 @@ export const awardWinPoints = async (
     logger.error(
       `Couldn't award win points for the following betIds [${failedAwardBetIds.join(", ")}]`,
     );
-};
+}
 
-async function tryAwardWinPointsToBet(
+const tryAwardWinPointsToBet = async (
   bet: BetEntity,
   {
     ethUsdVal,
     pointPerUsdForWonBet,
   }: { ethUsdVal: number; pointPerUsdForWonBet: number },
-): Promise<{ success: boolean; betId: BetEntity["id"] }> {
+): Promise<{ success: boolean; betId: BetEntity["id"] }> => {
   if (!bet.winner)
     throw new Error(
       `Bet doesn't have a winner set in database ${JSON.stringify({ bet })}`,
@@ -61,11 +61,11 @@ async function tryAwardWinPointsToBet(
   }
 
   return { success: true, betId: bet.id };
-}
+};
 
-function getSuccessfulAndFailedAwardBetIds(
+const getAwardBetIdsFilteredBySuccessOrFail = (
   winPointAwardTrialsArr: Awaited<ReturnType<typeof tryAwardWinPointsToBet>>[],
-) {
+) => {
   return winPointAwardTrialsArr.reduce<[string[], string[]]>(
     ([successList, failList], { success, betId }) => {
       if (success) return [successList.concat(betId), failList];
@@ -73,4 +73,9 @@ function getSuccessfulAndFailedAwardBetIds(
     },
     [[], []],
   );
-}
+};
+
+export const utils = {
+  tryAwardWinPointsToBet,
+  getAwardBetIdsFilteredBySuccessOrFail,
+};

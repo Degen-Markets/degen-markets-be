@@ -12,17 +12,24 @@ export const handleSettlement = async () => {
   const bets = await settlementService.handleSettlement();
   if (bets.length > 0) {
     const notificationMessage = `Bet(s) Won:\n\n${bets.map((bet) => `https://degenmarkets.com/bets/${bet.id}`).join("\n")}`;
-    try {
-      await sendTelegramMessage(notificationMessage);
-    } catch (e) {
-      logger.error("Error sending settle bet tg messages", e as Error);
-    }
+    const tgPromise = sendTelegramMessage(notificationMessage);
+    const tweetPromise = sendTweet(notificationMessage);
 
-    try {
-      await sendTweet(notificationMessage);
-    } catch (e) {
-      logger.error("Error sending settle bet tweet", e as Error);
-    }
+    const [tgSettlement, tweetSettlement] = await Promise.allSettled([
+      tgPromise,
+      tweetPromise,
+    ]);
+
+    if (tgSettlement.status === "rejected")
+      logger.error(
+        "Error sending settle bet tg messages",
+        tgSettlement.reason as Error,
+      );
+    if (tweetSettlement.status === "rejected")
+      logger.error(
+        "Error sending settle bet tweet",
+        tweetSettlement.reason as Error,
+      );
   }
 };
 

@@ -15,44 +15,62 @@ export const awardWinPoints = async (
   const ethUsdVal = Number(
     new QuotesService().getLatestQuote(getCmcId("ETH"), "price"),
   );
-  const winPointAwardAttemptsArr = await Promise.all(
-    bets
-      .map((bet) => {
-        if (!bet.winner)
-          throw new Error(
-            `Bet doesn't have a winner set in database ${JSON.stringify({ bet })}`,
-          );
-
-        const betUsdVal =
-          bet.currency === zeroAddress ? bet.value * ethUsdVal : bet.value;
-        return { address: bet.winner, betUsdVal, betId: bet.id };
-      })
-      .map(async ({ address, betUsdVal, betId }) => {
-        const pointsToAward = Math.floor(betUsdVal) * pointPerUsdForWonBet;
-        const awardWinPointsTrial = await tryItAsync(() =>
-          PlayerService.changePoints([address], pointsToAward),
-        );
-        if (!awardWinPointsTrial.success) {
-          return { success: false, betId };
-        }
-        return { success: true, betId };
-      }),
+  const winPointAwardTrialsArr = await Promise.all(
+    bets.map(async (bet) =>
+      tryAwardWinPointsToBet(bet, { ethUsdVal, pointPerUsdForWonBet }),
+    ),
   );
-  const [successfulAwards, failedAwards] = winPointAwardAttemptsArr.reduce<
-    [string[], string[]]
-  >(
+  const [successfulAwardBetIds, failedAwardBetIds] =
+    getSuccessfulAndFailedAwardBetIds(winPointAwardTrialsArr);
+  if (successfulAwardBetIds.length)
+    logger.info(
+      `Awarded win points for the following betIds [${successfulAwardBetIds.join(", ")}]`,
+    );
+  if (failedAwardBetIds.length)
+    logger.error(
+      `Couldn't award win points for the following betIds [${failedAwardBetIds.join(", ")}]`,
+    );
+};
+
+async function tryAwardWinPointsToBet(
+  bet: BetEntity,
+  {
+    ethUsdVal,
+    pointPerUsdForWonBet,
+  }: { ethUsdVal: number; pointPerUsdForWonBet: number },
+): Promise<{ success: boolean; betId: BetEntity["id"] }> {
+  if (!bet.winner)
+    throw new Error(
+      `Bet doesn't have a winner set in database ${JSON.stringify({ bet })}`,
+    );
+
+  const addressToAward = bet.winner;
+  const betUsdVal =
+    bet.currency === zeroAddress ? bet.value * ethUsdVal : bet.value;
+
+  const pointsToAward = Math.floor(betUsdVal) * pointPerUsdForWonBet;
+  const changePointsTrial = await tryItAsync(() =>
+    PlayerService.changePoints([addressToAward], pointsToAward),
+  );
+  if (!changePointsTrial.success) {
+    logger.error(`Couldn't change points`, {
+      betId: bet.id,
+      err: changePointsTrial.err,
+    });
+    return { success: false, betId: bet.id };
+  }
+
+  return { success: true, betId: bet.id };
+}
+
+function getSuccessfulAndFailedAwardBetIds(
+  winPointAwardTrialsArr: Awaited<ReturnType<typeof tryAwardWinPointsToBet>>[],
+) {
+  return winPointAwardTrialsArr.reduce<[string[], string[]]>(
     ([successList, failList], { success, betId }) => {
       if (success) return [successList.concat(betId), failList];
       else return [successList, failList.concat(betId)];
     },
     [[], []],
   );
-  if (successfulAwards.length)
-    logger.info(
-      `Awarded win points for the following betIds [${successfulAwards.join(", ")}]`,
-    );
-  if (failedAwards.length)
-    logger.error(
-      `Couldn't award win points for the following betIds [${failedAwards.join(", ")}]`,
-    );
-};
+}

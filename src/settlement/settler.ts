@@ -4,6 +4,9 @@ import middy from "@middy/core";
 import { SettlementService } from "./SettlementService";
 import { sendTelegramMessage } from "../notifications/telegram";
 import { sendTweet } from "../notifications/twitter";
+import { awardWinPoints } from "./lib/awardWinPoints";
+
+const POINTS_PER_USD_FOR_WON_BET = 17;
 
 const logger = new Logger({ serviceName: "settler" });
 const settlementService = new SettlementService();
@@ -14,11 +17,10 @@ export const handleSettlement = async () => {
     const notificationMessage = `Bet(s) Won:\n\n${bets.map((bet) => `https://degenmarkets.com/bets/${bet.id}`).join("\n")}`;
     const tgPromise = sendTelegramMessage(notificationMessage);
     const tweetPromise = sendTweet(notificationMessage);
+    const pointsPromise = awardWinPoints(bets, POINTS_PER_USD_FOR_WON_BET);
 
-    const [tgSettlement, tweetSettlement] = await Promise.allSettled([
-      tgPromise,
-      tweetPromise,
-    ]);
+    const [tgSettlement, tweetSettlement, pointsSettlement] =
+      await Promise.allSettled([tgPromise, tweetPromise, pointsPromise]);
 
     if (tgSettlement.status === "rejected")
       logger.error(
@@ -29,6 +31,11 @@ export const handleSettlement = async () => {
       logger.error(
         "Error sending settle bet tweet",
         tweetSettlement.reason as Error,
+      );
+    if (pointsSettlement.status === "rejected")
+      logger.error(
+        "Error awarding points for won bets",
+        pointsSettlement.reason as Error,
       );
   }
 };

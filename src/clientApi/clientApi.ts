@@ -19,7 +19,7 @@ import { tickerToCmcId } from "../utils/cmcApi";
 import getPlayersHandler from "./handlers/getPlayersHandler";
 import { buildBadRequestError } from "../utils/errors";
 import getEntryAccount from "../pools/getEntryAccount";
-import { claimWin } from "../pools/claimWin";
+import { claimWinTx } from "../solanaActions/claimWinTx";
 import getPoolAccount from "../pools/getPoolAccount";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
@@ -121,7 +121,7 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
       if (!poolAccountKeyString || !optionAccountKeyString || !account) {
         return buildBadRequestError("");
       }
-      return claimWin(poolAccountKeyString, optionAccountKeyString, account);
+      return claimWinTx(poolAccountKeyString, optionAccountKeyString, account);
     }),
   },
   {

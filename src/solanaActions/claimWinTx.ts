@@ -1,0 +1,101 @@
+import { connection, program, provider } from "./constants";
+import { deriveEntryAccountKey } from "./enterPoolTx";
+import {
+  ComputeBudgetInstruction,
+  ComputeBudgetProgram,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js";
+import {
+  ActionPostResponse,
+  ACTIONS_CORS_HEADERS,
+  createPostResponse,
+} from "@solana/actions";
+import { Logger } from "@aws-lambda-powertools/logger";
+
+const logger = new Logger({ serviceName: "ClaimWinTx" });
+
+const alreadyClaimedErrorMessage = "You have already claimed this bet!";
+
+export const claimWinTx = async (
+  poolAccountKeyString: string,
+  optionAccountKeyString: string,
+  winnerAccountKeyString: string,
+) => {
+  logger.info(
+    `Trying to claim win for pool ${poolAccountKeyString}, option: ${optionAccountKeyString}, for user: ${winnerAccountKeyString}`,
+  );
+  const poolAccountKey = new PublicKey(poolAccountKeyString);
+  const optionAccountKey = new PublicKey(optionAccountKeyString);
+  const winnerAccountKey = new PublicKey(winnerAccountKeyString);
+  const entryAccountKey = deriveEntryAccountKey(
+    optionAccountKey,
+    winnerAccountKey,
+  );
+  let transaction: Transaction;
+  let message: string | undefined;
+  try {
+    logger.info(
+      `Checking if the user's entry exists with key: ${optionAccountKeyString}`,
+    );
+    const entryAccount = await program.account.entry.fetch(entryAccountKey); // fetching an
+    logger.info(`Found entry Account`, {
+      ...entryAccount,
+      value: Number(entryAccount.value),
+    });
+    if (entryAccount.isClaimed) {
+      logger.info("Entry already claimed");
+      throw new Error(alreadyClaimedErrorMessage);
+    } else {
+      transaction = await program.methods
+        .claimWin()
+        .accountsPartial({
+          poolAccount: poolAccountKey,
+          optionAccount: optionAccountKey,
+          entryAccount: entryAccountKey,
+          winner: winnerAccountKey,
+        })
+        .transaction();
+    }
+  } catch (e) {
+    if (
+      (e as Error).message.includes("Account does not exist or has no data")
+    ) {
+      logger.info(
+        `User entry not found, creating a nonsensical tx to display to user`,
+      );
+      message = "You did not win this bet!";
+    }
+    if ((e as Error).message === alreadyClaimedErrorMessage) {
+      logger.info(`Entry already claimed by user ${winnerAccountKeyString}`);
+      message = alreadyClaimedErrorMessage;
+    }
+    // in case the user did not win, or has already claimed their win, we need to display a tx popup with a message as feedback
+    transaction = new Transaction();
+    transaction.add(
+      // some BS instruction: send 1 lamport to the pool
+      SystemProgram.transfer({
+        fromPubkey: winnerAccountKey,
+        toPubkey: winnerAccountKey,
+        lamports: 1,
+      }),
+    );
+  }
+  const block = await connection.getLatestBlockhash();
+  transaction.feePayer = winnerAccountKey;
+  transaction.recentBlockhash = block.blockhash;
+  const payload: ActionPostResponse = await createPostResponse({
+    fields: {
+      transaction,
+      message,
+    },
+  });
+  logger.info(JSON.stringify(payload));
+  return {
+    statusCode: 200,
+    body: JSON.stringify(payload),
+    headers: ACTIONS_CORS_HEADERS,
+  };
+};

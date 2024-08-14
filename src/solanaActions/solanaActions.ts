@@ -15,6 +15,8 @@ import { getActionsJSON } from "./getActionsJSON";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { generateEnterPoolTx } from "./enterPoolTx";
 import { getPool } from "./getPool";
+import { claimWinTx } from "./claimWinTx";
+import { buildBadRequestError } from "../utils/errors";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
 
@@ -39,6 +41,19 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     method: "POST",
     path: "/pools/{poolId}/options/{optionId}",
     handler: middy().handler(generateEnterPoolTx),
+  },
+  {
+    method: "POST",
+    path: "/pools/{id}/options/{optionId}/claim-win",
+    handler: middy().handler((event: APIGatewayEvent) => {
+      const poolId = event.pathParameters?.id;
+      const optionId = event.pathParameters?.optionId;
+      const { account } = JSON.parse(event.body || "{}");
+      if (!poolId || !account || !optionId) {
+        return buildBadRequestError("Bad request");
+      }
+      return claimWinTx(poolId, optionId, account);
+    }),
   },
 ];
 

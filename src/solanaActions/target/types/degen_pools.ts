@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/degen_pools.json`.
  */
 export type DegenPools = {
-  address: "NkpN7R4m8cji3vLsdxubj87WnCPij322XdEvqc6TYc2";
+  address: "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ";
   metadata: {
     name: "degenPools";
     version: "0.1.0";
@@ -36,80 +36,6 @@ export type DegenPools = {
         },
       ];
       args: [];
-    },
-    {
-      name: "closeEntryAccount";
-      discriminator: [213, 5, 140, 23, 10, 150, 49, 6];
-      accounts: [
-        {
-          name: "entrant";
-          writable: true;
-          signer: true;
-        },
-        {
-          name: "entryAccount";
-          writable: true;
-        },
-        {
-          name: "optionAccount";
-        },
-      ];
-      args: [];
-    },
-    {
-      name: "closeOptionAccount";
-      discriminator: [46, 121, 107, 240, 123, 190, 229, 1];
-      accounts: [
-        {
-          name: "admin";
-          writable: true;
-          signer: true;
-          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
-        },
-        {
-          name: "optionAccount";
-          writable: true;
-        },
-      ];
-      args: [];
-    },
-    {
-      name: "closePoolAccount";
-      discriminator: [242, 65, 17, 36, 124, 151, 197, 198];
-      accounts: [
-        {
-          name: "admin";
-          writable: true;
-          signer: true;
-          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
-        },
-        {
-          name: "poolAccount";
-          writable: true;
-        },
-      ];
-      args: [];
-    },
-    {
-      name: "concludePool";
-      discriminator: [199, 173, 61, 93, 106, 141, 5, 133];
-      accounts: [
-        {
-          name: "poolAccount";
-          writable: true;
-        },
-        {
-          name: "admin";
-          writable: true;
-          signer: true;
-        },
-      ];
-      args: [
-        {
-          name: "winningOption";
-          type: "pubkey";
-        },
-      ];
     },
     {
       name: "createOption";
@@ -240,6 +166,48 @@ export type DegenPools = {
         },
       ];
     },
+    {
+      name: "setIsPaused";
+      discriminator: [105, 103, 58, 197, 208, 86, 131, 112];
+      accounts: [
+        {
+          name: "poolAccount";
+          writable: true;
+        },
+        {
+          name: "admin";
+          writable: true;
+          signer: true;
+        },
+      ];
+      args: [
+        {
+          name: "isPaused";
+          type: "bool";
+        },
+      ];
+    },
+    {
+      name: "setWinningOption";
+      discriminator: [156, 73, 113, 33, 170, 115, 163, 206];
+      accounts: [
+        {
+          name: "poolAccount";
+          writable: true;
+        },
+        {
+          name: "admin";
+          writable: true;
+          signer: true;
+        },
+      ];
+      args: [
+        {
+          name: "winningOption";
+          type: "pubkey";
+        },
+      ];
+    },
   ];
   accounts: [
     {
@@ -274,8 +242,8 @@ export type DegenPools = {
     },
     {
       code: 6002;
-      name: "poolConcluded";
-      msg: "Pool has concluded!";
+      name: "poolStateIncompatible";
+      msg: "Pool is in an incompatible state!";
     },
     {
       code: 6003;
@@ -320,7 +288,7 @@ export type DegenPools = {
             type: "string";
           },
           {
-            name: "hasConcluded";
+            name: "isPaused";
             type: "bool";
           },
           {

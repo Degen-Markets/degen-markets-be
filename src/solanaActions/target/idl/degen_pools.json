@@ -1,5 +1,5 @@
 {
-  "address": "NkpN7R4m8cji3vLsdxubj87WnCPij322XdEvqc6TYc2",
+  "address": "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ",
   "metadata": {
     "name": "degen_pools",
     "version": "0.1.0",
@@ -30,80 +30,6 @@
         }
       ],
       "args": []
-    },
-    {
-      "name": "close_entry_account",
-      "discriminator": [213, 5, 140, 23, 10, 150, 49, 6],
-      "accounts": [
-        {
-          "name": "entrant",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "entry_account",
-          "writable": true
-        },
-        {
-          "name": "option_account"
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "close_option_account",
-      "discriminator": [46, 121, 107, 240, 123, 190, 229, 1],
-      "accounts": [
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true,
-          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
-        },
-        {
-          "name": "option_account",
-          "writable": true
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "close_pool_account",
-      "discriminator": [242, 65, 17, 36, 124, 151, 197, 198],
-      "accounts": [
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true,
-          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
-        },
-        {
-          "name": "pool_account",
-          "writable": true
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "conclude_pool",
-      "discriminator": [199, 173, 61, 93, 106, 141, 5, 133],
-      "accounts": [
-        {
-          "name": "pool_account",
-          "writable": true
-        },
-        {
-          "name": "admin",
-          "writable": true,
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "winning_option",
-          "type": "pubkey"
-        }
-      ]
     },
     {
       "name": "create_option",
@@ -233,6 +159,48 @@
           "type": "u64"
         }
       ]
+    },
+    {
+      "name": "set_is_paused",
+      "discriminator": [105, 103, 58, 197, 208, 86, 131, 112],
+      "accounts": [
+        {
+          "name": "pool_account",
+          "writable": true
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "is_paused",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "set_winning_option",
+      "discriminator": [156, 73, 113, 33, 170, 115, 163, 206],
+      "accounts": [
+        {
+          "name": "pool_account",
+          "writable": true
+        },
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "winning_option",
+          "type": "pubkey"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -268,8 +236,8 @@
     },
     {
       "code": 6002,
-      "name": "PoolConcluded",
-      "msg": "Pool has concluded!"
+      "name": "PoolStateIncompatible",
+      "msg": "Pool is in an incompatible state!"
     },
     {
       "code": 6003,
@@ -314,7 +282,7 @@
             "type": "string"
           },
           {
-            "name": "has_concluded",
+            "name": "is_paused",
             "type": "bool"
           },
           {

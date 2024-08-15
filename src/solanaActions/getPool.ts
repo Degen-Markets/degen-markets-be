@@ -30,42 +30,48 @@ export const getPool = async (event: APIGatewayEvent) => {
   logger.info(`loading pool with id: ${id}`);
   let poolAccount: {
     title: string;
-    hasConcluded: boolean;
+    isPaused: boolean;
     value: BN;
     winningOption: PublicKey;
   } = {
     title: pool.title,
-    hasConcluded: true,
+    isPaused: true,
     value: new BN(0),
     winningOption: SystemProgram.programId,
   };
-  let description: string = "";
-  try {
-    poolAccount = await program.account.pool.fetch(id);
-    logger.info(`Pool Found: ${JSON.stringify(poolAccount, null, 3)}`);
-  } catch (e) {
-    description = "Pool ended!";
-  }
   const metadata: PoolResponse = {
     icon: pool.image,
     label: pool.title,
     title: pool.title,
-    description,
+    description: "",
     links: {
       actions: [],
     },
   };
-  if (poolAccount.hasConcluded) {
+  try {
+    poolAccount = await program.account.pool.fetch(id);
+    logger.info(`Pool Found: ${JSON.stringify(poolAccount, null, 3)}`);
+  } catch (e) {
+    metadata.disabled = true;
+    metadata.description = "Pool ended!";
+  }
+  if (poolAccount.isPaused) {
+    logger.info(`Pool concluded`);
     const winningOption = pool.options.find(
       (option) => option.id === poolAccount.winningOption.toString(),
     );
     if (winningOption) {
+      logger.info(`Winning option found: ${JSON.stringify(winningOption)}`);
+      metadata.description = `If you picked "${winningOption.title}", you can claim your win below:`;
       metadata.links.actions = [
         {
-          label: `Claim Win (${winningOption.title})`,
+          label: `Claim Win`,
           href: `/pools/${id}/options/${winningOption.id}/claim-win`,
         },
       ];
+    } else {
+      metadata.description = `Pool paused, calculating the winning option!`;
+      metadata.links.actions = [];
     }
   } else {
     metadata.links.actions = [

@@ -5,7 +5,15 @@ const concludePool = async (poolId: string, optionId: string) => {
   const optionAccountKey = new PublicKey(optionId);
   const poolAccountKey = new PublicKey(poolId);
   await program.methods
-    .concludePool(optionAccountKey)
+    .setIsPaused(true)
+    .accounts({
+      poolAccount: poolAccountKey,
+      admin: adminAccount.publicKey,
+    })
+    .signers([adminAccount])
+    .rpc();
+  await program.methods
+    .setWinningOption(optionAccountKey)
     .accounts({
       poolAccount: poolAccountKey,
       admin: adminAccount.publicKey,

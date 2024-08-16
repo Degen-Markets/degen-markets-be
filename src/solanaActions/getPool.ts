@@ -17,17 +17,17 @@ interface PoolResponse extends ActionGetResponse {
 }
 
 export const getPool = async (event: APIGatewayEvent) => {
-  const id = event.pathParameters?.id as keyof typeof pools;
-  if (!id) {
+  const poolId = event.pathParameters?.id as keyof typeof pools;
+  if (!poolId) {
     return buildBadRequestError("Missing pool id path parameter");
   }
 
-  if (!pools[id]) {
+  if (!pools[poolId]) {
     return buildBadRequestError("Invalid Pool ID!");
   }
-  const pool = pools[id];
+  const pool = pools[poolId];
 
-  logger.info(`loading pool with id: ${id}`);
+  logger.info(`loading pool with id: ${poolId}`);
   let poolAccount: {
     title: string;
     isPaused: boolean;
@@ -49,10 +49,11 @@ export const getPool = async (event: APIGatewayEvent) => {
     },
   };
   try {
-    poolAccount = await program.account.pool.fetch(id);
+    poolAccount = await program.account.pool.fetch(poolId);
     logger.info(`Pool Found: ${JSON.stringify(poolAccount, null, 3)}`);
   } catch (e) {
     metadata.disabled = true;
+    //ASK_ANGAD: Ended and concluded diff
     metadata.description = "Pool ended!";
   }
   if (poolAccount.isPaused) {
@@ -66,7 +67,7 @@ export const getPool = async (event: APIGatewayEvent) => {
       metadata.links.actions = [
         {
           label: `Claim Win`,
-          href: `/pools/${id}/options/${winningOption.id}/claim-win`,
+          href: `/pools/${poolId}/options/${winningOption.id}/claim-win`,
         },
       ];
     } else {
@@ -74,14 +75,36 @@ export const getPool = async (event: APIGatewayEvent) => {
       metadata.links.actions = [];
     }
   } else {
+    const { value: poolTotalVal } = await program.account.pool.fetch(poolId);
+    const poolOptionsWithCurrVal = await Promise.all(
+      pool.options.map(async (option) => {
+        const { value } = await program.account.poolOption.fetch(option.id);
+        return { ...option, currVal: value };
+      }),
+    );
+    metadata.description = poolOptionsWithCurrVal
+      .map((option) => {
+        const REQUIRED_BASIS_POINT_PRECISION = 2;
+        const PRECISION_FOR_PERCENT = 3;
+        const oddsBasisPointsStr = option.currVal
+          .muln(10 ** (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION))
+          .div(poolTotalVal)
+          .toString();
+        const oddsPercStr = [
+          oddsBasisPointsStr.slice(0, -REQUIRED_BASIS_POINT_PRECISION),
+          oddsBasisPointsStr.slice(-REQUIRED_BASIS_POINT_PRECISION),
+        ].join(".");
+        return `${option.title}: ${oddsPercStr}%\n`;
+      })
+      .join("\n");
     metadata.links.actions = [
       ...pool.options.map((option) => ({
         label: `Bet 1 SOL on "${option.title}"`,
-        href: `/pools/${id}/options/${option.id}?value=1`,
+        href: `/pools/${poolId}/options/${option.id}?value=1`,
       })),
       ...pool.options.map((option) => ({
         label: `${option.title}`,
-        href: `/pools/${id}/options/${option.id}?value={amount}`,
+        href: `/pools/${poolId}/options/${option.id}?value={amount}`,
         parameters: [
           {
             name: "amount",

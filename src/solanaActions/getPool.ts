@@ -87,18 +87,18 @@ export const getPool = async (event: APIGatewayEvent) => {
         percOfTotalPoolVal: 100 / pool.options.length,
       }));
     } else {
-      const poolOptionsWithCurrVal = await Promise.all(
+      const poolOptionsWithVal = await Promise.all(
         pool.options.map(async (option) => {
           const { value } = await program.account.poolOption.fetch(option.id);
-          return { ...option, currVal: value };
+          return { ...option, value };
         }),
       );
-      poolOptionsWithPercOfTotalPoolValArr = poolOptionsWithCurrVal.map(
+      poolOptionsWithPercOfTotalPoolValArr = poolOptionsWithVal.map(
         (option) => {
           const REQUIRED_BASIS_POINT_PRECISION = 2;
           const PRECISION_FOR_PERCENT = 3;
           const percOfTotalPoolVal =
-            option.currVal
+            option.value
               .muln(
                 10 ** (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION),
               )

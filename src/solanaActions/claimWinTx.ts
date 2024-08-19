@@ -1,14 +1,8 @@
 import { connection, program, provider } from "./constants";
 import { deriveEntryAccountKey } from "./enterPoolTx";
+import { PublicKey, Transaction } from "@solana/web3.js";
 import {
-  ComputeBudgetInstruction,
-  ComputeBudgetProgram,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  TransactionInstruction,
-} from "@solana/web3.js";
-import {
+  ActionError,
   ActionPostResponse,
   ACTIONS_CORS_HEADERS,
   createPostResponse,
@@ -35,7 +29,6 @@ export const claimWinTx = async (
     winnerAccountKey,
   );
   let transaction: Transaction;
-  let message: string | undefined;
   try {
     logger.info(
       `Checking if the user's entry exists with key: ${optionAccountKeyString}`,
@@ -60,37 +53,28 @@ export const claimWinTx = async (
         .transaction();
     }
   } catch (e) {
-    if (
-      (e as Error).message.includes("Account does not exist or has no data")
-    ) {
-      logger.info(
-        `User entry not found, creating a nonsensical tx to display to user`,
-      );
-      message = "You did not win this bet!";
+    const errMsg = (e as Error).message;
+    let errMsgForUsr = "Something went wrong. Try again";
+    if (errMsg.includes("Account does not exist or has no data")) {
+      logger.info(`User entry not found`);
+      errMsgForUsr = "You did not win this bet!";
     }
-    if ((e as Error).message === alreadyClaimedErrorMessage) {
+    if (errMsg === alreadyClaimedErrorMessage) {
       logger.info(`Entry already claimed by user ${winnerAccountKeyString}`);
-      message = alreadyClaimedErrorMessage;
+      errMsgForUsr = alreadyClaimedErrorMessage;
     }
-    // in case the user did not win, or has already claimed their win, we need to display a tx popup with a message as feedback
-    transaction = new Transaction();
-    transaction.add(
-      // some BS instruction: send 1 lamport to the pool
-      SystemProgram.transfer({
-        fromPubkey: winnerAccountKey,
-        toPubkey: winnerAccountKey,
-        lamports: 1,
-      }),
-    );
+    const actionErr: ActionError = { message: errMsgForUsr };
+    return {
+      statusCode: 400,
+      body: JSON.stringify(actionErr),
+      headers: ACTIONS_CORS_HEADERS,
+    };
   }
   const block = await connection.getLatestBlockhash();
   transaction.feePayer = winnerAccountKey;
   transaction.recentBlockhash = block.blockhash;
   const payload: ActionPostResponse = await createPostResponse({
-    fields: {
-      transaction,
-      message,
-    },
+    fields: { transaction },
   });
   logger.info(JSON.stringify(payload));
   return {

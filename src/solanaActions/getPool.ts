@@ -53,7 +53,6 @@ export const getPool = async (event: APIGatewayEvent) => {
     logger.info(`Pool Found: ${JSON.stringify(poolAccount, null, 3)}`);
   } catch (e) {
     metadata.disabled = true;
-    //ASK_ANGAD: Ended and concluded diff
     metadata.description = "Pool ended!";
   }
   if (poolAccount.isPaused) {
@@ -75,43 +74,58 @@ export const getPool = async (event: APIGatewayEvent) => {
       metadata.links.actions = [];
     }
   } else {
-    const { value: poolTotalVal } = await program.account.pool.fetch(poolId);
-    const poolOptionsWithCurrVal = await Promise.all(
-      pool.options.map(async (option) => {
-        const { value } = await program.account.poolOption.fetch(option.id);
-        return { ...option, currVal: value };
-      }),
-    );
-    metadata.description = poolOptionsWithCurrVal
-      .map((option) => {
-        const REQUIRED_BASIS_POINT_PRECISION = 2;
-        const PRECISION_FOR_PERCENT = 3;
-        const oddsBasisPointsStr = option.currVal
-          .muln(10 ** (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION))
-          .div(poolTotalVal)
-          .toString();
-        const oddsPercStr = [
-          oddsBasisPointsStr.slice(0, -REQUIRED_BASIS_POINT_PRECISION),
-          oddsBasisPointsStr.slice(-REQUIRED_BASIS_POINT_PRECISION),
-        ].join(".");
-        return `${option.title}: ${oddsPercStr}%\n`;
-      })
-      .join("\n");
+    const poolTotalVal = poolAccount.value;
+    let poolOptionsWithPercOfTotalPoolValArr: {
+      id: string;
+      title: string;
+      percOfTotalPoolVal: number;
+    }[] = [];
+    if (poolTotalVal.toString() === "0") {
+      poolOptionsWithPercOfTotalPoolValArr = pool.options.map((option) => ({
+        title: option.title,
+        id: option.id,
+        percOfTotalPoolVal: 100 / pool.options.length,
+      }));
+    } else {
+      const poolOptionsWithCurrVal = await Promise.all(
+        pool.options.map(async (option) => {
+          const { value } = await program.account.poolOption.fetch(option.id);
+          return { ...option, currVal: value };
+        }),
+      );
+      poolOptionsWithPercOfTotalPoolValArr = poolOptionsWithCurrVal.map(
+        (option) => {
+          const REQUIRED_BASIS_POINT_PRECISION = 2;
+          const PRECISION_FOR_PERCENT = 3;
+          const percOfTotalPoolVal =
+            option.currVal
+              .muln(
+                10 ** (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION),
+              )
+              .div(poolTotalVal)
+              .toNumber() /
+            10 ** REQUIRED_BASIS_POINT_PRECISION;
+          return { id: option.id, title: option.title, percOfTotalPoolVal };
+        },
+      );
+    }
     metadata.links.actions = [
       ...pool.options.map((option) => ({
         label: `Bet 1 SOL on "${option.title}"`,
         href: `/pools/${poolId}/options/${option.id}?value=1`,
       })),
-      ...pool.options.map((option) => ({
-        label: `${option.title}`,
-        href: `/pools/${poolId}/options/${option.id}?value={amount}`,
-        parameters: [
-          {
-            name: "amount",
-            label: "Enter a SOL amount",
-          },
-        ],
-      })),
+      ...poolOptionsWithPercOfTotalPoolValArr
+        .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
+        .map((option) => ({
+          label: `${option.title} (${option.percOfTotalPoolVal.toFixed(0)}%)`,
+          href: `/pools/${poolId}/options/${option.id}?value={amount}`,
+          parameters: [
+            {
+              name: "amount",
+              label: "Enter a SOL amount",
+            },
+          ],
+        })),
     ];
   }
 

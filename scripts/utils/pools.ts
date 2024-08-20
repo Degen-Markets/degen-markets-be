@@ -27,17 +27,3 @@ export const createPool = async (
   console.log(`Pool created`);
   return poolAccountKey;
 };
-
-export const concludePool = async (
-  optionAccountKey: anchor.web3.PublicKey,
-  poolAccountKey: anchor.web3.PublicKey,
-  adminWallet: anchor.web3.Keypair,
-) =>
-  program.methods
-    .concludePool(optionAccountKey)
-    .accounts({
-      poolAccount: poolAccountKey,
-      admin: adminWallet.publicKey,
-    })
-    .signers([adminWallet])
-    .rpc();

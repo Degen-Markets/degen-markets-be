@@ -5,7 +5,6 @@ import { entrantsTable } from "../entrants/schema";
 export const entriesTable = pgTable(
   "entries",
   {
-    // TODO: Add pre-post-hooks to lowercase the addresses, and .$type<Address>() it
     /** The solana address of the entry account */
     id: varchar("id", { length: 44 }).primaryKey(),
 

@@ -5,7 +5,7 @@ import idl from "../../src/solanaActions/target/idl/degen_pools.json";
 import { getLocalAccount } from "./keypairs";
 
 export const connection = new Connection(
-  clusterApiUrl("mainnet-beta"),
+  "https://mainnet.helius-rpc.com/?api-key=d89de0bd-ea34-4f41-9f17-5e0715a54d78",
   "confirmed",
 );
 

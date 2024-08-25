@@ -16,5 +16,19 @@
         "id": "DCKjyxN4rr9Tk4mbTj9wLcWLXkpCkDRibvx1V7SwyqEb"
       }
     ]
+  },
+  "JEfnt6hhJpQ44xZU2XG1MFAJ1coUyqjVFpMiyJarf4L": {
+    "title": "Will Telegram CEO Pavel Durov be released by September 15th?",
+    "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/durov.jpeg",
+    "options": [
+      {
+        "title": "Yes",
+        "id": "7H8VQ3G5TTUUYexb1279QdLnCnqwqy6JsVgqYdrBXGMU"
+      },
+      {
+        "title": "No",
+        "id": "6zjdDSTCWZe2GhtKmudLRHo5ruFPM4qEvqm21YQCtiMN"
+      }
+    ]
   }
 }

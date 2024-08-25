@@ -5,16 +5,16 @@ import { createPool, derivePoolAccountKey } from "./utils/pools";
 import { createOption, deriveOptionAccountKey } from "./utils/options";
 
 const main = async () => {
-  const title = `Who will be the first to mention "crypto" on tonight's interview?`;
-  const optionTitles = ["Based Trump", "Daddy Musk", "Both pu$$ies"];
+  const title = `Will Telegram CEO Pavel Durov be released by September 15th?`;
+  const optionTitles = ["Yes", "No"];
   const imageUrl =
-    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/trump_vs_elon.png";
-  const poolAccountKey = await derivePoolAccountKey(title);
-  // const poolAccountKey = await createPool(title, adminAccount);
+    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/durov.jpeg";
+  // const poolAccountKey = await derivePoolAccountKey(title);
+  const poolAccountKey = await createPool(title, adminAccount);
   const optionAccountKeys = await Promise.all(
     optionTitles.map((optionTitle) => {
-      return deriveOptionAccountKey(optionTitle, poolAccountKey);
-      // return createOption(optionTitle, adminAccount, poolAccountKey);
+      // return deriveOptionAccountKey(optionTitle, poolAccountKey);
+      return createOption(optionTitle, adminAccount, poolAccountKey);
     }),
   );
   const newPools = {

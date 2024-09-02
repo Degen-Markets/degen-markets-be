@@ -17,7 +17,6 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "idx_pool_entrant_points" ON "pool_entrants" USING btree ("points");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_entrant" ON "pool_entries" USING btree ("entrant");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_option" ON "pool_entries" USING btree ("option");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_pool" ON "pool_entries" USING btree ("pool");

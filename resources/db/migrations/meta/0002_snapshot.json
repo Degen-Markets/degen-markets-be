@@ -1,5 +1,5 @@
 {
-  "id": "37f20cea-37fc-4912-987e-8b05f93c6cd4",
+  "id": "3d3b4a5d-5b61-4ec4-bc55-6ceffe282463",
   "prevId": "ebcebf37-df72-4b1e-91c9-4d0a914bb33b",
   "version": "7",
   "dialect": "postgresql",
@@ -434,23 +434,7 @@
           "default": 0
         }
       },
-      "indexes": {
-        "idx_pool_entrant_points": {
-          "name": "idx_pool_entrant_points",
-          "columns": [
-            {
-              "expression": "points",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}

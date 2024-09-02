@@ -2,7 +2,6 @@ import { APIGatewayEvent } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { program } from "./constants";
-import { buildBadRequestError } from "../utils/errors";
 import pools from "./pools.json";
 import { LinkedAction } from "@solana/actions-spec";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
@@ -16,16 +15,28 @@ interface PoolResponse extends ActionGetResponse {
   };
 }
 
+const invalidPoolBlinkResponse = {
+  statusCode: 200,
+  body: JSON.stringify({
+    description: "Visit degenmarkets.com/pools to see all pools",
+    icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degen-markets-banner.jpeg",
+    title: "No such pool exists",
+    disabled: true,
+    // @ts-expect-error We're ignoring the label, cause we don't want it
+  } satisfies ActionGetResponse),
+  headers: ACTIONS_CORS_HEADERS,
+};
+
 export const getPool = async (event: APIGatewayEvent) => {
   const poolId = event.pathParameters?.id as keyof typeof pools;
   if (!poolId) {
-    return buildBadRequestError("Missing pool id path parameter");
+    return invalidPoolBlinkResponse;
   }
 
-  if (!pools[poolId]) {
-    return buildBadRequestError("Invalid Pool ID!");
-  }
   const pool = pools[poolId];
+  if (!pool) {
+    return invalidPoolBlinkResponse;
+  }
 
   logger.info(`loading pool with id: ${poolId}`);
   let poolAccount: {

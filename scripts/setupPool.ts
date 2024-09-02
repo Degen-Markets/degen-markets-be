@@ -5,10 +5,10 @@ import { createPool, derivePoolAccountKey } from "./utils/pools";
 import { createOption, deriveOptionAccountKey } from "./utils/options";
 
 const main = async () => {
-  const title = `Will Telegram CEO Pavel Durov be released by September 15th?`;
-  const optionTitles = ["Yes", "No"];
+  const title = `Kook revealed as baddie by EoY`;
+  const optionTitles = ["Yes, baddie", "No, still incel"];
   const imageUrl =
-    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/durov.jpeg";
+    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/kook_with_tits.jpeg";
   // const poolAccountKey = await derivePoolAccountKey(title);
   const poolAccountKey = await createPool(title, adminAccount);
   const optionAccountKeys = await Promise.all(

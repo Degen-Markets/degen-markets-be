@@ -30,5 +30,19 @@
         "id": "6zjdDSTCWZe2GhtKmudLRHo5ruFPM4qEvqm21YQCtiMN"
       }
     ]
+  },
+  "DJWarEFDk8HDkDUaLgbtauG8ECGQztPq653iiaTVPsfv": {
+    "title": "Kook revealed as baddie by EoY",
+    "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/kook_with_tits.jpeg",
+    "options": [
+      {
+        "title": "Yes, baddie",
+        "id": "EvEksdAkCEuZnLLQaKjhMnGrkepoMkyZQnkNqW55anEC"
+      },
+      {
+        "title": "No, still incel",
+        "id": "BcjQaqBQgfN68psc32dmPtzoCUpDM9C9avnm8UcbogJ5"
+      }
+    ]
   }
 }

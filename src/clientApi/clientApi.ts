@@ -18,9 +18,7 @@ import PoolsJson from "../solanaActions/pools.json";
 import { tickerToCmcId } from "../utils/cmcApi";
 import getPlayersHandler from "./handlers/getPlayersHandler";
 import { buildBadRequestError } from "../utils/errors";
-import getEntryAccount from "../pools/getEntryAccount";
 import { claimWinTx } from "../solanaActions/claimWinTx";
-import getPoolAccount from "../pools/getPoolAccount";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -86,29 +84,6 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
         ...pool,
       }));
       return buildOkResponse(pools);
-    }),
-  },
-  {
-    method: "GET",
-    path: "/pool-accounts/{id}",
-    handler: middy().handler(async (event: APIGatewayEvent) => {
-      const poolId = event.pathParameters?.id;
-      if (!poolId) {
-        return buildBadRequestError("Missing pool id!");
-      }
-      return getPoolAccount(poolId);
-    }),
-  },
-  {
-    method: "GET",
-    path: "/pools/{poolId}/options/{optionId}/accounts/{account}",
-    handler: middy().handler(async (event: APIGatewayEvent) => {
-      const optionAccountKey = event.pathParameters?.optionId;
-      const account = event.pathParameters?.account;
-      if (!account || !optionAccountKey) {
-        return buildBadRequestError("Missing Account or Option Key");
-      }
-      return getEntryAccount(optionAccountKey, account);
     }),
   },
   {

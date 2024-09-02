@@ -54,7 +54,7 @@ export const getPool = async (event: APIGatewayEvent) => {
     icon: pool.image,
     label: pool.title,
     title: pool.title,
-    description: "",
+    description: pool.description,
     links: {
       actions: [],
     },

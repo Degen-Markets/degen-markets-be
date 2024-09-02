@@ -5,10 +5,12 @@ import { createPool, derivePoolAccountKey } from "./utils/pools";
 import { createOption, deriveOptionAccountKey } from "./utils/options";
 
 const main = async () => {
-  const title = `Kook revealed as baddie by EoY`;
-  const optionTitles = ["Yes, baddie", "No, still incel"];
+  const title = `@pumpdotfun founder revealed to be Indian by EoY`;
+  const description =
+    "@a1lon9 revealed to be of Indian origin by end of year 2024";
+  const optionTitles = ["Yes, king of jeets", "No, just jewish"];
   const imageUrl =
-    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/kook_with_tits.jpeg";
+    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/pumpdotfun_indian.jpeg";
   // const poolAccountKey = await derivePoolAccountKey(title);
   const poolAccountKey = await createPool(title, adminAccount);
   const optionAccountKeys = await Promise.all(
@@ -21,6 +23,7 @@ const main = async () => {
     ...pools,
     [poolAccountKey.toString()]: {
       title,
+      description,
       image: imageUrl,
       options: optionTitles.map((optionTitle, optionIndex) => ({
         title: optionTitle,
@@ -30,7 +33,7 @@ const main = async () => {
   };
   fs.writeFileSync(
     `${process.cwd()}/src/solanaActions/pools.json`,
-    JSON.stringify(newPools),
+    JSON.stringify(newPools, null, 2),
   );
   return newPools;
 };

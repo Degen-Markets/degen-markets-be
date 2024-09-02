@@ -1,6 +1,7 @@
 {
   "9o3t3HnhrzZrmsU69XYNqAq1x2KwdruXCtr8KeQ86jb5": {
     "title": "Who will be the first to mention \"crypto\" on tonight's interview?",
+    "description": "",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/trump_vs_elon.png",
     "options": [
       {
@@ -19,6 +20,7 @@
   },
   "JEfnt6hhJpQ44xZU2XG1MFAJ1coUyqjVFpMiyJarf4L": {
     "title": "Will Telegram CEO Pavel Durov be released by September 15th?",
+    "description": "",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/durov.jpeg",
     "options": [
       {
@@ -33,6 +35,7 @@
   },
   "DJWarEFDk8HDkDUaLgbtauG8ECGQztPq653iiaTVPsfv": {
     "title": "Kook revealed as baddie by EoY",
+    "description": "@KookCapitalLLC revealed to be a woman by end of year 2024",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/kook_with_tits.jpeg",
     "options": [
       {
@@ -42,6 +45,21 @@
       {
         "title": "No, still incel",
         "id": "BcjQaqBQgfN68psc32dmPtzoCUpDM9C9avnm8UcbogJ5"
+      }
+    ]
+  },
+  "DhUJSc2dVsWdNSyN6y3pM4CrZT55o6Wp8w7Q32wWiEbC": {
+    "title": "@pumpdotfun founder revealed to be Indian by EoY",
+    "description": "",
+    "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/pumpdotfun_indian.jpeg",
+    "options": [
+      {
+        "title": "Yes, king of jeets",
+        "id": "HEcqnMQuUAZsCW6ixLCR7aZyKuHvVz6xh6LGDxVqFsh7"
+      },
+      {
+        "title": "No, just jewish",
+        "id": "993yFbazZSFnhiP4DMxoJkXRd6hGj36tMYzBdRmqERiQ"
       }
     ]
   }

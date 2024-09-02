@@ -15,6 +15,13 @@
       "when": 1723021780413,
       "tag": "0001_perpetual_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725263944139,
+      "tag": "0002_large_magma",
+      "breakpoints": true
     }
   ]
 }

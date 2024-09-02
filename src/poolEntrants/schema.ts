@@ -1,7 +1,7 @@
 import { index, integer, pgTable, varchar } from "drizzle-orm/pg-core";
 
 export const poolEntrantsTable = pgTable(
-  "poolEntrants",
+  "pool_entrants",
   {
     /** The solana address of the user */
     address: varchar("address", { length: 44 }).primaryKey(),
@@ -11,7 +11,7 @@ export const poolEntrantsTable = pgTable(
   },
   (table) => {
     return {
-      idxPoints: index("idx_points").on(table.points),
+      idxPoints: index("idx_pool_entrant_points").on(table.points),
     };
   },
 );

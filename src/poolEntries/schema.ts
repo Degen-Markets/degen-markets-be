@@ -2,7 +2,7 @@ import { bigint, index, pgTable, varchar } from "drizzle-orm/pg-core";
 import { poolEntrantsTable } from "../poolEntrants/schema";
 
 export const poolEntriesTable = pgTable(
-  "poolEntries",
+  "pool_entries",
   {
     /** The solana address of the entry account */
     address: varchar("address", { length: 44 }).primaryKey(),

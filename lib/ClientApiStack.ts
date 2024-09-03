@@ -41,6 +41,10 @@ export class ClientApiStack extends TaggedStack {
           TWITTER_ACCESS_SECRET: getMandatoryEnvVariable(
             "TWITTER_ACCESS_SECRET",
           ),
+          TWITTER_CLIENT_ID: getMandatoryEnvVariable("TWITTER_CLIENT_ID"),
+          TWITTER_CLIENT_SECRET: getMandatoryEnvVariable(
+            "TWITTER_CLIENT_SECRET",
+          ),
         },
         vpc,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },

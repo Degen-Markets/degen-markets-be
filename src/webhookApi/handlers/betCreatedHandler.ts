@@ -9,8 +9,6 @@ import DEGEN_BETS_V2_ABI from "../../../resources/abi/DegenBetsV2Abi.json";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
-import { sendTelegramMessage } from "../../notifications/telegram";
-import { sendTweet } from "../../notifications/twitter";
 
 const BET_CREATED_TOPIC =
   "0x9a0204d7d0a90e95e52d820bb9bd7713c5dc79105b86cfe6073c827a88b999bb";
@@ -66,22 +64,6 @@ const betCreatedHandler = async (event: APIGatewayEvent) => {
     });
   } catch (e) {
     logger.error((e as Error).message, e as Error);
-  }
-
-  const notificationMessage = `New Bet(s) Created:\n\n${bets
-    .map((bet) => `https://degenmarkets.com/bets/${bet.id}`)
-    .join("\n")}`;
-
-  try {
-    await sendTelegramMessage(notificationMessage);
-  } catch (e) {
-    logger.error("Error sending create bet tg messages", e as Error);
-  }
-
-  try {
-    await sendTweet(notificationMessage);
-  } catch (e) {
-    logger.error("Error sending create bet tweet", e as Error);
   }
   return 200;
 };

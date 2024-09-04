@@ -34,8 +34,8 @@ const findMyUser = async () => {
 export const getLoginLink = () => {
   logger.info("Fetching twitter login link");
   const url = authClient.generateAuthURL({
-    state: "asdf",
-    code_challenge: "asdf",
+    state: "dm",
+    code_challenge: "dm",
     code_challenge_method: "plain",
   });
   return { url };

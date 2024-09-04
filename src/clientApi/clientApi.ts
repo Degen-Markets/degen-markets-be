@@ -19,7 +19,7 @@ import { tickerToCmcId } from "../utils/cmcApi";
 import getPlayersHandler from "./handlers/getPlayersHandler";
 import { buildBadRequestError } from "../utils/errors";
 import { claimWinTx } from "../solanaActions/claimWinTx";
-import { getLoginLink, saveTwitterUser } from "../notifications/twitter";
+import { getLoginLink, saveTwitterUser } from "./handlers/twitter";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();

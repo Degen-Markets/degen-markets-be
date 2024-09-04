@@ -9,6 +9,8 @@ const main = async () => {
   const description =
     "@a1lon9 revealed to be of Indian origin by end of year 2024";
   const optionTitles = ["Yes, king of jeets", "No, just jewish"];
+  const isPaused = false;
+  const winningOption = null;
   const imageUrl =
     "https://degen-markets-static.s3.eu-west-1.amazonaws.com/pumpdotfun_indian.jpeg";
   // const poolAccountKey = await derivePoolAccountKey(title);
@@ -25,6 +27,8 @@ const main = async () => {
       title,
       description,
       image: imageUrl,
+      isPaused,
+      winningOption,
       options: optionTitles.map((optionTitle, optionIndex) => ({
         title: optionTitle,
         id: optionAccountKeys[optionIndex],

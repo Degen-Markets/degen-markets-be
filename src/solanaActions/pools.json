@@ -3,6 +3,8 @@
     "title": "Who will be the first to mention \"crypto\" on tonight's interview?",
     "description": "",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/trump_vs_elon.png",
+    "isPaused": true,
+    "winningOption": "DCKjyxN4rr9Tk4mbTj9wLcWLXkpCkDRibvx1V7SwyqEb",
     "options": [
       {
         "title": "Based Trump",
@@ -22,6 +24,8 @@
     "title": "Will Telegram CEO Pavel Durov be released by September 15th?",
     "description": "",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/durov.jpeg",
+    "isPaused": false,
+    "winningOption": null,
     "options": [
       {
         "title": "Yes",
@@ -37,6 +41,8 @@
     "title": "Kook revealed as baddie by EoY",
     "description": "@KookCapitalLLC revealed to be a woman by end of year 2024",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/kook_with_tits.jpeg",
+    "isPaused": false,
+    "winningOption": null,
     "options": [
       {
         "title": "Yes, baddie",
@@ -52,6 +58,8 @@
     "title": "@pumpdotfun founder revealed to be Indian by EoY",
     "description": "",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/pumpdotfun_indian.jpeg",
+    "isPaused": false,
+    "winningOption": null,
     "options": [
       {
         "title": "Yes, king of jeets",

@@ -19,6 +19,7 @@ import { tickerToCmcId } from "../utils/cmcApi";
 import getPlayersHandler from "./handlers/getPlayersHandler";
 import { buildBadRequestError } from "../utils/errors";
 import { claimWinTx } from "../solanaActions/claimWinTx";
+import { getLoginLink, saveTwitterUser } from "./handlers/twitter";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 const betService = new BetService();
@@ -78,7 +79,7 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/pools",
-    handler: middy().handler(async (event: APIGatewayEvent) => {
+    handler: middy().handler(async () => {
       const pools = Object.entries(PoolsJson).map(([id, pool]) => ({
         id,
         ...pool,
@@ -117,6 +118,18 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
       const tickers = await betService.findPopularTickers();
       return buildOkResponse(tickers);
     }),
+  },
+  {
+    method: "GET",
+    path: "/twitter-login",
+    handler: middy().handler(async () => {
+      return buildOkResponse(getLoginLink());
+    }),
+  },
+  {
+    method: "POST",
+    path: "/save-twitter-user",
+    handler: middy().handler(saveTwitterUser),
   },
   {
     method: "ANY",

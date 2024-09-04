@@ -1,9 +1,9 @@
-import { getMandatoryEnvVariable } from "../utils/getMandatoryEnvValue";
+import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { auth, Client } from "twitter-api-sdk";
 import { APIGatewayEvent } from "aws-lambda";
-import { buildBadRequestError } from "../utils/errors";
-import { buildOkResponse } from "../utils/httpResponses";
+import { buildBadRequestError } from "../../utils/errors";
+import { buildOkResponse } from "../../utils/httpResponses";
 
 const logger = new Logger({ serviceName: "TwitterService" });
 

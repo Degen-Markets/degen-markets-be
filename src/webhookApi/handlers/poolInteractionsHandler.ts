@@ -7,7 +7,10 @@ import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { typedIncludes } from "../../utils/typedStdLib";
-import { SmartContractEvent } from "../../smartContractEventProcessor/types";
+import {
+  parseSmartContractEventFromDecodedEvent,
+  SmartContractEvent,
+} from "../../smartContractEventProcessor/types";
 
 const EVENTS_TO_SEND = [
   "poolEntered",
@@ -82,49 +85,6 @@ export const poolInteractionsHandler = async (
   return buildOkResponse({ message: "Events processor completed run" });
 };
 
-/**
- * Helps us convert native IDL events to our own {@link SmartContractEvent} type.
- */
-function parseSmartContractEvent(event: {
-  name: string;
-  data: any;
-}): SmartContractEvent {
-  const allEventNames = program.idl.events.map((e) => e.name);
-  if (!typedIncludes(allEventNames, event.name)) {
-    throw new Error(`Invalid event name: ${event.name}`);
-  }
-
-  const eventType = program.idl.types.find((type) => type.name === event.name);
-  if (!eventType) {
-    throw new Error(`Unknown event type: ${event.name}`);
-  }
-
-  if (eventType.type.kind !== "struct") {
-    throw new Error(`Event type ${event.name} is not a struct`);
-  }
-
-  const requiredFields = eventType.type.fields.map((field) => field.name);
-  const missingFields = requiredFields.filter(
-    (field) => !(field in event.data),
-  );
-
-  if (missingFields.length > 0) {
-    throw new Error(
-      `Missing required fields for ${event.name} event: ${missingFields.join(", ")}`,
-    );
-  }
-
-  /** Convert the event to {@link SmartContractEvent} type */
-  const convertedData: SmartContractEvent["data"] = JSON.parse(
-    JSON.stringify(event.data),
-  );
-
-  return {
-    eventName: event.name,
-    data: convertedData,
-  } as SmartContractEvent;
-}
-
 function mapLogToEventOrNull(log: string): SmartContractEvent | null {
   const base64Data = log.replace("Program data: ", "");
 
@@ -134,11 +94,13 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
     return null;
   }
 
-  const untypedEvent = parseTrial.data; // temporary alias to allow type narrowing inside `tryIt`
-  const strongTypeTrial = tryIt(() => parseSmartContractEvent(untypedEvent));
+  const decodedEvent = parseTrial.data; // temporary alias to allow type narrowing inside `tryIt`
+  const strongTypeTrial = tryIt(() =>
+    parseSmartContractEventFromDecodedEvent(decodedEvent),
+  );
   if (!strongTypeTrial.success) {
     logger.error("Failed to get strongly typed event", {
-      event: untypedEvent,
+      event: decodedEvent,
       err: strongTypeTrial.err,
     });
     return null;

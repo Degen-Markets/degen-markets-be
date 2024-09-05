@@ -3,7 +3,7 @@ import { PlayerEntity } from "./types";
 import { DrizzleClient } from "../clients/DrizzleClient";
 import { playersTable } from "./schema";
 import { typedObjectEntries } from "../utils/typedStdLib";
-import { SQL, asc, count, desc, eq, inArray, or, sql, sum } from "drizzle-orm";
+import { SQL, asc, count, desc, eq, or, sql, sum } from "drizzle-orm";
 import { ESortDirections } from "../utils/queryString";
 import { betsTable } from "../bets/schema";
 

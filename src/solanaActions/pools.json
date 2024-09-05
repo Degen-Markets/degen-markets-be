@@ -24,7 +24,7 @@
     "title": "Will Telegram CEO Pavel Durov be released by September 15th?",
     "description": "",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/durov.jpeg",
-    "isPaused": false,
+    "isPaused": true,
     "winningOption": null,
     "options": [
       {

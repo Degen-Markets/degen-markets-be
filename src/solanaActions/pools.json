@@ -70,5 +70,22 @@
         "id": "993yFbazZSFnhiP4DMxoJkXRd6hGj36tMYzBdRmqERiQ"
       }
     ]
+  },
+  "9rJ8Wr3thMyX2g52iYwo3d8Rx54BqFYnjNrb84Cv6arb": {
+    "title": "Degods crosses $1B market cap before end of year",
+    "description": "Degods reaches or crosses $1B market cap on MagicEden or Tensor by end of year 2024. Option labeled 'Degods' stands for yes, whereas 'Frank not based' stands for no.",
+    "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degods_1B.png",
+    "isPaused": false,
+    "winningOption": null,
+    "options": [
+      {
+        "title": "Degods",
+        "id": "F8Cqi3yebm1dAw3s876rA5rstSu6tD1v9tLFnaEkkobp"
+      },
+      {
+        "title": "Frank not based",
+        "id": "G9S5nSSdRBSMBrrZN5kTXvsZ5E27nhgktGtTA97xwyAT"
+      }
+    ]
   }
 }

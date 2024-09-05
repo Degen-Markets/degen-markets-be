@@ -1,6 +1,6 @@
 import { SmartContractEvent } from "../types";
-import { insertOrIgnorePoolEntrant } from "../../poolEntrants/service";
-import { insertOrUpdatePoolEntry } from "../../poolEntries/service";
+import PoolEntrantsService from "../../poolEntrants/service";
+import PoolEntriesService from "../../poolEntries/service";
 import { DrizzleClient } from "../../clients/DrizzleClient";
 
 type PoolEnteredEventData = Extract<
@@ -15,14 +15,13 @@ export const poolEnteredEventHandler = async (
 
   const db = await DrizzleClient.makeDb();
 
-  await insertOrIgnorePoolEntrant(db, entrant);
+  await PoolEntrantsService.insertOrIgnore(db, entrant);
 
-  await insertOrUpdatePoolEntry(
-    db,
-    entry,
+  await PoolEntriesService.insertOrUpdate(db, {
+    address: entry,
     entrant,
     option,
     pool,
-    BigInt(value),
-  );
+    value: BigInt(value),
+  });
 };

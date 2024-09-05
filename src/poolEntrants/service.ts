@@ -1,9 +1,13 @@
 import { DrizzleDb } from "../clients/DrizzleClient";
 import { poolEntrantsTable } from "./schema";
 
-export async function insertOrIgnorePoolEntrant(
-  db: DrizzleDb,
-  address: string,
-) {
-  await db.insert(poolEntrantsTable).values({ address }).onConflictDoNothing();
+namespace PoolEntrantsService {
+  export async function insertOrIgnore(db: DrizzleDb, address: string) {
+    await db
+      .insert(poolEntrantsTable)
+      .values({ address })
+      .onConflictDoNothing();
+  }
 }
+
+export default PoolEntrantsService;

@@ -2,20 +2,28 @@ import { SmartContractEvent } from "../types";
 import PoolEntrantsService from "../../poolEntrants/service";
 import PoolEntriesService from "../../poolEntries/service";
 import { DrizzleClient } from "../../clients/DrizzleClient";
+import { Logger } from "@aws-lambda-powertools/logger";
 
 type PoolEnteredEventData = Extract<
   SmartContractEvent,
   { eventName: "poolEntered" }
 >["data"];
 
+const logger = new Logger({
+  serviceName: "PoolEnteredEventHandler",
+});
+
 export const poolEnteredEventHandler = async (
   eventData: PoolEnteredEventData,
 ) => {
+  logger.info("Processing pool entered event", { eventData });
+
   const { entrant, option, pool, value, entry } = eventData;
 
   const db = await DrizzleClient.makeDb();
 
   await PoolEntrantsService.insertOrIgnore(db, entrant);
+  logger.info("Inserted or ignored pool entrant", { entrant });
 
   await PoolEntriesService.insertOrUpdate(db, {
     address: entry,
@@ -24,4 +32,5 @@ export const poolEnteredEventHandler = async (
     pool,
     value: BigInt(value),
   });
+  logger.info("Inserted or updated pool entry", { entry });
 };

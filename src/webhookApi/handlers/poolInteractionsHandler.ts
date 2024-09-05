@@ -1,5 +1,4 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { IdlEvents } from "@coral-xyz/anchor";
 import { program } from "../../solanaActions/constants";
 import { buildBadRequestError } from "../../utils/errors";
 import { buildOkResponse } from "../../utils/httpResponses";
@@ -8,6 +7,7 @@ import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { typedIncludes } from "../../utils/typedStdLib";
+import { SmartContractEvent } from "../../smartContractEventProcessor/types";
 
 const EVENTS_TO_SEND = [
   "poolEntered",
@@ -54,7 +54,7 @@ export const poolInteractionsHandler = async (
   const concatenatedSignatures = parsedBody[0].signatures.join("-");
 
   const sendMessagePromises = parsedEvents.map(async (event) => {
-    if (!typedIncludes(EVENTS_TO_SEND, event.name)) return;
+    if (!typedIncludes(EVENTS_TO_SEND, event.eventName)) return;
 
     const result = await tryItAsync(async () => {
       const messageBody = JSON.stringify(event);
@@ -62,19 +62,19 @@ export const poolInteractionsHandler = async (
         MessageBody: messageBody,
         QueueUrl: queueUrl,
         MessageGroupId: messageGroupId,
-        MessageDeduplicationId: `${event.name}-${concatenatedSignatures}-${Date.now()}`,
+        MessageDeduplicationId: `${event.eventName}-${concatenatedSignatures}-${Date.now()}`,
       });
     });
 
     if (!result.success) {
-      logger.error(`Failed to send ${event.name} event to SQS`, {
+      logger.error(`Failed to send ${event.eventName} event to SQS`, {
         error: result.err,
         event,
       });
       return;
     }
 
-    logger.info(`Sent ${event.name} event to SQS`, { event });
+    logger.info(`Sent ${event.eventName} event to SQS`, { event });
   });
 
   await Promise.all(sendMessagePromises);
@@ -83,9 +83,12 @@ export const poolInteractionsHandler = async (
 };
 
 /**
- * Helps us strongly type the events we get from parsing the program data logs.
+ * Helps us convert native IDL events to our own {@link SmartContractEvent} type.
  */
-function parseSmartContractEvent(event: { name: string; data: any }): Event {
+function parseSmartContractEvent(event: {
+  name: string;
+  data: any;
+}): SmartContractEvent {
   const allEventNames = program.idl.events.map((e) => e.name);
   if (!typedIncludes(allEventNames, event.name)) {
     throw new Error(`Invalid event name: ${event.name}`);
@@ -111,17 +114,18 @@ function parseSmartContractEvent(event: { name: string; data: any }): Event {
     );
   }
 
-  // TODO: Make this Event type specific to DGM, not anchor's Event (dependency inversion)
-  return event as Event;
+  /** Convert the event to {@link SmartContractEvent} type */
+  const convertedData: SmartContractEvent["data"] = JSON.parse(
+    JSON.stringify(event.data),
+  );
+
+  return {
+    eventName: event.name,
+    data: convertedData,
+  } as SmartContractEvent;
 }
 
-type EventsRecord = IdlEvents<typeof program.idl>;
-type EventName = keyof EventsRecord;
-type Event = {
-  [K in EventName]: { name: K; data: EventsRecord[K] };
-}[EventName];
-
-function mapLogToEventOrNull(log: string): Event | null {
+function mapLogToEventOrNull(log: string): SmartContractEvent | null {
   const base64Data = log.replace("Program data: ", "");
 
   const parseTrial = tryIt(() => program.coder.events.decode(base64Data));
@@ -139,5 +143,6 @@ function mapLogToEventOrNull(log: string): Event | null {
     });
     return null;
   }
+
   return strongTypeTrial.data;
 }

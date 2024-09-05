@@ -323,6 +323,10 @@ export type DegenPools = {
             name: "value";
             type: "u64";
           },
+          {
+            name: "entrant";
+            type: "pubkey";
+          },
         ];
       };
     },

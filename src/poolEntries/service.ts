@@ -7,11 +7,8 @@ const logger = new Logger({
   serviceName: "PoolEntriesService",
 });
 
-namespace PoolEntriesService {
-  export async function insertOrUpdate(
-    db: DrizzleDb,
-    data: PoolEntriesInsertEntity,
-  ) {
+export default class PoolEntriesService {
+  static async insertOrUpdate(db: DrizzleDb, data: PoolEntriesInsertEntity) {
     const { address, entrant, option, pool, value } = data;
     const result = await db
       .insert(poolEntriesTable)
@@ -25,5 +22,3 @@ namespace PoolEntriesService {
     logger.debug("Upserted pool entry", { poolEntry: result[0] });
   }
 }
-
-export default PoolEntriesService;

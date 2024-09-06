@@ -1,5 +1,5 @@
 import { bigint, index, pgTable, varchar } from "drizzle-orm/pg-core";
-import { poolEntrantsTable } from "../poolEntrants/schema";
+import { playersTable } from "../players/schema";
 
 export const poolEntriesTable = pgTable(
   "pool_entries",
@@ -10,7 +10,7 @@ export const poolEntriesTable = pgTable(
     /** The solana address of the user who entered the bet */
     entrant: varchar("entrant", { length: 44 })
       .notNull()
-      .references(() => poolEntrantsTable.address),
+      .references(() => playersTable.address),
 
     /** The solana address of the option account (PDA associated to the pools program)*/
     option: varchar("option", { length: 44 }).notNull(),

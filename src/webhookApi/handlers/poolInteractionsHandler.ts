@@ -7,12 +7,9 @@ import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { typedIncludes } from "../../utils/typedStdLib";
-import {
-  parseSmartContractEventFromDecodedEvent,
-  SmartContractEvent,
-} from "../../smartContractEventProcessor/types";
+import { SmartContractEvent } from "../../smartContractEventProcessor/types";
 
-const EVENTS_TO_SEND = [
+const VALID_EVENTS = [
   "poolEntered",
 ] satisfies (typeof program.idl.events)[number]["name"][];
 
@@ -47,17 +44,17 @@ export const poolInteractionsHandler = async (
     log.startsWith("Program data: "),
   );
 
-  const parsedEvents = programDataLogs
+  const smartContractEvents = programDataLogs
     .map(mapLogToEventOrNull)
-    .filter((event) => event !== null);
+    .filter((event) => event !== null) as SmartContractEvent[]; // `.filter` doesn't narrow the type apparently (https://stackoverflow.com/a/63541957)
 
   const sqs = new SQS();
   const queueUrl = getMandatoryEnvVariable("QUEUE_URL");
   const messageGroupId = getMandatoryEnvVariable("MESSAGE_GROUP_ID");
   const concatenatedSignatures = parsedBody[0].signatures.join("-");
 
-  const sendMessagePromises = parsedEvents.map(async (event) => {
-    if (!typedIncludes(EVENTS_TO_SEND, event.eventName)) return;
+  const sendMessagePromises = smartContractEvents.map(async (event) => {
+    if (!typedIncludes(VALID_EVENTS, event.eventName)) return;
 
     const result = await tryItAsync(async () => {
       const messageBody = JSON.stringify(event);
@@ -94,17 +91,9 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
     return null;
   }
 
-  const decodedEvent = parseTrial.data; // temporary alias to allow type narrowing inside `tryIt`
-  const strongTypeTrial = tryIt(() =>
-    parseSmartContractEventFromDecodedEvent(decodedEvent),
-  );
-  if (!strongTypeTrial.success) {
-    logger.error("Failed to get strongly typed event", {
-      event: decodedEvent,
-      err: strongTypeTrial.err,
-    });
-    return null;
-  }
+  const event =
+    // stringify the fields (they may contain PublicKey and BN) recursively
+    JSON.parse(JSON.stringify(parseTrial.data)) as SmartContractEvent;
 
-  return strongTypeTrial.data;
+  return event;
 }

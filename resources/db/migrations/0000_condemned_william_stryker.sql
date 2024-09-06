@@ -1,6 +1,8 @@
-CREATE TABLE IF NOT EXISTS "pool_entrants" (
+CREATE TABLE IF NOT EXISTS "players" (
 	"address" varchar(44) PRIMARY KEY NOT NULL,
-	"points" integer DEFAULT 0 NOT NULL
+	"points" integer DEFAULT 0 NOT NULL,
+	"twitterUsername" varchar(15),
+	"twitterPfpUrl" varchar
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "pool_entries" (
@@ -12,7 +14,7 @@ CREATE TABLE IF NOT EXISTS "pool_entries" (
 );
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "pool_entries" ADD CONSTRAINT "pool_entries_entrant_pool_entrants_address_fk" FOREIGN KEY ("entrant") REFERENCES "public"."pool_entrants"("address") ON DELETE no action ON UPDATE no action;
+ ALTER TABLE "pool_entries" ADD CONSTRAINT "pool_entries_entrant_players_address_fk" FOREIGN KEY ("entrant") REFERENCES "public"."players"("address") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

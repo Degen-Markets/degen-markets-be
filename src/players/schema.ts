@@ -1,24 +1,15 @@
-import { index, integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
-import { typedObjectKeys } from "../utils/typedStdLib";
+import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
 
-const playersTableColumnsConfig = {
-  address: varchar("address").primaryKey(),
-  name: varchar("name", { length: 20 }),
-  avatarUrl: text("avatarUrl"),
-  chain: varchar("chain", { length: 20 }).notNull().default("base"),
+export const playersTable = pgTable("players", {
+  /** The solana address of the user */
+  address: varchar("address", { length: 44 }).primaryKey(),
+
+  /** The total points earned by the user */
   points: integer("points").notNull().default(0),
-};
 
-export const playersTable = pgTable(
-  "players",
-  playersTableColumnsConfig,
-  (table) => {
-    return {
-      idxPoints: index("idx_points").on(table.points),
-    };
-  },
-);
+  /** The user's twitter username (max length: https://help.x.com/en/managing-your-account/x-username-rules) */
+  twitterUsername: varchar("twitterUsername", { length: 15 }),
 
-export const playersTableColumnNames = typedObjectKeys(
-  playersTableColumnsConfig,
-);
+  /** The user's twitter profile picture url */
+  twitterPfpUrl: varchar("twitterPfpUrl"),
+});

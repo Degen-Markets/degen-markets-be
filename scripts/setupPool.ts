@@ -5,12 +5,14 @@ import { createPool, derivePoolAccountKey } from "./utils/pools";
 import { createOption, deriveOptionAccountKey } from "./utils/options";
 
 const main = async () => {
-  const title = `@pumpdotfun founder revealed to be Indian by EoY`;
+  const title = `Degods crosses $1B market cap before end of year`;
   const description =
-    "@a1lon9 revealed to be of Indian origin by end of year 2024";
-  const optionTitles = ["Yes, king of jeets", "No, just jewish"];
+    "Degods reaches or crosses $1B market cap on MagicEden or Tensor by end of year 2024. Option labeled 'Degods' stands for yes, whereas 'Frank not based' stands for no.";
+  const optionTitles = ["Degods", "Frank not based"];
+  const isPaused = false;
+  const winningOption = null;
   const imageUrl =
-    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/pumpdotfun_indian.jpeg";
+    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degods_1B.png";
   // const poolAccountKey = await derivePoolAccountKey(title);
   const poolAccountKey = await createPool(title, adminAccount);
   const optionAccountKeys = await Promise.all(
@@ -25,6 +27,8 @@ const main = async () => {
       title,
       description,
       image: imageUrl,
+      isPaused,
+      winningOption,
       options: optionTitles.map((optionTitle, optionIndex) => ({
         title: optionTitle,
         id: optionAccountKeys[optionIndex],

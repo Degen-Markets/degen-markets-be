@@ -9,7 +9,7 @@ const logger = new Logger({
 });
 
 export default class PlayersService {
-  static async insertPlayerOrUpdatePoints(
+  static async insertNewOrUpdatePoints(
     db: DrizzleDb,
     data: PlayerInsertEntity,
   ) {
@@ -19,7 +19,7 @@ export default class PlayersService {
       .onConflictDoUpdate({
         target: playersTable.address,
         set: {
-          points: sql`${playersTable.points.name} + ${data.points}`,
+          points: sql`${playersTable.points} + ${data.points}`,
         },
       })
       .returning();

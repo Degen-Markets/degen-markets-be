@@ -42,7 +42,7 @@ describe("poolEnteredEventHandler", () => {
       BigInt(mockEventData.value),
       expect.any(BigInt),
     );
-    expect(PlayersService.insertPlayerOrUpdatePoints).toHaveBeenCalledWith(
+    expect(PlayersService.insertNewOrUpdatePoints).toHaveBeenCalledWith(
       mockDb,
       {
         address: mockEventData.entrant,
@@ -62,7 +62,6 @@ describe("poolEnteredEventHandler", () => {
   it("logs the correct messages with event data", async () => {
     await poolEnteredEventHandler(mockEventData);
 
-    console.log("inside");
     expect(logger.info).toHaveBeenCalledTimes(2);
     expect(logger.info).toHaveBeenNthCalledWith(1, "Processing event", {
       eventData: mockEventData,

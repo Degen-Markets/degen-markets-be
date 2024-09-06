@@ -5,15 +5,15 @@ import { SQSEvent } from "aws-lambda";
 import { buildOkResponse } from "../utils/httpResponses";
 import { poolEnteredEventHandler } from "./eventHandlers/poolEntered";
 import { tryIt } from "../utils/tryIt";
-import SmartContractEventProcessor_utils from "./utils";
-
-const { parseSmartContractEvent } = SmartContractEventProcessor_utils;
+import { SmartContractEvent } from "./types";
 
 const logger = new Logger({ serviceName: "smartContractEventProcessor" });
 
 const handleSqsEvent = async (sqsEvent: SQSEvent) => {
   for (const record of sqsEvent.Records) {
-    const eventParseTrial = tryIt(() => parseSmartContractEvent(record.body));
+    const eventParseTrial = tryIt(
+      () => JSON.parse(record.body) as SmartContractEvent,
+    );
     if (!eventParseTrial.success) {
       logger.error("Failed to parse smart contract event from record body", {
         error: eventParseTrial.err,

@@ -1,7 +1,6 @@
-import { NarrowRecord } from "../../utils/types";
 import { SmartContractEvent } from "../types";
 
-type PoolEnteredEventData = NarrowRecord<
+type PoolEnteredEventData = Extract<
   SmartContractEvent,
   { eventName: "poolEntered" }
 >["data"];

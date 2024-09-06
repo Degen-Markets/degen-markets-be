@@ -36,29 +36,29 @@ export function parseSmartContractEventFromDecodedEvent(event: {
   name: string;
   data: any;
 }): SmartContractEvent {
+  // check if event name is valid
+  const eventName = event.name;
   const allEventNames = program.idl.events.map((e) => e.name);
-  if (!typedIncludes(allEventNames, event.name)) {
-    throw new Error(`Invalid event name: ${event.name}`);
+  if (!typedIncludes(allEventNames, eventName)) {
+    throw new Error(`Invalid event name: ${eventName}`);
   }
 
-  const eventType = program.idl.types.find((type) => type.name === event.name);
-  if (!eventType) {
-    throw new Error(`Unknown event type: ${event.name}`);
+  // check if event data is valid
+  const eventType = program.idl.types.find((type) => type.name === eventName);
+  if (!eventType || eventType.type.kind !== "struct") {
+    throw new Error(`Event ${eventName} type doesn't exist`);
   }
-
-  if (eventType.type.kind !== "struct") {
-    throw new Error(`Event type ${event.name} is not a struct`);
-  }
-
-  const requiredFields = eventType.type.fields.map((field) => field.name);
-  const missingFields = requiredFields.filter(
-    (field) => !(field in event.data),
-  );
-
-  if (missingFields.length > 0) {
-    throw new Error(
-      `Missing required fields for ${event.name} event: ${missingFields.join(", ")}`,
-    );
+  const eventDataFields = eventType.type.fields.map((field) => field.name);
+  if (
+    !(
+      typeof event.data === "object" &&
+      event.data !== null &&
+      // We haven't checked for the type of data stored in each event.data field, as it is much more intensive to check.
+      // This can be added in future if required.
+      eventDataFields.every((field) => event.data.hasOwnProperty(field))
+    )
+  ) {
+    throw new Error(`Invalid event data: ${JSON.stringify(event.data)}`);
   }
 
   /** Convert the event to {@link SmartContractEvent} type */
@@ -67,7 +67,7 @@ export function parseSmartContractEventFromDecodedEvent(event: {
   );
 
   return {
-    eventName: event.name,
+    eventName,
     data: convertedData,
   } as SmartContractEvent;
 }

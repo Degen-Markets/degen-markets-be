@@ -9,6 +9,7 @@ import httpSecurityHeaders from "@middy/http-security-headers";
 import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { buildOkResponse } from "../utils/httpResponses";
+import { poolInteractionsHandler } from "./handlers/poolInteractionsHandler";
 
 const logger: Logger = new Logger({ serviceName: "webhookApi" });
 
@@ -30,6 +31,11 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
       logger.info(`handle webhook`);
       return buildOkResponse("result");
     }),
+  },
+  {
+    method: "POST",
+    path: "/pool-interactions",
+    handler: middy().handler(poolInteractionsHandler),
   },
   {
     method: "ANY",

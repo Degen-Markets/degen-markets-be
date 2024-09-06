@@ -96,7 +96,7 @@ export class WebhookApiStack extends TaggedStack {
         functionName: `SmartContractEventHandler`,
         entry: path.join(
           __dirname,
-          "../src/smartContractEventProcessor/smartContractEventProcessor.ts",
+          "../src/smartContractEventProcessor/index.ts",
         ),
         logRetention: RetentionDays.ONE_MONTH,
         handler: "handler",

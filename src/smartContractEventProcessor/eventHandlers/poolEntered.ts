@@ -3,11 +3,14 @@ import PoolEntriesService from "../../poolEntries/service";
 import { DrizzleClient } from "../../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../players/service";
+import { calculatePointsEarned } from "./utils";
 
 type PoolEnteredEventData = Extract<
   SmartContractEvent,
   { eventName: "poolEntered" }
 >["data"];
+
+const POINTS_EARNED_PER_SOL = 100n;
 
 const logger = new Logger({
   serviceName: "PoolEnteredEventHandler",
@@ -18,13 +21,15 @@ export const poolEnteredEventHandler = async (
 ) => {
   logger.info("Processing event", { eventData });
 
-  const { entrant, option, pool, value, entry } = eventData;
+  const { entrant, option, pool, value: valueStr, entry } = eventData;
+  const value = BigInt(valueStr);
 
   const db = await DrizzleClient.makeDb();
 
-  // TODO: Add points logic
-  await PlayersService.upsert(db, {
+  const pointsEarned = calculatePointsEarned(value, POINTS_EARNED_PER_SOL);
+  await PlayersService.insertPlayerOrUpdatePoints(db, {
     address: entrant,
+    points: pointsEarned,
   });
   await PoolEntriesService.insertOrUpdate(db, {
     address: entry,

@@ -3,9 +3,13 @@ import PoolEntriesService from "../../../poolEntries/service";
 import { DrizzleClient } from "../../../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../../players/service";
+import { calculatePointsEarned } from "../utils";
 
 jest.mock("../../../players/service");
 jest.mock("../../../poolEntries/service");
+
+jest.mock("../utils");
+const mockedCalculatePointsEarned = jest.mocked(calculatePointsEarned);
 
 jest.mock("@aws-lambda-powertools/logger");
 const logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
@@ -30,11 +34,21 @@ describe("poolEnteredEventHandler", () => {
   });
 
   it("calls the database services with correct arguments", async () => {
+    const randomPointsEarned = Math.floor(Math.random() * 100);
+    mockedCalculatePointsEarned.mockReturnValue(randomPointsEarned);
     await poolEnteredEventHandler(mockEventData);
 
-    expect(PlayersService.upsert).toHaveBeenCalledWith(mockDb, {
-      address: mockEventData.entrant,
-    });
+    expect(mockedCalculatePointsEarned).toHaveBeenCalledWith(
+      BigInt(mockEventData.value),
+      expect.any(BigInt),
+    );
+    expect(PlayersService.insertPlayerOrUpdatePoints).toHaveBeenCalledWith(
+      mockDb,
+      {
+        address: mockEventData.entrant,
+        points: randomPointsEarned,
+      },
+    );
 
     expect(PoolEntriesService.insertOrUpdate).toHaveBeenCalledWith(mockDb, {
       address: mockEventData.entry,

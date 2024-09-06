@@ -2,11 +2,15 @@ import { poolEnteredEventHandler } from "../poolEntered";
 import PoolEntrantsService from "../../../poolEntrants/service";
 import PoolEntriesService from "../../../poolEntries/service";
 import { DrizzleClient } from "../../../clients/DrizzleClient";
+import { Logger } from "@aws-lambda-powertools/logger";
 
 jest.mock("../../../poolEntrants/service");
 jest.mock("../../../poolEntries/service");
-jest.mock("../../../clients/DrizzleClient");
 
+jest.mock("@aws-lambda-powertools/logger");
+const logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
+
+jest.mock("../../../clients/DrizzleClient");
 const mockDb = {} as any;
 jest.mocked(DrizzleClient.makeDb).mockResolvedValue(mockDb);
 
@@ -20,6 +24,10 @@ describe("poolEnteredEventHandler", () => {
     entry: `9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP${randomChar}`,
     value: `100000000000000000${Math.floor(Math.random() * 10)}`,
   };
+
+  beforeEach(() => {
+    logger.info.mockClear();
+  });
 
   it("calls the database services with correct arguments", async () => {
     await poolEnteredEventHandler(mockEventData);
@@ -36,5 +44,20 @@ describe("poolEnteredEventHandler", () => {
       pool: mockEventData.pool,
       value: BigInt(mockEventData.value),
     });
+  });
+
+  it("logs the correct messages with event data", async () => {
+    await poolEnteredEventHandler(mockEventData);
+
+    console.log("inside");
+    expect(logger.info).toHaveBeenCalledTimes(2);
+    expect(logger.info).toHaveBeenNthCalledWith(1, "Processing event", {
+      eventData: mockEventData,
+    });
+    expect(logger.info).toHaveBeenNthCalledWith(
+      2,
+      "Completed processing event",
+      { eventData: mockEventData },
+    );
   });
 });

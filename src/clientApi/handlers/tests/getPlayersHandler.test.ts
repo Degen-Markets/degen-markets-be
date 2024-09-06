@@ -15,12 +15,12 @@ const mockedGetParamToListPlayersFromQs = jest.mocked(
 );
 
 jest.mock("@aws-lambda-powertools/logger");
+const logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
 
 describe("getPlayersHandler", () => {
-  let logger: jest.Mocked<Logger>;
-
   beforeEach(() => {
-    logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
+    logger.info.mockClear();
+    logger.error.mockClear();
   });
 
   it("should return a successful response with player data", async () => {
@@ -59,9 +59,6 @@ describe("getPlayersHandler", () => {
       expect.any(Object),
     );
     expect(PlayerService.findPlayers).toHaveBeenCalledWith(paramToListPlayers);
-    logger.info(
-      `Successfully fetched players for qs=${JSON.stringify(queryStringParameters)}`,
-    );
     expect(response).toEqual(buildOkResponse(playersListArr));
   });
 

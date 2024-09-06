@@ -16,15 +16,13 @@ const logger = new Logger({
 export const poolEnteredEventHandler = async (
   eventData: PoolEnteredEventData,
 ) => {
-  logger.info("Processing pool entered event", { eventData });
+  logger.info("Processing event", { eventData });
 
   const { entrant, option, pool, value, entry } = eventData;
 
   const db = await DrizzleClient.makeDb();
 
   await PoolEntrantsService.insertOrIgnore(db, entrant);
-  logger.info("Inserted or ignored pool entrant", { entrant });
-
   await PoolEntriesService.insertOrUpdate(db, {
     address: entry,
     entrant,
@@ -32,5 +30,6 @@ export const poolEnteredEventHandler = async (
     pool,
     value: BigInt(value),
   });
-  logger.info("Inserted or updated pool entry", { entry });
+
+  logger.info("Completed processing event", { eventData });
 };

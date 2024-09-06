@@ -1,10 +1,10 @@
 import { poolEnteredEventHandler } from "../poolEntered";
-import PoolEntrantsService from "../../../poolEntrants/service";
 import PoolEntriesService from "../../../poolEntries/service";
 import { DrizzleClient } from "../../../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
+import PlayersService from "../../../players/service";
 
-jest.mock("../../../poolEntrants/service");
+jest.mock("../../../players/service");
 jest.mock("../../../poolEntries/service");
 
 jest.mock("@aws-lambda-powertools/logger");
@@ -32,10 +32,9 @@ describe("poolEnteredEventHandler", () => {
   it("calls the database services with correct arguments", async () => {
     await poolEnteredEventHandler(mockEventData);
 
-    expect(PoolEntrantsService.insertOrIgnore).toHaveBeenCalledWith(
-      mockDb,
-      mockEventData.entrant,
-    );
+    expect(PlayersService.upsert).toHaveBeenCalledWith(mockDb, {
+      address: mockEventData.entrant,
+    });
 
     expect(PoolEntriesService.insertOrUpdate).toHaveBeenCalledWith(mockDb, {
       address: mockEventData.entry,

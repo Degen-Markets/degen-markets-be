@@ -23,7 +23,7 @@ const logger = new Logger({
 export const poolInteractionsHandler = async (
   event: APIGatewayEvent,
 ): Promise<APIGatewayProxyResultV2> => {
-  const parseTrial = tryIt(() => JSON.parse(event.body || ""));
+  const parseTrial = tryIt(() => JSON.parse(String(event.body)));
   if (!parseTrial.success) {
     logger.error("Invalid event body", {
       error: parseTrial.err,

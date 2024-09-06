@@ -91,9 +91,11 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
     return null;
   }
 
-  const event =
-    // stringify the fields (they may contain PublicKey and BN) recursively
-    JSON.parse(JSON.stringify(parseTrial.data)) as SmartContractEvent;
+  // use `SmartContractEvent` schema and also stringify the fields (they may contain PublicKey and BN) recursively
+  const event = {
+    eventName: parseTrial.data.name,
+    data: JSON.parse(JSON.stringify(parseTrial.data.data)),
+  } as SmartContractEvent;
 
   return event;
 }

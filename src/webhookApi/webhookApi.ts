@@ -9,10 +9,6 @@ import httpSecurityHeaders from "@middy/http-security-headers";
 import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { buildOkResponse } from "../utils/httpResponses";
-import betCreatedHandler from "./handlers/betCreatedHandler";
-import betAcceptedHandler from "./handlers/betAcceptedHandler";
-import betPaidHandler from "./handlers/betPaidHandler";
-import betWithdrawnHandler from "./handlers/betWithdrawnHandler";
 
 const logger: Logger = new Logger({ serviceName: "webhookApi" });
 
@@ -34,26 +30,6 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
       logger.info(`handle webhook`);
       return buildOkResponse("result");
     }),
-  },
-  {
-    method: "POST",
-    path: "/bet-created",
-    handler: middy().handler(betCreatedHandler),
-  },
-  {
-    method: "POST",
-    path: "/bet-accepted",
-    handler: middy().handler(betAcceptedHandler),
-  },
-  {
-    method: "POST",
-    path: "/bet-paid",
-    handler: middy().handler(betPaidHandler),
-  },
-  {
-    method: "POST",
-    path: "/bet-withdrawn",
-    handler: middy().handler(betWithdrawnHandler),
   },
   {
     method: "ANY",

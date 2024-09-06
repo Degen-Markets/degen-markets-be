@@ -25,7 +25,6 @@ diff:
 			Database \
 			ClientApi \
 			WebhookApi \
-			Settlement \
 			SolanaActionsApi \
 			--profile ${AWS_PROFILE}
 

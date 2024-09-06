@@ -24,13 +24,11 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "OPTIONS",
     path: "/{proxy+}",
-    handler: middy().handler(
-      async (): Promise<APIGatewayProxyResultV2> => ({
-        statusCode: 200,
-        body: "success",
-        headers: ACTIONS_CORS_HEADERS,
-      }),
-    ),
+    handler: middy().handler(async () => ({
+      statusCode: 200,
+      body: "success",
+      headers: ACTIONS_CORS_HEADERS,
+    })),
   },
   {
     method: "GET",

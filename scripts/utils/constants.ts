@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
-import { DegenPools } from "../../src/solanaActions/target/types/degen_pools";
+import { DegenPools } from "../../resources/solana/types/degen_pools";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
-import idl from "../../src/solanaActions/target/idl/degen_pools.json";
+import idl from "../../resources/solana/idl/degen_pools.json";
 import { getLocalAccount } from "./keypairs";
 
 export const connection = new Connection(

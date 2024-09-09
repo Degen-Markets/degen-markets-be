@@ -18,7 +18,7 @@ interface PoolResponse extends ActionGetResponse {
 const invalidPoolBlinkResponse = {
   statusCode: 200,
   body: JSON.stringify({
-    description: "Visit degenmarkets.com/pools to see all pools",
+    description: "Visit degenmarkets.com to see all pools",
     icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degen-markets-banner.jpeg",
     title: "No such pool exists",
     disabled: true,

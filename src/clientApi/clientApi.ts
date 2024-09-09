@@ -9,8 +9,8 @@ import httpSecurityHeaders from "@middy/http-security-headers";
 import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { buildOkResponse } from "../utils/httpResponses";
-import PoolsJson from "../solanaActions/pools.json";
 import { getLoginLink, saveTwitterUser } from "./handlers/twitter";
+import { getAllPools, getPoolById } from "./handlers/pools";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 
@@ -28,13 +28,12 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/pools",
-    handler: middy().handler(async () => {
-      const pools = Object.entries(PoolsJson).map(([id, pool]) => ({
-        id,
-        ...pool,
-      }));
-      return buildOkResponse(pools);
-    }),
+    handler: middy().handler(getAllPools),
+  },
+  {
+    method: "GET",
+    path: "/pools/{id}",
+    handler: middy().handler(getPoolById),
   },
   {
     method: "GET",

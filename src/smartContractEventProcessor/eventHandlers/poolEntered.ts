@@ -33,7 +33,7 @@ export const poolEnteredEventHandler = async (
     entrant,
     option,
     pool,
-    value: BigInt(value),
+    value,
   });
 
   logger.info("Completed processing event", { eventData });

@@ -8,11 +8,10 @@ import httpHeaderNormalizer from "@middy/http-header-normalizer";
 import httpSecurityHeaders from "@middy/http-security-headers";
 import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
-import { buildErrorResponse, buildOkResponse } from "../utils/httpResponses";
+import { buildOkResponse } from "../utils/httpResponses";
 import { getLoginLink, saveTwitterUser } from "./handlers/twitter";
 import { getAllPools, getPoolById } from "./handlers/pools";
-import PlayersService from "../players/service";
-import { DrizzleClient } from "../clients/DrizzleClient";
+import { getPlayersHandler } from "./handlers/players";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 
@@ -52,26 +51,7 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/players",
-    handler: middy().handler(async (event: APIGatewayProxyEventV2) => {
-      try {
-        const limit = parseInt(event.queryStringParameters?.limit || "10");
-        const offset = parseInt(event.queryStringParameters?.offset || "0");
-        const sort = event.queryStringParameters?.sort || "points:DESC";
-        const db = await DrizzleClient.makeDb();
-        const players = await PlayersService.getPlayers(
-          db,
-          limit,
-          offset,
-          sort,
-        );
-        return buildOkResponse(players);
-      } catch (error) {
-        if (error instanceof Error) {
-          return buildErrorResponse(error.message);
-        }
-        return buildErrorResponse("An unexpected error occurred");
-      }
-    }),
+    handler: middy().handler(getPlayersHandler),
   },
   {
     method: "ANY",

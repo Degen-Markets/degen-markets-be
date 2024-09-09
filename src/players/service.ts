@@ -3,6 +3,7 @@ import { playersTable } from "./schema";
 import { DrizzleDb } from "../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { sql } from "drizzle-orm";
+import { getOrderDirection, validateSortParams } from "./helpers";
 
 const logger = new Logger({
   serviceName: "PlayersService",
@@ -58,28 +59,31 @@ export default class PlayersService {
     offset: number = 0,
     sort: string = "points:DESC",
   ) {
-    const [field = "points", direction = "DESC"] = sort.split(":");
+    const [field, direction] = sort.split(":");
 
-    if (field !== "points") {
-      throw new Error(`Invalid field: ${field}`);
-    }
-
-    if (direction !== "ASC" && direction !== "DESC") {
-      throw new Error(`Invalid direction: ${direction}`);
-    }
+    validateSortParams(field, direction);
 
     const validLimit = Math.min(limit, 10);
+    const orderDirection = getOrderDirection(direction);
 
-    const query = db
-      .select()
-      .from(playersTable)
-      .limit(validLimit)
-      .offset(offset)
-      .orderBy(sql`${playersTable.points} ${direction.toUpperCase()}`);
+    try {
+      const query = db
+        .select()
+        .from(playersTable)
+        .limit(validLimit)
+        .offset(offset)
+        .orderBy(orderDirection);
 
-    const result = await query;
-    logger.debug("Fetched players", { players: result });
+      const result = await query;
 
-    return result;
+      logger.info("Successfully fetched players", { count: result.length });
+
+      return result;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error("Failed to fetch players", { errorMessage });
+      throw new Error(`Unable to fetch players: ${errorMessage}`);
+    }
   }
 }

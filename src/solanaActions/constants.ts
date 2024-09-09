@@ -1,7 +1,7 @@
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
-import idl from "./target/idl/degen_pools.json";
+import idl from "../../resources/solana/idl/degen_pools.json";
 import * as anchor from "@coral-xyz/anchor";
-import { DegenPools } from "./target/types/degen_pools";
+import { DegenPools } from "../../resources/solana/types/degen_pools";
 
 export const connection = new Connection(
   clusterApiUrl("mainnet-beta"),

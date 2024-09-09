@@ -3,7 +3,10 @@ import { adminAccount, program } from "./utils/constants";
 import { PublicKey } from "@solana/web3.js";
 import fs from "fs";
 
-const setWinningOption= async (poolId: keyof typeof pools, optionId: string) => {
+const setWinningOption = async (
+  poolId: keyof typeof pools,
+  optionId: string,
+) => {
   const optionAccountKey = new PublicKey(optionId);
   const poolAccountKey = new PublicKey(poolId);
   await program.methods

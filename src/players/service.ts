@@ -2,8 +2,7 @@ import { PlayerInsertEntity } from "./types";
 import { playersTable } from "./schema";
 import { DrizzleDb } from "../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
-import { sql } from "drizzle-orm";
-import { getOrderDirection, validateSortParams } from "./helpers";
+import { SQL, sql } from "drizzle-orm";
 
 const logger = new Logger({
   serviceName: "PlayersService",
@@ -49,7 +48,7 @@ export default class PlayersService {
    * @param db - The database connection
    * @param limit - The maximum number of players to return (defaults to 10)
    * @param offset - The number of players to skip (defaults to 0)
-   * @param sort - The field and direction to sort the results (defaults to 'points:DESC')
+   * @param orderDirection
    * @returns A list of players
    * @throws Will throw an error if the field is invalid or the direction is not 'ASC' or 'DESC'
    */
@@ -57,20 +56,13 @@ export default class PlayersService {
     db: DrizzleDb,
     limit: number = 10,
     offset: number = 0,
-    sort: string = "points:DESC",
+    orderDirection: SQL<unknown>,
   ) {
-    const [field, direction] = sort.split(":");
-
-    validateSortParams(field, direction);
-
-    const validLimit = Math.min(limit, 10);
-    const orderDirection = getOrderDirection(direction);
-
     try {
       const query = db
         .select()
         .from(playersTable)
-        .limit(validLimit)
+        .limit(limit)
         .offset(offset)
         .orderBy(orderDirection);
 

@@ -3,6 +3,9 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { DrizzleClient } from "../../clients/DrizzleClient";
 import PlayersService from "../../players/service";
 import { buildErrorResponse, buildOkResponse } from "../../utils/httpResponses";
+import { asc, desc } from "drizzle-orm";
+import { playersTable } from "../../players/schema";
+import { buildBadRequestError } from "../../utils/errors";
 
 const logger = new Logger({ serviceName: "clientApi" });
 
@@ -14,8 +17,27 @@ export const getPlayersHandler = async (
   logger.info("Received request to fetch players", { limit, offset, sort });
 
   try {
+    const [field, direction] = sort.split(":");
+    if (field !== "points") {
+      logger.error("Invalid field provided for sorting", { field });
+      return buildBadRequestError(`Invalid field: ${field}`);
+    }
+
+    if (direction !== "ASC" && direction !== "DESC") {
+      logger.error("Invalid sort direction provided", { direction });
+      return buildBadRequestError(`Invalid direction: ${direction}`);
+    }
+
+    const validLimit = Math.min(limit, 10);
+    const orderByClause = createOrderByClause(direction);
+
     const db = await DrizzleClient.makeDb();
-    const players = await PlayersService.getPlayers(db, limit, offset, sort);
+    const players = await PlayersService.getPlayers(
+      db,
+      validLimit,
+      offset,
+      orderByClause,
+    );
 
     logger.info("Successfully retrieved players", { count: players.length });
 
@@ -36,4 +58,10 @@ const extractQueryParams = (event: APIGatewayProxyEventV2) => {
   const sort = event.queryStringParameters?.sort || "points:DESC";
 
   return { limit, offset, sort };
+};
+
+export const createOrderByClause = (direction: string) => {
+  return direction === "ASC"
+    ? asc(playersTable.points)
+    : desc(playersTable.points);
 };

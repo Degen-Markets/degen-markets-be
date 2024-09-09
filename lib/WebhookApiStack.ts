@@ -57,14 +57,6 @@ export class WebhookApiStack extends TaggedStack {
         environment: {
           QUEUE_URL: this.smartContractEventQueue.queueUrl,
           MESSAGE_GROUP_ID: messageGroupId,
-          TELEGRAM_BOT_KEY: getMandatoryEnvVariable("TELEGRAM_BOT_KEY"),
-          TELEGRAM_CHAT_ID: getMandatoryEnvVariable("TELEGRAM_CHAT_ID"),
-          TWITTER_APP_KEY: getMandatoryEnvVariable("TWITTER_APP_KEY"),
-          TWITTER_APP_SECRET: getMandatoryEnvVariable("TWITTER_APP_SECRET"),
-          TWITTER_ACCESS_TOKEN: getMandatoryEnvVariable("TWITTER_ACCESS_TOKEN"),
-          TWITTER_ACCESS_SECRET: getMandatoryEnvVariable(
-            "TWITTER_ACCESS_SECRET",
-          ),
         },
         bundling: {
           externalModules: ["@aws-sdk"],
@@ -90,7 +82,6 @@ export class WebhookApiStack extends TaggedStack {
           DATABASE_DATABASE_NAME: "degenmarkets",
           DATABASE_HOST: database.instanceEndpoint.hostname,
           DATABASE_PORT: database.instanceEndpoint.port.toString(),
-          CMC_API_KEY: getMandatoryEnvVariable("CMC_API_KEY"),
         },
         memorySize: 128,
         functionName: `SmartContractEventHandler`,

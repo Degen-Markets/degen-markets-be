@@ -22,7 +22,7 @@ const invalidPoolBlinkResponse = {
     icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degen-markets-banner.jpeg",
     title: "No such pool exists",
     disabled: true,
-    // @ts-expect-error We're ignoring the label, cause we don't want it
+    label: "",
   } satisfies ActionGetResponse),
   headers: ACTIONS_CORS_HEADERS,
 };

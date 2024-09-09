@@ -35,12 +35,6 @@ export class ClientApiStack extends TaggedStack {
           DATABASE_DATABASE_NAME: "degenmarkets",
           DATABASE_HOST: database.instanceEndpoint.hostname,
           DATABASE_PORT: database.instanceEndpoint.port.toString(),
-          TWITTER_APP_KEY: getMandatoryEnvVariable("TWITTER_APP_KEY"),
-          TWITTER_APP_SECRET: getMandatoryEnvVariable("TWITTER_APP_SECRET"),
-          TWITTER_ACCESS_TOKEN: getMandatoryEnvVariable("TWITTER_ACCESS_TOKEN"),
-          TWITTER_ACCESS_SECRET: getMandatoryEnvVariable(
-            "TWITTER_ACCESS_SECRET",
-          ),
           TWITTER_CLIENT_ID: getMandatoryEnvVariable("TWITTER_CLIENT_ID"),
           TWITTER_CLIENT_SECRET: getMandatoryEnvVariable(
             "TWITTER_CLIENT_SECRET",

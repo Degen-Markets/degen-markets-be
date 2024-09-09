@@ -30,6 +30,8 @@ export default class PoolEntriesService {
       })
       .returning();
 
-    logger.debug("Upserted pool entry", { poolEntry: result[0] });
+    logger.debug("Inserted or incremented pool entry value", {
+      poolEntry: result[0],
+    });
   }
 }

@@ -20,7 +20,7 @@ import { buildBadRequestError } from "../utils/errors";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
 
-const routes: Route<APIGatewayProxyEventV2>[] = [
+const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   {
     method: "OPTIONS",
     path: "/{proxy+}",
@@ -43,15 +43,19 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "POST",
     path: "/pools/{id}/options/{optionId}/claim-win",
-    handler: middy().handler((event: APIGatewayEvent) => {
-      const poolId = event.pathParameters?.id;
-      const optionId = event.pathParameters?.optionId;
-      const { account } = JSON.parse(event.body || "{}");
-      if (!poolId || !account || !optionId) {
-        return buildBadRequestError("Bad request");
-      }
-      return claimWinTx(poolId, optionId, account);
-    }),
+    handler: middy().handler(
+      (
+        event: APIGatewayProxyEventV2,
+      ): APIGatewayProxyResultV2 | Promise<APIGatewayProxyResultV2> => {
+        const poolId = event.pathParameters?.id;
+        const optionId = event.pathParameters?.optionId;
+        const { account } = JSON.parse(event.body || "{}");
+        if (!poolId || !account || !optionId) {
+          return buildBadRequestError("Bad request");
+        }
+        return claimWinTx(poolId, optionId, account);
+      },
+    ),
   },
 ];
 

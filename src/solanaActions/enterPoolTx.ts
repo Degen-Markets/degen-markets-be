@@ -1,4 +1,8 @@
-import { APIGatewayEvent } from "aws-lambda";
+import {
+  APIGatewayEvent,
+  APIGatewayProxyEventV2,
+  APIGatewayProxyResultV2,
+} from "aws-lambda";
 import { buildBadRequestError } from "../utils/errors";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
@@ -25,7 +29,9 @@ export const deriveEntryAccountKey = (
   return pda;
 };
 
-export const generateEnterPoolTx = async (event: APIGatewayEvent) => {
+export const generateEnterPoolTx = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
   const { account } = JSON.parse(event.body || "{}");
   if (!account) {
     return buildBadRequestError("No account!");

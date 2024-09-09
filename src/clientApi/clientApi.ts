@@ -49,18 +49,6 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     handler: middy().handler(saveTwitterUser),
   },
   {
-    method: "GET",
-    path: "/twitter-login",
-    handler: middy().handler(async () => {
-      return buildOkResponse(getLoginLink());
-    }),
-  },
-  {
-    method: "POST",
-    path: "/save-twitter-user",
-    handler: middy().handler(saveTwitterUser),
-  },
-  {
     method: "ANY",
     path: "/{proxy+}",
     handler: notFoundHandler,

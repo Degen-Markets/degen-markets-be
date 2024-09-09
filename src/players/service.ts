@@ -42,4 +42,44 @@ export default class PlayersService {
       player: result[0],
     });
   }
+
+  /**
+   * Retrieves players with pagination and sorting options.
+   * @param db - The database connection
+   * @param limit - The maximum number of players to return (defaults to 10)
+   * @param offset - The number of players to skip (defaults to 0)
+   * @param sort - The field and direction to sort the results (defaults to 'points:DESC')
+   * @returns A list of players
+   * @throws Will throw an error if the field is invalid or the direction is not 'ASC' or 'DESC'
+   */
+  static async getPlayers(
+    db: DrizzleDb,
+    limit: number = 10,
+    offset: number = 0,
+    sort: string = "points:DESC",
+  ) {
+    const [field = "points", direction = "DESC"] = sort.split(":");
+
+    if (field !== "points") {
+      throw new Error(`Invalid field: ${field}`);
+    }
+
+    if (direction !== "ASC" && direction !== "DESC") {
+      throw new Error(`Invalid direction: ${direction}`);
+    }
+
+    const validLimit = Math.min(limit, 10);
+
+    const query = db
+      .select()
+      .from(playersTable)
+      .limit(validLimit)
+      .offset(offset)
+      .orderBy(sql`${playersTable.points} ${direction.toUpperCase()}`);
+
+    const result = await query;
+    logger.debug("Fetched players", { players: result });
+
+    return result;
+  }
 }

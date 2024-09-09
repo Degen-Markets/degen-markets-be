@@ -42,21 +42,22 @@ describe("poolEnteredEventHandler", () => {
       BigInt(mockEventData.value),
       expect.any(BigInt),
     );
-    expect(PlayersService.insertNewOrUpdatePoints).toHaveBeenCalledWith(
+    expect(PlayersService.insertNewOrAwardPoints).toHaveBeenCalledWith(
       mockDb,
-      {
-        address: mockEventData.entrant,
-        points: randomPointsEarned,
-      },
+      mockEventData.entrant,
+      randomPointsEarned,
     );
 
-    expect(PoolEntriesService.insertOrUpdate).toHaveBeenCalledWith(mockDb, {
-      address: mockEventData.entry,
-      entrant: mockEventData.entrant,
-      option: mockEventData.option,
-      pool: mockEventData.pool,
-      value: BigInt(mockEventData.value),
-    });
+    expect(PoolEntriesService.insertNewOrIncrementValue).toHaveBeenCalledWith(
+      mockDb,
+      {
+        address: mockEventData.entry,
+        entrant: mockEventData.entrant,
+        option: mockEventData.option,
+        pool: mockEventData.pool,
+        value: BigInt(mockEventData.value),
+      },
+    );
   });
 
   it("logs the correct messages with event data", async () => {

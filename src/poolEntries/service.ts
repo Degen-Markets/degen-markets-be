@@ -8,7 +8,18 @@ const logger = new Logger({
 });
 
 export default class PoolEntriesService {
-  static async insertOrUpdate(db: DrizzleDb, data: PoolEntriesInsertEntity) {
+  /**
+   * Inserts a new pool entry or increments the value of an existing pool entry.
+   * @param db - The database connection
+   * @param data - The data to insert or increment
+   * @throws Will throw an error if the {@linkcode data['value']} is negative
+   */
+  static async insertNewOrIncrementValue(
+    db: DrizzleDb,
+    data: PoolEntriesInsertEntity,
+  ) {
+    if (data.value < 0) throw new Error("Value must be positive");
+
     const { address, entrant, option, pool, value } = data;
     const result = await db
       .insert(poolEntriesTable)

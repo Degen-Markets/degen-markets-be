@@ -27,11 +27,8 @@ export const poolEnteredEventHandler = async (
   const db = await DrizzleClient.makeDb();
 
   const pointsEarned = calculatePointsEarned(value, POINTS_EARNED_PER_SOL);
-  await PlayersService.insertNewOrUpdatePoints(db, {
-    address: entrant,
-    points: pointsEarned,
-  });
-  await PoolEntriesService.insertOrUpdate(db, {
+  await PlayersService.insertNewOrAwardPoints(db, entrant, pointsEarned);
+  await PoolEntriesService.insertNewOrIncrementValue(db, {
     address: entry,
     entrant,
     option,

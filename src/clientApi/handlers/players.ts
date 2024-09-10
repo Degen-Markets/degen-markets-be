@@ -39,15 +39,11 @@ export const getPlayersHandler = async (
       orderByClause,
     );
 
-    logger.info("Successfully retrieved players", { count: players.length });
+    logger.info("Successfully retrieved players", { players });
 
     return buildOkResponse(players);
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-
-    logger.error("Error fetching players", { errorMessage });
-
+  } catch (e) {
+    logger.error("Error fetching players", { error: e });
     return buildErrorResponse("An unexpected error occurred");
   }
 };

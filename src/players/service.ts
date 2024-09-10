@@ -97,11 +97,9 @@ export default class PlayersService {
       logger.info("Successfully fetched players", { count: result.length });
 
       return result;
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      logger.error("Failed to fetch players", { errorMessage });
-      throw new Error(`Unable to fetch players: ${errorMessage}`);
+    } catch (e) {
+      logger.error("Failed to fetch players", { error: e });
+      throw new Error("Unable to fetch players");
     }
   }
 }

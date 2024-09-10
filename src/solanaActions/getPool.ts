@@ -106,7 +106,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       );
       poolOptionsWithPercOfTotalPoolValArr = poolOptionsWithVal.map(
         (option) => {
-          const REQUIRED_BASIS_POINT_PRECISION = 0;
+          const REQUIRED_BASIS_POINT_PRECISION = 2;
           const PRECISION_FOR_PERCENT = 2;
           const percOfTotalPoolVal =
             option.value
@@ -128,7 +128,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       ...poolOptionsWithPercOfTotalPoolValArr
         .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
         .map((option) => ({
-          label: `${option.title} (${option.percOfTotalPoolVal.toFixed(0)}%)`,
+          label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
           href: `/pools/${poolId}/options/${option.id}?value={amount}`,
           parameters: [
             {

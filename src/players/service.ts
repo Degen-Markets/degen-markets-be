@@ -3,6 +3,7 @@ import { playersTable } from "./schema";
 import { DrizzleDb } from "../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQL, sql } from "drizzle-orm";
+import BN from "bn.js";
 
 const logger = new Logger({
   serviceName: "PlayersService",
@@ -21,6 +22,7 @@ export default class PlayersService {
     playerAddress: string,
     pointsAwarded: number,
   ) {
+    logger.info("Inserting user into db", { playerAddress, pointsAwarded });
     if (pointsAwarded < 0) throw new Error("Points awarded must be positive");
 
     const newPlayer: PlayerInsertEntity = {

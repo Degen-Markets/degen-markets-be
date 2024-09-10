@@ -1,10 +1,13 @@
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-
-const LAMPORTS_PER_SOL_BIGINT = BigInt(LAMPORTS_PER_SOL);
+import BN from "bn.js";
 
 export function calculatePointsEarned(
-  betValue: bigint,
-  pointsEarnedPerSol: bigint,
+  betValue: BN,
+  pointsEarnedPerSol: number,
 ): number {
-  return Number((betValue * pointsEarnedPerSol) / LAMPORTS_PER_SOL_BIGINT);
+  const pointShares = betValue.muln(pointsEarnedPerSol);
+  if (pointShares.lt(new BN(LAMPORTS_PER_SOL))) {
+    return 0;
+  }
+  return betValue.muln(pointsEarnedPerSol).divn(LAMPORTS_PER_SOL).toNumber();
 }

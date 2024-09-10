@@ -7,7 +7,10 @@ import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { typedIncludes } from "../../utils/typedStdLib";
-import { SmartContractEvent } from "../../smartContractEventProcessor/types";
+import {
+  EventsRecord,
+  SmartContractEvent,
+} from "../../smartContractEventProcessor/types";
 
 const VALID_EVENTS = [
   "poolEntered",
@@ -20,6 +23,7 @@ const logger = new Logger({
 export const poolInteractionsHandler = async (
   event: APIGatewayEvent,
 ): Promise<APIGatewayProxyResultV2> => {
+  logger.info("Received event", { event: event.body });
   const parseTrial = tryIt(() => JSON.parse(String(event.body)));
   if (!parseTrial.success) {
     logger.error("Invalid event body", {
@@ -51,18 +55,18 @@ export const poolInteractionsHandler = async (
   const sqs = new SQS();
   const queueUrl = getMandatoryEnvVariable("QUEUE_URL");
   const messageGroupId = getMandatoryEnvVariable("MESSAGE_GROUP_ID");
-  const concatenatedSignatures = parsedBody[0].signatures.join("-");
 
   const sendMessagePromises = smartContractEvents.map(async (event) => {
     if (!typedIncludes(VALID_EVENTS, event.eventName)) return;
 
     const result = await tryItAsync(async () => {
+      logger.info("Sending SQS Event", { event });
       const messageBody = JSON.stringify(event);
-      sqs.sendMessage({
+      await sqs.sendMessage({
         MessageBody: messageBody,
         QueueUrl: queueUrl,
         MessageGroupId: messageGroupId,
-        MessageDeduplicationId: `${event.eventName}-${concatenatedSignatures}-${Date.now()}`,
+        MessageDeduplicationId: `${event.eventName}-${Date.now()}`,
       });
     });
 
@@ -90,12 +94,21 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
     logger.error("Failed to decode event", { base64Data });
     return null;
   }
+  logger.info("Decoded event: ", { decodedEvent: parseTrial });
 
-  // use `SmartContractEvent` schema and also stringify the fields (they may contain PublicKey and BN) recursively
-  const event = {
-    eventName: parseTrial.data.name,
-    data: JSON.parse(JSON.stringify(parseTrial.data.data)),
-  } as SmartContractEvent;
-
-  return event;
+  switch (parseTrial.data.name) {
+    case "poolEntered":
+      return {
+        eventName: parseTrial.data.name,
+        data: {
+          pool: parseTrial.data.data.pool.toString(),
+          option: parseTrial.data.data.option.toString(),
+          entry: parseTrial.data.data.entry.toString(),
+          value: parseTrial?.data.data.value.toString(),
+          entrant: parseTrial?.data.data.entrant.toString(),
+        },
+      } as SmartContractEvent;
+    default:
+      return null;
+  }
 }

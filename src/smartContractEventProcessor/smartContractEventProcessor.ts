@@ -53,3 +53,5 @@ const forwardToEventHandler = async (
 export const handler = middy(handleSqsEvent).use(
   injectLambdaContext(logger, { logEvent: true }),
 );
+
+// export const handler = handleSqsEvent;

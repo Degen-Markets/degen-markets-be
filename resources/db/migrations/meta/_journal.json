@@ -8,6 +8,13 @@
       "when": 1725612622460,
       "tag": "0000_condemned_william_stryker",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1725972578576,
+      "tag": "0001_swift_jubilee",
+      "breakpoints": true
     }
   ]
 }

@@ -24,3 +24,13 @@ export const buildOkResponse = (body?: unknown): APIGatewayProxyResultV2 => {
     body: body ? JSON.stringify(body) : "",
   };
 };
+
+export const buildErrorResponse = (
+  errorMessage: string,
+  statusCode: number = 500,
+): APIGatewayProxyResultV2 => {
+  return buildHttpResponse({
+    status: statusCode,
+    body: { error: errorMessage },
+  });
+};

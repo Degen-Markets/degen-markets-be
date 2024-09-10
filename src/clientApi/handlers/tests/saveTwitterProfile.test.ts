@@ -14,13 +14,8 @@ jest.mock("@aws-lambda-powertools/logger");
 jest.mock("../../../clients/DrizzleClient");
 const mockDb = {} as any;
 jest.mocked(DrizzleClient.makeDb).mockResolvedValue(mockDb);
-const logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
 
 describe("saveTwitterProfile", () => {
-  beforeEach(() => {
-    logger.info.mockClear();
-  });
-
   it("saves the user after validation", async () => {
     const twitterResponse = {
       data: {

@@ -9,21 +9,20 @@ import httpSecurityHeaders from "@middy/http-security-headers";
 import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { buildOkResponse } from "../utils/httpResponses";
-import { getLoginLink, saveTwitterUser } from "./handlers/twitter";
 import { getAllPools, getPoolById } from "./handlers/pools";
+import getLoginLink from "./handlers/getLoginLink";
+import saveTwitterProfile from "./handlers/saveTwitterProfile";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 
-const routes: Route<APIGatewayProxyEventV2>[] = [
+const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   {
     method: "OPTIONS",
     path: "/{proxy+}",
-    handler: middy().handler(
-      async (): Promise<APIGatewayProxyResultV2> => ({
-        statusCode: 200,
-        body: "success",
-      }),
-    ),
+    handler: middy().handler(async () => ({
+      statusCode: 200,
+      body: "success",
+    })),
   },
   {
     method: "GET",
@@ -38,14 +37,12 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/twitter-login",
-    handler: middy().handler(async () => {
-      return buildOkResponse(getLoginLink());
-    }),
+    handler: middy().handler(getLoginLink),
   },
   {
     method: "POST",
-    path: "/save-twitter-user",
-    handler: middy().handler(saveTwitterUser),
+    path: "/save-twitter-profile",
+    handler: middy().handler(saveTwitterProfile),
   },
   {
     method: "ANY",

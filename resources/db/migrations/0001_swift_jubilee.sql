@@ -1,1 +1,0 @@
-ALTER TABLE "pool_entries" ALTER COLUMN "value" SET DATA TYPE numeric(0);

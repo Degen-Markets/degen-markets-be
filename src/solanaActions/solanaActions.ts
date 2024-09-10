@@ -2,17 +2,12 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import httpRouterHandler, { Route } from "@middy/http-router";
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
-import {
-  APIGatewayEvent,
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResultV2,
-} from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpHeaderNormalizer from "@middy/http-header-normalizer";
 import httpSecurityHeaders from "@middy/http-security-headers";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
-import { getActionsJSON } from "./getActionsJSON";
-import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
+import { ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { generateEnterPoolTx } from "./enterPoolTx";
 import { getPool } from "./getPool";
 import { claimWinTx } from "./claimWinTx";
@@ -20,7 +15,7 @@ import { buildBadRequestError } from "../utils/errors";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
 
-const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
+const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "OPTIONS",
     path: "/{proxy+}",

@@ -106,8 +106,8 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       );
       poolOptionsWithPercOfTotalPoolValArr = poolOptionsWithVal.map(
         (option) => {
-          const REQUIRED_BASIS_POINT_PRECISION = 2;
-          const PRECISION_FOR_PERCENT = 3;
+          const REQUIRED_BASIS_POINT_PRECISION = 0;
+          const PRECISION_FOR_PERCENT = 2;
           const percOfTotalPoolVal =
             option.value
               .muln(

@@ -1,4 +1,4 @@
-import { APIGatewayEvent } from "aws-lambda";
+import { APIGatewayEvent, APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { program } from "./constants";
@@ -27,7 +27,7 @@ const invalidPoolBlinkResponse = {
   headers: ACTIONS_CORS_HEADERS,
 };
 
-export const getPool = async (event: APIGatewayEvent) => {
+export const getPool = async (event: APIGatewayProxyEventV2) => {
   const poolId = event.pathParameters?.id as keyof typeof pools;
   if (!poolId) {
     return invalidPoolBlinkResponse;

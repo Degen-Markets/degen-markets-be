@@ -1,4 +1,4 @@
-import { PlayerInsertEntity } from "./types";
+import { PlayerEntity, PlayerInsertEntity } from "./types";
 import { playersTable } from "./schema";
 import { DrizzleDb } from "../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
@@ -38,9 +38,35 @@ export default class PlayersService {
       })
       .returning();
 
-    logger.debug("Inserted player or updated points of player", {
+    logger.info("Inserted player or updated points of player", {
       player: result[0],
     });
+  }
+
+  /**
+   * Inserts a new player or updates the points of an existing player.
+   * @param db - The database connection
+   * @param newPlayer - The new player entity with their twitter details (username & pfpUrl)
+   */
+  static async insertNewOrSaveTwitterProfile(
+    db: DrizzleDb,
+    newPlayer: PlayerInsertEntity,
+  ): Promise<PlayerEntity> {
+    const result = await db
+      .insert(playersTable)
+      .values(newPlayer)
+      .onConflictDoUpdate({
+        target: playersTable.address,
+        set: {
+          twitterUsername: newPlayer.twitterUsername,
+          twitterPfpUrl: newPlayer.twitterPfpUrl,
+        },
+      })
+      .returning();
+    logger.info("Inserted player or updated their twitter profile", {
+      player: result[0],
+    });
+    return result[0];
   }
 
   /**

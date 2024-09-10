@@ -8,6 +8,7 @@ import {
   createPostResponse,
 } from "@solana/actions";
 import { Logger } from "@aws-lambda-powertools/logger";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 
 const logger = new Logger({ serviceName: "ClaimWinTx" });
 
@@ -17,7 +18,7 @@ export const claimWinTx = async (
   poolAccountKeyString: string,
   optionAccountKeyString: string,
   winnerAccountKeyString: string,
-) => {
+): Promise<APIGatewayProxyResultV2> => {
   logger.info(
     `Trying to claim win for pool ${poolAccountKeyString}, option: ${optionAccountKeyString}, for user: ${winnerAccountKeyString}`,
   );

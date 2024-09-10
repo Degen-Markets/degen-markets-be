@@ -1,6 +1,5 @@
 import crypto from "crypto";
 import * as anchor from "@coral-xyz/anchor";
-import bs58 from "bs58";
 
 export const getBytesFromHashedStr = (str: string) => {
   const hashedStr = crypto.createHash("sha256").update(str, "utf-8");

@@ -31,6 +31,8 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy CDK stack
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
-          make deploy
+        env:
+          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+          TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID }}
+          TWITTER_CLIENT_SECRET: ${{ secrets.TWITTER_CLIENT_SECRET }}
+        run: make deploy

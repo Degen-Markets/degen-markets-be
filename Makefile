@@ -1,5 +1,3 @@
-include .env
-
 # fixes linting
 lint_fix:
 	npm run lint:fix
@@ -16,7 +14,6 @@ deploy:
     		WebhookApi \
     		Settlement \
     		SolanaActionsApi \
-    		--profile ${AWS_PROFILE} \
     		--require-approval never
 
 # checks which resources changed
@@ -25,16 +22,15 @@ diff:
 			Database \
 			ClientApi \
 			WebhookApi \
-			SolanaActionsApi \
-			--profile ${AWS_PROFILE}
+			SolanaActionsApi 
 
 # bootstraps the AWS account (only needs to be done once)
 bootstrap:
-	npx cdk bootstrap --profile ${AWS_PROFILE}
+	npx cdk bootstrap 
 
 # triggers the database migration
 trigger_db_migration:
-	aws lambda invoke --function-name DbMigration --profile ${AWS_PROFILE} invoke.log
+	aws lambda invoke --function-name DbMigration invoke.log
 
 # starts a tunnel to the database in AWS on port 5541
 tunnel:

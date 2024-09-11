@@ -10,7 +10,7 @@ lint:
 
 # deploys the entire backend to AWS
 deploy:
-	npx cdk@latest deploy \
+	npx cdk deploy \
     		Database \
     		ClientApi \
     		WebhookApi \
@@ -21,7 +21,7 @@ deploy:
 
 # checks which resources changed
 diff:
-	npx cdk@latest diff \
+	npx cdk diff \
 			Database \
 			ClientApi \
 			WebhookApi \
@@ -30,7 +30,7 @@ diff:
 
 # bootstraps the AWS account (only needs to be done once)
 bootstrap:
-	npx cdk@latest bootstrap --profile ${AWS_PROFILE}
+	npx cdk bootstrap --profile ${AWS_PROFILE}
 
 # triggers the database migration
 trigger_db_migration:

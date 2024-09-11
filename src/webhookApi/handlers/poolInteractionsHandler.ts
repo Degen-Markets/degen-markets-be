@@ -7,10 +7,7 @@ import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { typedIncludes } from "../../utils/typedStdLib";
-import {
-  EventsRecord,
-  SmartContractEvent,
-} from "../../smartContractEventProcessor/types";
+import { SmartContractEvent } from "../../smartContractEventProcessor/types";
 
 const VALID_EVENTS = [
   "poolEntered",

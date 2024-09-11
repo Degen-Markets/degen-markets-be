@@ -1,4 +1,4 @@
-import { bigint, index, pgTable, varchar } from "drizzle-orm/pg-core";
+import { index, numeric, pgTable, varchar } from "drizzle-orm/pg-core";
 import { playersTable } from "../players/schema";
 
 export const poolEntriesTable = pgTable(
@@ -19,7 +19,10 @@ export const poolEntriesTable = pgTable(
     pool: varchar("pool", { length: 44 }).notNull(),
 
     /** The total value (money) in this specific entry */
-    value: bigint("value", { mode: "bigint" }).notNull(),
+    value: numeric("value", {
+      precision: 50, // biggest number in rust is u128, so 50 precision gives us plenty of space
+      scale: 0, // 0 scale because we do not want any decimals
+    }).notNull(),
   },
   (table) => {
     return {

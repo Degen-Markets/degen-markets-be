@@ -29,9 +29,7 @@ export const deriveEntryAccountKey = (
   return pda;
 };
 
-export const generateEnterPoolTx = async (
-  event: APIGatewayProxyEventV2,
-): Promise<APIGatewayProxyResultV2> => {
+export const generateEnterPoolTx = async (event: APIGatewayProxyEventV2) => {
   const { account } = JSON.parse(event.body || "{}");
   if (!account) {
     return buildBadRequestError("No account!");
@@ -57,12 +55,6 @@ export const generateEnterPoolTx = async (
     entrant,
   );
 
-  // Serialize the instruction data
-  const instructionData = Buffer.alloc(8);
-  instructionData.writeBigUInt64LE(BigInt(value.toString()));
-
-  logger.info(`Data size: ${instructionData.length}, data: ${instructionData}`);
-
   logger.info(
     JSON.stringify(
       {
@@ -87,27 +79,6 @@ export const generateEnterPoolTx = async (
     })
     .transaction();
 
-  // const transaction = new Transaction().add(
-  //   new TransactionInstruction({
-  //     keys: [
-  //       { pubkey: entryAccountPubkey, isSigner: false, isWritable: true },
-  //       { pubkey: optionAccountPubkey, isSigner: false, isWritable: true },
-  //       { pubkey: poolAccountPubkey, isSigner: false, isWritable: true },
-  //       {
-  //         pubkey: entrant,
-  //         isSigner: true,
-  //         isWritable: true,
-  //       },
-  //       {
-  //         pubkey: SystemProgram.programId,
-  //         isSigner: false,
-  //         isWritable: false,
-  //       },
-  //     ],
-  //     programId: programId,
-  //     data: instructionData,
-  //   }),
-  // );
   const block = await connection.getLatestBlockhash();
   transaction.feePayer = entrant;
   transaction.recentBlockhash = block.blockhash;
@@ -126,16 +97,3 @@ export const generateEnterPoolTx = async (
     headers: ACTIONS_CORS_HEADERS,
   };
 };
-
-// const event = {
-//   queryStringParameters: {
-//     value: String("1"),
-//   },
-//   pathParameters: {
-//     poolId: "GFjDFXHkCPRj28JLgKnBQMoj3DuyRjL9FfZZowedHUMp",
-//     optionId: "6nrV1xXJBMmkph6jG1DTaQaFwiG1wVjgs75Xq9NeVJyC",
-//   },
-//   body: '{"account":"ABMHApyZu8DfuaGoKoLk4yRHFsvzHwsEsGZXKsJ19FBX"}',
-// } as unknown as APIGatewayEvent;
-//
-// generateEnterPoolTx(event).then(console.log).catch(console.log);

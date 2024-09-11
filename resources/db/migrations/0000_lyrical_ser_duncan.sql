@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS "pool_entries" (
 	"entrant" varchar(44) NOT NULL,
 	"option" varchar(44) NOT NULL,
 	"pool" varchar(44) NOT NULL,
-	"value" bigint NOT NULL
+	"value" numeric(50, 0) NOT NULL
 );
 --> statement-breakpoint
 DO $$ BEGIN

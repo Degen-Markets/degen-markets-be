@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { DrizzleDb } from "../clients/DrizzleClient";
 import { PoolEntriesInsertEntity, poolEntriesTable } from "./schema";
 import { Logger } from "@aws-lambda-powertools/logger";
+import BN from "bn.js";
 
 const logger = new Logger({
   serviceName: "PoolEntriesService",
@@ -18,15 +19,17 @@ export default class PoolEntriesService {
     db: DrizzleDb,
     data: PoolEntriesInsertEntity,
   ) {
-    if (data.value < 0) throw new Error("Value must be positive");
-
+    if (new BN(data.value).ltn(0)) throw new Error("Value must be positive");
+    logger.info("Inserting entry into db", { poolEntry: data });
     const { address, entrant, option, pool, value } = data;
     const result = await db
       .insert(poolEntriesTable)
       .values({ address, entrant, option, pool, value })
       .onConflictDoUpdate({
         target: poolEntriesTable.address,
-        set: { value: sql`${poolEntriesTable.value} + ${value}` },
+        set: {
+          value: sql`${poolEntriesTable.value} + ${value}`,
+        },
       })
       .returning();
 

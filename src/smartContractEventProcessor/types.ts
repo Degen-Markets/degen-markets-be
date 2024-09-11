@@ -4,7 +4,7 @@ import { PublicKey } from "@solana/web3.js";
 
 /** the following are intermediary types for generating {@link SmartContractEvent} */
 
-export type EventsRecord = IdlEvents<typeof program.idl>;
+type EventsRecord = IdlEvents<typeof program.idl>;
 type EventName = keyof EventsRecord;
 type ConvertPubkeyAndBnToString<T> = T extends PublicKey | BN ? string : T;
 

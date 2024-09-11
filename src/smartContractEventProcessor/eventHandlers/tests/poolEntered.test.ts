@@ -4,6 +4,7 @@ import { DrizzleClient } from "../../../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../../players/service";
 import { calculatePointsEarned } from "../utils";
+import BN from "bn.js";
 
 jest.mock("../../../players/service");
 jest.mock("../../../poolEntries/service");
@@ -39,8 +40,8 @@ describe("poolEnteredEventHandler", () => {
     await poolEnteredEventHandler(mockEventData);
 
     expect(mockedCalculatePointsEarned).toHaveBeenCalledWith(
-      BigInt(mockEventData.value),
-      expect.any(BigInt),
+      new BN(mockEventData.value),
+      expect.any(Number),
     );
     expect(PlayersService.insertNewOrAwardPoints).toHaveBeenCalledWith(
       mockDb,
@@ -55,7 +56,7 @@ describe("poolEnteredEventHandler", () => {
         entrant: mockEventData.entrant,
         option: mockEventData.option,
         pool: mockEventData.pool,
-        value: BigInt(mockEventData.value),
+        value: mockEventData.value,
       },
     );
   });
@@ -63,12 +64,12 @@ describe("poolEnteredEventHandler", () => {
   it("logs the correct messages with event data", async () => {
     await poolEnteredEventHandler(mockEventData);
 
-    expect(logger.info).toHaveBeenCalledTimes(2);
+    expect(logger.info).toHaveBeenCalledTimes(3);
     expect(logger.info).toHaveBeenNthCalledWith(1, "Processing event", {
       eventData: mockEventData,
     });
     expect(logger.info).toHaveBeenNthCalledWith(
-      2,
+      3,
       "Completed processing event",
       { eventData: mockEventData },
     );

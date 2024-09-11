@@ -87,5 +87,22 @@
         "id": "G9S5nSSdRBSMBrrZN5kTXvsZ5E27nhgktGtTA97xwyAT"
       }
     ]
+  },
+  "BBMN3cEYWhjGxkcrNzQJyTYJP2EoJd23MZo5buuqLJCH": {
+    "title": "How many cats will be eaten in Ohio by the end of the week?",
+    "description": "An average will be taken using several news sources that will be documented afterwards. The time period is from now until 15.09.2024 23:59 UTC.",
+    "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/trump_holding_cats.jpeg",
+    "isPaused": false,
+    "winningOption": null,
+    "options": [
+      {
+        "title": "Less than 10",
+        "id": "5CiVcR116ii9FK33BP3MCnJacDRfgSb2z2nsoTZBU3nN"
+      },
+      {
+        "title": "10 or more 🙀",
+        "id": "FgKw5ZjGD5F51esTZ2sZrLTEYuvRaMbj1DggnKqEvb3o"
+      }
+    ]
   }
 }

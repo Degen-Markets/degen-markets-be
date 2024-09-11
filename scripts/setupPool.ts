@@ -5,14 +5,14 @@ import { createPool, derivePoolAccountKey } from "./utils/pools";
 import { createOption, deriveOptionAccountKey } from "./utils/options";
 
 const main = async () => {
-  const title = `Degods crosses $1B market cap before end of year`;
+  const title = "How many cats will be eaten in Ohio by the end of the week?";
   const description =
-    "Degods reaches or crosses $1B market cap on MagicEden or Tensor by end of year 2024. Option labeled 'Degods' stands for yes, whereas 'Frank not based' stands for no.";
-  const optionTitles = ["Degods", "Frank not based"];
+    "An average will be taken using several news sources that will be documented afterwards. The time period is from now until 15.09.2024 23:59 UTC.";
+  const optionTitles = ["Less than 10", "10 or more 🙀"];
   const isPaused = false;
   const winningOption = null;
   const imageUrl =
-    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degods_1B.png";
+    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/trump_holding_cats.jpeg";
   // const poolAccountKey = await derivePoolAccountKey(title);
   const poolAccountKey = await createPool(title, adminAccount);
   const optionAccountKeys = await Promise.all(

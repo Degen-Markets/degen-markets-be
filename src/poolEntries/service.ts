@@ -28,7 +28,7 @@ export default class PoolEntriesService {
       .onConflictDoUpdate({
         target: poolEntriesTable.address,
         set: {
-          value: sql`${poolEntriesTable.value}::numeric + ${value}::numeric`,
+          value: sql`${poolEntriesTable.value} + ${value}`,
         },
       })
       .returning();

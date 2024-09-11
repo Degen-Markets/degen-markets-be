@@ -6,7 +6,8 @@ on:
       - misc/ci-cd-86c093jxw
 
 jobs:
-  deploy:
+  deploy-prod:
+    environment: "PROD"
     runs-on: ubuntu-latest
 
     steps:
@@ -30,4 +31,6 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Deploy CDK stack
-        run: make deploy
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+          make deploy

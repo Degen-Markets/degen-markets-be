@@ -11,7 +11,7 @@ import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import { getAllPools, getPoolById } from "./handlers/pools";
 import getLoginLink from "./handlers/getLoginLink";
 import saveTwitterProfile from "./handlers/saveTwitterProfile";
-import { getPlayersHandler } from "./handlers/players";
+import { getPlayerByIdHandler, getPlayersHandler } from "./handlers/players";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 
@@ -48,6 +48,11 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     method: "GET",
     path: "/players",
     handler: middy().handler(getPlayersHandler),
+  },
+  {
+    method: "GET",
+    path: "/players/{id}",
+    handler: middy().handler(getPlayerByIdHandler),
   },
   {
     method: "ANY",

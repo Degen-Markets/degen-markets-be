@@ -48,6 +48,34 @@ export const getPlayersHandler = async (
   }
 };
 
+export const getPlayerByIdHandler = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
+  const playerId = event.pathParameters?.id;
+
+  if (!playerId) {
+    return buildErrorResponse("Player ID is required", 400);
+  }
+
+  logger.info("Received request to fetch player by ID", { playerId });
+
+  try {
+    const db = await DrizzleClient.makeDb();
+    const player = await PlayersService.getPlayerById(db, playerId);
+
+    if (!player) {
+      logger.error("Player not found", { playerId });
+      return buildErrorResponse("Player not found", 404);
+    }
+
+    logger.info("Successfully retrieved player", { player });
+    return buildOkResponse(player);
+  } catch (e) {
+    logger.error("Error fetching player", { error: e });
+    return buildErrorResponse("An unexpected error occurred");
+  }
+};
+
 const extractQueryParams = (event: APIGatewayProxyEventV2) => {
   const limit = parseInt(event.queryStringParameters?.limit || "10", 10);
   const offset = parseInt(event.queryStringParameters?.offset || "0", 10);

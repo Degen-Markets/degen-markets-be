@@ -4,6 +4,7 @@ import { DrizzleDb } from "../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQL, sql } from "drizzle-orm";
 import BN from "bn.js";
+import { eq } from "drizzle-orm";
 
 const logger = new Logger({
   serviceName: "PlayersService",
@@ -103,5 +104,15 @@ export default class PlayersService {
       logger.error("Failed to fetch players", { error: e });
       throw new Error("Unable to fetch players");
     }
+  }
+
+  static async getPlayerById(db: DrizzleDb, playerId: string) {
+    const result = await db
+      .select()
+      .from(playersTable)
+      .where(eq(playersTable.address, playerId))
+      .limit(1);
+
+    return result[0] || null; // Return the first result or null if no results found
   }
 }

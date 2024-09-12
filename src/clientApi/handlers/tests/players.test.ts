@@ -96,7 +96,7 @@ describe("getPlayersHandler", () => {
     const response = (await getPlayersHandler(mockEvent)) as ErrorProps;
 
     expect(logger.error).toHaveBeenCalledWith("Error fetching players", {
-      errorMessage: "Database error",
+      error: new Error("Database error"),
     });
     expect(response).toEqual(
       buildErrorResponse("An unexpected error occurred"),

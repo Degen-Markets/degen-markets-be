@@ -59,21 +59,23 @@ export const getPlayerByIdHandler = async (
 
   logger.info("Received request to fetch player by ID", { playerId });
 
+  let player;
+
   try {
     const db = await DrizzleClient.makeDb();
-    const player = await PlayersService.getPlayerById(db, playerId);
-
-    if (!player) {
-      logger.error("Player not found", { playerId });
-      return buildErrorResponse("Player not found", 404);
-    }
-
-    logger.info("Successfully retrieved player", { player });
-    return buildOkResponse(player);
+    player = await PlayersService.getPlayerById(db, playerId);
   } catch (e) {
     logger.error("Error fetching player", { error: e });
     return buildErrorResponse("An unexpected error occurred");
   }
+
+  if (!player) {
+    logger.error("Player not found", { playerId });
+    return buildErrorResponse("Player not found", 404);
+  }
+
+  logger.info("Successfully retrieved player", { player });
+  return buildOkResponse(player);
 };
 
 const extractQueryParams = (event: APIGatewayProxyEventV2) => {

@@ -51,7 +51,7 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   },
   {
     method: "GET",
-    path: "/player/{id}",
+    path: "/players/{id}",
     handler: middy().handler(getPlayerByIdHandler),
   },
   {

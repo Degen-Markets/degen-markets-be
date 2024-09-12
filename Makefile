@@ -1,5 +1,3 @@
-include .env
-
 # fixes linting
 lint_fix:
 	npm run lint:fix
@@ -10,31 +8,29 @@ lint:
 
 # deploys the entire backend to AWS
 deploy:
-	npx cdk@latest deploy \
+	npx cdk deploy \
     		Database \
     		ClientApi \
     		WebhookApi \
     		Settlement \
     		SolanaActionsApi \
-    		--profile ${AWS_PROFILE} \
     		--require-approval never
 
 # checks which resources changed
 diff:
-	npx cdk@latest diff \
+	npx cdk diff \
 			Database \
 			ClientApi \
 			WebhookApi \
-			SolanaActionsApi \
-			--profile ${AWS_PROFILE}
+			SolanaActionsApi 
 
 # bootstraps the AWS account (only needs to be done once)
 bootstrap:
-	npx cdk@latest bootstrap --profile ${AWS_PROFILE}
+	npx cdk bootstrap 
 
 # triggers the database migration
 trigger_db_migration:
-	aws lambda invoke --function-name DbMigration --profile ${AWS_PROFILE} invoke.log
+	aws lambda invoke --function-name DbMigration invoke.log
 
 # starts a tunnel to the database in AWS on port 5541
 tunnel:

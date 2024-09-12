@@ -11,11 +11,11 @@ export function requireNotNull<T>(param: T, errorMessage?: string): T {
 
 export const getEnv = (): Environment => ({
   account: requireNotNull(
-    process.env.CDK_ACCOUNT,
-    "CDK_ACCOUNT environment variable not found",
+    process.env.AWS_ACCOUNT,
+    "AWS_ACCOUNT environment variable not found",
   ),
   region: requireNotNull(
-    process.env.CDK_REGION,
-    "CDK_REGION environment variable not found",
+    process.env.AWS_REGION,
+    "AWS_REGION environment variable not found",
   ),
 });

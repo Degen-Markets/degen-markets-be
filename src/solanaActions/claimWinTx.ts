@@ -8,7 +8,7 @@ import {
   createPostResponse,
 } from "@solana/actions";
 import { Logger } from "@aws-lambda-powertools/logger";
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { APIGatewayProxyResultV2 } from "aws-lambda";
 
 const logger = new Logger({ serviceName: "ClaimWinTx" });
 
@@ -68,7 +68,7 @@ export const claimWinTx = async (
     return {
       statusCode: 400,
       body: JSON.stringify(actionErr),
-      headers: ACTIONS_CORS_HEADERS,
+      headers: ACTIONS_CORS_HEADERS as Record<string, string>,
     };
   }
   const block = await connection.getLatestBlockhash();
@@ -81,6 +81,6 @@ export const claimWinTx = async (
   return {
     statusCode: 200,
     body: JSON.stringify(payload),
-    headers: ACTIONS_CORS_HEADERS,
+    headers: ACTIONS_CORS_HEADERS as Record<string, string>,
   };
 };

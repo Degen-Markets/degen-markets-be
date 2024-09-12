@@ -1,4 +1,3 @@
-import { Logger } from "@aws-lambda-powertools/logger";
 import * as dotenv from "dotenv";
 dotenv.config();
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
@@ -11,6 +10,13 @@ import { PlayerEntity } from "../../../players/types";
 import { buildOkResponse } from "../../../utils/httpResponses";
 
 jest.mock("@aws-lambda-powertools/logger");
+
+// This is a bad practice in any non-service layer files. In higher level modules like this,
+// you should mock the whole service instead (just like we've mocked `TwitterUtils` below).
+// We are forced to mock `getMandatoryEnvValue` here because 'twitter-api-sdk' has a weird flow
+// where `authClient` is statefully shared between HTTP requests.
+jest.mock("../../../utils/getMandatoryEnvValue");
+
 jest.mock("../../../clients/DrizzleClient");
 const mockDb = {} as any;
 jest.mocked(DrizzleClient.makeDb).mockResolvedValue(mockDb);

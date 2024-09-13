@@ -11,10 +11,10 @@ import { buildOkResponse } from "../../../utils/httpResponses";
 
 jest.mock("@aws-lambda-powertools/logger");
 
-// This is a bad practice in any non-service layer files. In higher level modules like this,
-// you should mock the whole service instead (just like we've mocked `TwitterUtils` below).
-// We are forced to mock `getMandatoryEnvValue` here because 'twitter-api-sdk' has a weird flow
-// where `authClient` is statefully shared between HTTP requests.
+// This is a bad practice because `getMandatoryEnvValue` isn't a direct dependency of `saveTwitterProfile`.
+// Ideally we only need to mock direct dependencies (otherwise it's a slippery slope). Here we're forced to
+// mock `getMandatoryEnvValue` as `twitter-api-sdk` has a weird usage (`authClient` is shared statefully).
+// Otherwise, mocking `TwitterUtils` (as we have done here) would have been enough.
 jest.mock("../../../utils/getMandatoryEnvValue");
 
 jest.mock("../../../clients/DrizzleClient");

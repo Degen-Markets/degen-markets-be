@@ -9,6 +9,13 @@ import { Logger } from "@aws-lambda-powertools/logger";
 
 const logger = new Logger({ serviceName: "saveTwitterProfile" });
 
+const lowResImageSuffix = "_normal";
+
+const findHighResImageUrl = (twitterImageUrl: string | undefined) => {
+  if (!twitterImageUrl) return undefined;
+  return twitterImageUrl.split(lowResImageSuffix).join("");
+};
+
 const saveTwitterProfile = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
@@ -29,7 +36,7 @@ const saveTwitterProfile = async (
   const user = await PlayersService.insertNewOrSaveTwitterProfile(db, {
     address,
     twitterUsername: twitterUser?.username,
-    twitterPfpUrl: twitterUser?.profile_image_url,
+    twitterPfpUrl: findHighResImageUrl(twitterUser?.profile_image_url),
   });
   return buildOkResponse(user);
 };

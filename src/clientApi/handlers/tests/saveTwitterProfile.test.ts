@@ -22,11 +22,12 @@ const mockDb = {} as any;
 jest.mocked(DrizzleClient.makeDb).mockResolvedValue(mockDb);
 
 describe("saveTwitterProfile", () => {
-  it("saves the user after validation", async () => {
+  it("saves the user after validation with the high res pfp url", async () => {
     const twitterResponse = {
       data: {
         username: "rajgokal",
-        profile_image_url: "https://x.com/rajgokal/photo",
+        profile_image_url:
+          "https://pbs.twimg.com/profile_images/1793628589461798912/t0u2yVKg_normal.jpg",
       },
     } as TwitterResponse<findMyUser>;
     const twitterCode = "twitterCode";
@@ -65,7 +66,8 @@ describe("saveTwitterProfile", () => {
       mockDb,
       {
         address,
-        twitterPfpUrl: twitterResponse.data?.profile_image_url,
+        twitterPfpUrl:
+          "https://pbs.twimg.com/profile_images/1793628589461798912/t0u2yVKg.jpg",
         twitterUsername: twitterResponse.data?.username,
       },
     );

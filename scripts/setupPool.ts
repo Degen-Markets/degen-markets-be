@@ -5,14 +5,14 @@ import { createPool, derivePoolAccountKey } from "./utils/pools";
 import { createOption, deriveOptionAccountKey } from "./utils/options";
 
 const main = async () => {
-  const title = "Will SOL reach $150 by Breakpoint?";
+  const title = "What will Mika, Rasmr & Threadguy find in Ohio?";
   const description =
-    "Resolves to 'Yes' if the price of SOL reaches $150 on a major exchange from now until the start of Solana Breakpoint (20th September 2024)";
-  const optionTitles = ["Yes", "No"];
+    "Resolves to 'cat genocide' if any of the 3 twitter accounts (@rasmr_eth, @mikadontlouz, @notthreadguy) reports more than 1 occurrence of a cat being murdered in Ohio by a human.";
+  const optionTitles = ["cat genocide", "you thought? 🫵😹"];
   const isPaused = false;
   const winningOption = null;
   const imageUrl =
-    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/solana-breakpoint.jpeg";
+    "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mika_rasmr_thread_cats.png";
   // const poolAccountKey = await derivePoolAccountKey(title);
   const poolAccountKey = await createPool(title, adminAccount);
   const optionAccountKeys = await Promise.all(

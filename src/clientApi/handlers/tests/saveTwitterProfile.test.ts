@@ -1,4 +1,3 @@
-import { Logger } from "@aws-lambda-powertools/logger";
 import * as dotenv from "dotenv";
 dotenv.config();
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
@@ -11,6 +10,13 @@ import { PlayerEntity } from "../../../players/types";
 import { buildOkResponse } from "../../../utils/httpResponses";
 
 jest.mock("@aws-lambda-powertools/logger");
+
+// This is a bad practice because `getMandatoryEnvValue` isn't a direct dependency of `saveTwitterProfile`.
+// Ideally we only need to mock direct dependencies (otherwise it's a slippery slope). Here we're forced to
+// mock `getMandatoryEnvValue` as `twitter-api-sdk` has a weird usage (`authClient` is shared statefully).
+// Otherwise, mocking `TwitterUtils` (as we have done here) would have been enough.
+jest.mock("../../../utils/getMandatoryEnvValue");
+
 jest.mock("../../../clients/DrizzleClient");
 const mockDb = {} as any;
 jest.mocked(DrizzleClient.makeDb).mockResolvedValue(mockDb);

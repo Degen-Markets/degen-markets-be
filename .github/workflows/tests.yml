@@ -19,7 +19,7 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm run test -- --testPathIgnorePatterns=".*/saveTwitterProfile.test.ts"
+        run: npm run test
 
       - name: Check for build errors
         run: npx tsc --noEmit

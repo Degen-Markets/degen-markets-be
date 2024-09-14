@@ -26,4 +26,4 @@ const pausePool = async (poolId: keyof typeof pools) => {
   );
 };
 
-pausePool("JEfnt6hhJpQ44xZU2XG1MFAJ1coUyqjVFpMiyJarf4L");
+pausePool("3aCgJR22eBMmnBj2hYHHaossPZCmSMCZ5QNbCmsjDixF");

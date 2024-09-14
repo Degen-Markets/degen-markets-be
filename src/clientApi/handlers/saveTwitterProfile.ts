@@ -33,12 +33,30 @@ const saveTwitterProfile = async (
   const { data: twitterUser } = await findConnectedUser();
   logger.info("Found user's twitter profile", { twitterUser });
   const db = await DrizzleClient.makeDb();
-  const user = await PlayersService.insertNewOrSaveTwitterProfile(db, {
-    address,
-    twitterUsername: twitterUser?.username,
-    twitterPfpUrl: findHighResImageUrl(twitterUser?.profile_image_url),
-  });
-  return buildOkResponse(user);
+  try {
+    const user = await PlayersService.insertNewOrSaveTwitterProfile(db, {
+      address,
+      twitterUsername: twitterUser?.username,
+      twitterPfpUrl: findHighResImageUrl(twitterUser?.profile_image_url),
+      twitterId: twitterUser?.id,
+    });
+    return buildOkResponse(user);
+  } catch (e) {
+    const error = e as Error;
+    logger.error(error.message);
+    if (
+      error.message.includes(
+        'duplicate key value violates unique constraint "players_twitterId_unique"',
+      )
+    ) {
+      return buildBadRequestError(
+        "This user is already signed up with a different wallet!",
+      );
+    }
+    return buildBadRequestError(
+      "Failed to save your X/Twitter profile. Please contact the team through https://x.com/DEGEN_MARKETS.",
+    );
+  }
 };
 
 export default saveTwitterProfile;

@@ -28,6 +28,7 @@ describe("saveTwitterProfile", () => {
         username: "rajgokal",
         profile_image_url:
           "https://pbs.twimg.com/profile_images/1793628589461798912/t0u2yVKg_normal.jpg",
+        id: "1",
       },
     } as TwitterResponse<findMyUser>;
     const twitterCode = "twitterCode";
@@ -53,6 +54,7 @@ describe("saveTwitterProfile", () => {
       points: 0,
       twitterPfpUrl: String(twitterResponse.data?.profile_image_url),
       twitterUsername: String(twitterResponse.data?.username),
+      twitterId: String(twitterResponse.data?.id),
     };
 
     jest
@@ -69,6 +71,7 @@ describe("saveTwitterProfile", () => {
         twitterPfpUrl:
           "https://pbs.twimg.com/profile_images/1793628589461798912/t0u2yVKg.jpg",
         twitterUsername: twitterResponse.data?.username,
+        twitterId: twitterResponse.data?.id,
       },
     );
     expect(result).toEqual(buildOkResponse(insertedPlayer));

@@ -35,6 +35,7 @@ describe("getPlayerByIdHandler", () => {
       points: 100,
       twitterUsername: "player",
       twitterPfpUrl: "http://example.com/pfp.jpg",
+      twitterId: "1",
     };
 
     mockDrizzleClient.mockResolvedValue({} as any);

@@ -142,7 +142,7 @@
   "FhUW3K3Kv3R5g7uSZK1adrzYV2ff7q3QeKCusdBey1RP": {
     "title": "What will be the $degod market cap at the end of the week?",
     "description": "Resolves based on the market capitalisation of $degod at 3pm (CET) on the 22nd of September 2024. ",
-    "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degod_mcap.jpeg",
+    "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degod_mode.jpeg",
     "isPaused": false,
     "winningOption": null,
     "options": [

@@ -126,7 +126,7 @@
     "title": "What will Mika, Rasmr & Threadguy find in Ohio?",
     "description": "Resolves to 'cat genocide' if any of the 3 twitter accounts (@rasmr_eth, @mikadontlouz, @notthreadguy) reports more than 1 occurrence of a cat being murdered in Ohio by a human.",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mika_rasmr_threadguy_ohio.gif",
-    "isPaused": false,
+    "isPaused": true,
     "winningOption": null,
     "options": [
       {
@@ -136,6 +136,23 @@
       {
         "title": "you thought? 🫵😹",
         "id": "EZNfgQWAcGdEoSkrmBAnkWUVNfUHnF2ZbPCXRFFmEYjX"
+      }
+    ]
+  },
+  "FhUW3K3Kv3R5g7uSZK1adrzYV2ff7q3QeKCusdBey1RP": {
+    "title": "What will be the $degod market cap at the end of the week?",
+    "description": "Resolves based on the market capitalisation of $degod at 3pm (CET) on the 22nd of September 2024. ",
+    "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degod_mcap.jpeg",
+    "isPaused": false,
+    "winningOption": null,
+    "options": [
+      {
+        "title": "Mid. Less than 80M",
+        "id": "BkftGEJ9GqJste5NEW8eVdhn8Uvn1nKBr5qphXZutGV5"
+      },
+      {
+        "title": "Degod Mode. > 80M",
+        "id": "3TF8TTh1yaYcRGeX6T3M9WyA4MrWQRJBDUJnUb796Wc9"
       }
     ]
   }

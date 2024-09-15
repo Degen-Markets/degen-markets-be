@@ -122,8 +122,8 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
     }
     metadata.links.actions = [
       ...pool.options.map((option) => ({
-        label: `Bet 1 SOL on "${option.title}"`,
-        href: `/pools/${poolId}/options/${option.id}?value=1`,
+        label: `Bet 0.1 SOL on "${option.title}"`,
+        href: `/pools/${poolId}/options/${option.id}?value=0.1`,
       })),
       ...poolOptionsWithPercOfTotalPoolValArr
         .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)

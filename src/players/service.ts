@@ -47,29 +47,40 @@ export default class PlayersService {
   }
 
   /**
-   * Inserts a new player or updates the points of an existing player.
+   * Inserts a new player into the database.
+   * @param db - The database connection
+   * @param player - The player entity to insert
+   * @returns The inserted player entity
+   */
+  static async insertNew(db: DrizzleDb, player: PlayerInsertEntity) {
+    const result = await db.insert(playersTable).values(player).returning();
+    logger.info("Inserted new player", { player: result[0] });
+  }
+
+  /**
+   * Updates the twitter profile of an existing player.
    * @param db - The database connection
    * @param newPlayer - The new player entity with their twitter details (username & pfpUrl)
    */
-  static async insertNewOrSaveTwitterProfile(
+  static async updateTwitterProfile(
     db: DrizzleDb,
-    newPlayer: PlayerInsertEntity,
-  ): Promise<PlayerEntity> {
+    playerAddress: PlayerEntity["address"],
+    twitterProfile: {
+      twitterUsername?: string;
+      twitterPfpUrl?: string;
+    },
+  ) {
     const result = await db
-      .insert(playersTable)
-      .values(newPlayer)
-      .onConflictDoUpdate({
-        target: playersTable.address,
-        set: {
-          twitterUsername: newPlayer.twitterUsername,
-          twitterPfpUrl: newPlayer.twitterPfpUrl,
-        },
+      .update(playersTable)
+      .set({
+        twitterUsername: twitterProfile.twitterUsername,
+        twitterPfpUrl: twitterProfile.twitterPfpUrl,
       })
+      .where(eq(playersTable.address, playerAddress))
       .returning();
-    logger.info("Inserted player or updated their twitter profile", {
+    logger.info("Updated player's twitter profile", {
       player: result[0],
     });
-    return result[0];
   }
 
   /**
@@ -113,12 +124,35 @@ export default class PlayersService {
    * @returns A single player object from ( playersTable )
    */
 
-  static async getPlayerById(db: DrizzleDb, playerId: string) {
+  static async getPlayerById(
+    db: DrizzleDb,
+    playerId: string,
+  ): Promise<PlayerEntity | null> {
     const result = await db
       .select()
       .from(playersTable)
       .where(eq(playersTable.address, playerId));
 
     return result[0] || null; // Return the first result or null if no results found
+  }
+
+  /**
+   * Changes the points of a player
+   * @param db - The database connection
+   * @param address - The address of the player
+   * @param pointsDelta - The number of points to add(if number is positive) or subtract(if number is negative)
+   * @returns The updated player entity
+   */
+  static async changePoints(
+    db: DrizzleDb,
+    address: string,
+    pointsDelta: number,
+  ) {
+    const result = await db
+      .update(playersTable)
+      .set({ points: sql`${playersTable.points} + ${pointsDelta}` })
+      .where(eq(playersTable.address, address))
+      .returning();
+    logger.info("Updated points for player", { player: result[0] });
   }
 }

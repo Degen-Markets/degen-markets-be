@@ -47,30 +47,42 @@ export default class PlayersService {
   }
 
   /**
-   * Inserts a new player or updates the points of an existing player.
+   * Inserts a new player into the database.
+   * @param db - The database connection
+   * @param player - The player entity to insert
+   * @returns The inserted player entity
+   */
+  static async insertNew(db: DrizzleDb, player: PlayerInsertEntity) {
+    const result = await db.insert(playersTable).values(player).returning();
+    logger.info("Inserted new player", { player: result[0] });
+  }
+
+  /**
+   * Updates the twitter profile of an existing player.
    * @param db - The database connection
    * @param newPlayer - The new player entity with their twitter details (username & pfpUrl)
    */
-  static async insertNewOrSaveTwitterProfile(
+  static async updateTwitterProfile(
     db: DrizzleDb,
-    newPlayer: PlayerInsertEntity,
-  ): Promise<PlayerEntity> {
+    playerAddress: PlayerEntity["address"],
+    twitterProfile: {
+      twitterUsername: string;
+      twitterPfpUrl?: string;
+      twitterId: string;
+    },
+  ) {
     const result = await db
-      .insert(playersTable)
-      .values(newPlayer)
-      .onConflictDoUpdate({
-        target: playersTable.address,
-        set: {
-          twitterUsername: newPlayer.twitterUsername,
-          twitterPfpUrl: newPlayer.twitterPfpUrl,
-          twitterId: newPlayer.twitterId,
-        },
+      .update(playersTable)
+      .set({
+        twitterUsername: twitterProfile.twitterUsername,
+        twitterPfpUrl: twitterProfile.twitterPfpUrl,
+        twitterId: twitterProfile.twitterId,
       })
+      .where(eq(playersTable.address, playerAddress))
       .returning();
-    logger.info("Inserted player or updated their twitter profile", {
+    logger.info("Updated player's twitter profile", {
       player: result[0],
     });
-    return result[0];
   }
 
   /**
@@ -108,18 +120,66 @@ export default class PlayersService {
   }
 
   /**
-   * Retrieves players with pagination and sorting options.
+   * Fetches player using their address
    * @param db - The database connection
-   * @param playerId - The id (public address) of the player
+   * @param address - The id (public address) of the player
    * @returns A single player object from ( playersTable )
    */
 
-  static async getPlayerById(db: DrizzleDb, playerId: string) {
+  static async getPlayerByAddress(
+    db: DrizzleDb,
+    address: PlayerEntity["address"],
+  ): Promise<PlayerEntity | null> {
     const result = await db
       .select()
       .from(playersTable)
-      .where(eq(playersTable.address, playerId));
+      .where(eq(playersTable.address, address));
 
     return result[0] || null; // Return the first result or null if no results found
+  }
+
+  /**
+   * Fetches a player by their Twitter ID.
+   * @param db - The database connection
+   * @param twitterId - The Twitter ID of the player
+   * @returns A single player object from playersTable or null if not found
+   */
+  static async getPlayerByTwitterId(
+    db: DrizzleDb,
+    twitterId: string,
+  ): Promise<PlayerEntity | null> {
+    const players = await db
+      .select()
+      .from(playersTable)
+      .where(eq(playersTable.twitterId, twitterId));
+
+    const player = players[0];
+    if (!player) {
+      logger.info("No player found with the given Twitter ID", { twitterId });
+      return null;
+    }
+
+    logger.info("Successfully fetched player by Twitter ID", { player });
+    return player;
+  }
+
+  /**
+   * Changes the points of a player
+   * @param db - The database connection
+   * @param address - The address of the player
+   * @param pointsDelta - The number of points to add(if number is positive) or subtract(if number is negative)
+   * @returns The updated player entity
+   */
+  static async changePoints(
+    db: DrizzleDb,
+    address: string,
+    pointsDelta: number,
+  ) {
+    const result = await db
+      .update(playersTable)
+      .set({ points: sql`${playersTable.points} + ${pointsDelta}` })
+      .where(eq(playersTable.address, address))
+      .returning();
+    logger.info("Updated points for player", { player: result[0] });
   }
 }

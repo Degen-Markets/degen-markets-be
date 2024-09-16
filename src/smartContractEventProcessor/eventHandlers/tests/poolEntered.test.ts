@@ -32,6 +32,7 @@ describe("poolEnteredEventHandler", () => {
 
   beforeEach(() => {
     logger.info.mockClear();
+    jest.clearAllMocks();
   });
 
   it("calls the database services with correct arguments", async () => {

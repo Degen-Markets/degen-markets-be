@@ -4,7 +4,6 @@ import { Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { LambdaApi } from "./constructs/LambdaApi";
-import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 import { Fn, StackProps } from "aws-cdk-lib";
 
 export interface SolanaActionsStackProps extends StackProps {

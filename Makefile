@@ -9,20 +9,12 @@ lint:
 # deploys the entire backend to AWS
 deploy:
 	npx cdk deploy \
-    		Database \
-    		ClientApi \
-    		WebhookApi \
-    		Settlement \
-    		SolanaActionsApi \
+    		--all \
     		--require-approval never
 
 # checks which resources changed
 diff:
-	npx cdk diff \
-			Database \
-			ClientApi \
-			WebhookApi \
-			SolanaActionsApi 
+	npx cdk diff --all
 
 # bootstraps the AWS account (only needs to be done once)
 bootstrap:

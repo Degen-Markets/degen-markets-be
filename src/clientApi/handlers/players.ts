@@ -63,7 +63,7 @@ export const getPlayerByIdHandler = async (
 
   try {
     const db = await DrizzleClient.makeDb();
-    player = await PlayersService.getPlayerById(db, playerId);
+    player = await PlayersService.getPlayerByAddress(db, playerId);
   } catch (e) {
     logger.error("Error fetching player", { error: e });
     return buildErrorResponse("An unexpected error occurred");

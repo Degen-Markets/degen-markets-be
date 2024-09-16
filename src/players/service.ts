@@ -120,20 +120,20 @@ export default class PlayersService {
   }
 
   /**
-   * Retrieves players with pagination and sorting options.
+   * Fetches player using their address
    * @param db - The database connection
-   * @param playerId - The id (public address) of the player
+   * @param address - The id (public address) of the player
    * @returns A single player object from ( playersTable )
    */
 
-  static async getPlayerById(
+  static async getPlayerByAddress(
     db: DrizzleDb,
-    playerId: string,
+    address: PlayerEntity["address"],
   ): Promise<PlayerEntity | null> {
     const result = await db
       .select()
       .from(playersTable)
-      .where(eq(playersTable.address, playerId));
+      .where(eq(playersTable.address, address));
 
     return result[0] || null; // Return the first result or null if no results found
   }

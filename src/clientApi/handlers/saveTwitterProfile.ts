@@ -66,7 +66,7 @@ const saveTwitterProfile = async (
     );
   }
 
-  const playerByAddress = await PlayersService.getPlayerById(db, address);
+  const playerByAddress = await PlayersService.getPlayerByAddress(db, address);
   if (!playerByAddress) {
     logger.info("Player doesn't exist, creating new player");
     await PlayersService.insertNew(db, {

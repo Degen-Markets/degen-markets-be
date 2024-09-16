@@ -119,7 +119,7 @@ describe("saveTwitterProfile", () => {
 
   it("handles the case where user doesn't exist in db yet", async () => {
     mockedVerifySignature.mockReturnValueOnce(true);
-    MockedPlayersService.getPlayerById.mockResolvedValueOnce(null);
+    MockedPlayersService.getPlayerByAddress.mockResolvedValueOnce(null);
 
     const event = {
       body: JSON.stringify({
@@ -152,7 +152,9 @@ describe("saveTwitterProfile", () => {
       twitterPfpUrl: null,
       twitterId: null,
     };
-    MockedPlayersService.getPlayerById.mockResolvedValueOnce(existingPlayer);
+    MockedPlayersService.getPlayerByAddress.mockResolvedValueOnce(
+      existingPlayer,
+    );
 
     const event = {
       body: JSON.stringify({

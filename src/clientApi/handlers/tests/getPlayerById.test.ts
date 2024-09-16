@@ -13,7 +13,7 @@ jest.mock("../../../players/service");
 jest.mock("../../../clients/DrizzleClient");
 jest.mock("@aws-lambda-powertools/logger");
 
-const mockGetPlayerById = jest.mocked(PlayersService.getPlayerById);
+const mockGetPlayerByAddress = jest.mocked(PlayersService.getPlayerByAddress);
 const mockDrizzleClient = jest.mocked(DrizzleClient.makeDb);
 const logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
 const id = "14RTAiwGjWYsMUZqmFvpsyvKEiW22FmbJrvBqmF98i7y";
@@ -39,12 +39,12 @@ describe("getPlayerByIdHandler", () => {
     };
 
     mockDrizzleClient.mockResolvedValue({} as any);
-    mockGetPlayerById.mockResolvedValue(mockPlayer);
+    mockGetPlayerByAddress.mockResolvedValue(mockPlayer);
 
     const response = await getPlayerByIdHandler(mockEvent);
 
     expect(mockDrizzleClient).toHaveBeenCalled();
-    expect(mockGetPlayerById).toHaveBeenCalledWith(expect.anything(), id);
+    expect(mockGetPlayerByAddress).toHaveBeenCalledWith(expect.anything(), id);
     expect(response).toEqual(buildOkResponse(mockPlayer));
   });
 
@@ -65,12 +65,12 @@ describe("getPlayerByIdHandler", () => {
     } as any;
 
     mockDrizzleClient.mockResolvedValue({} as any);
-    mockGetPlayerById.mockResolvedValue(null as any);
+    mockGetPlayerByAddress.mockResolvedValue(null as any);
 
     const response = (await getPlayerByIdHandler(mockEvent)) as ErrorProps;
 
     expect(mockDrizzleClient).toHaveBeenCalled();
-    expect(mockGetPlayerById).toHaveBeenCalledWith(
+    expect(mockGetPlayerByAddress).toHaveBeenCalledWith(
       expect.anything(),
       "player1",
     );

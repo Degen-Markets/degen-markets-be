@@ -66,8 +66,9 @@ export default class PlayersService {
     db: DrizzleDb,
     playerAddress: PlayerEntity["address"],
     twitterProfile: {
-      twitterUsername?: string;
+      twitterUsername: string;
       twitterPfpUrl?: string;
+      twitterId: string;
     },
   ) {
     const result = await db
@@ -75,6 +76,7 @@ export default class PlayersService {
       .set({
         twitterUsername: twitterProfile.twitterUsername,
         twitterPfpUrl: twitterProfile.twitterPfpUrl,
+        twitterId: twitterProfile.twitterId,
       })
       .where(eq(playersTable.address, playerAddress))
       .returning();
@@ -134,6 +136,31 @@ export default class PlayersService {
       .where(eq(playersTable.address, playerId));
 
     return result[0] || null; // Return the first result or null if no results found
+  }
+
+  /**
+   * Fetches a player by their Twitter ID.
+   * @param db - The database connection
+   * @param twitterId - The Twitter ID of the player
+   * @returns A single player object from playersTable or null if not found
+   */
+  static async getPlayerByTwitterId(
+    db: DrizzleDb,
+    twitterId: string,
+  ): Promise<PlayerEntity | null> {
+    const players = await db
+      .select()
+      .from(playersTable)
+      .where(eq(playersTable.twitterId, twitterId));
+
+    const player = players[0];
+    if (!player) {
+      logger.info("No player found with the given Twitter ID", { twitterId });
+      return null;
+    }
+
+    logger.info("Successfully fetched player by Twitter ID", { player });
+    return player;
   }
 
   /**

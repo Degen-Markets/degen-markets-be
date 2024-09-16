@@ -35,6 +35,7 @@ const mockTwitterUser = {
   username: "rajgokal",
   profile_image_url:
     "https://pbs.twimg.com/profile_images/1793628589461798912/t0u2yVKg_normal.jpg",
+  id: "1",
 };
 const MockedTwitterUtils = jest.mocked(TwitterUtils);
 MockedTwitterUtils.findConnectedUser.mockResolvedValue({
@@ -132,6 +133,7 @@ describe("saveTwitterProfile", () => {
     const expectedTwitterProfile = {
       twitterUsername: mockTwitterUser.username,
       twitterPfpUrl: findHighResImageUrl(mockTwitterUser.profile_image_url),
+      twitterId: mockTwitterUser.id,
     };
     expect(MockedPlayersService.insertNew).toHaveBeenCalledWith(mockDb, {
       address: "mock_address",
@@ -148,6 +150,7 @@ describe("saveTwitterProfile", () => {
       points: 100,
       twitterUsername: null,
       twitterPfpUrl: null,
+      twitterId: null,
     };
     MockedPlayersService.getPlayerById.mockResolvedValueOnce(existingPlayer);
 
@@ -163,6 +166,7 @@ describe("saveTwitterProfile", () => {
     const expectedTwitterProfile = {
       twitterUsername: mockTwitterUser.username,
       twitterPfpUrl: findHighResImageUrl(mockTwitterUser.profile_image_url),
+      twitterId: mockTwitterUser.id,
     };
     expect(MockedPlayersService.changePoints).toHaveBeenCalledWith(
       mockDb,

@@ -51,9 +51,23 @@ const saveTwitterProfile = async (
     twitterPfpUrl: twitterUser.profile_image_url
       ? findHighResImageUrl(twitterUser.profile_image_url)
       : undefined,
+    twitterId: twitterUser.id,
   };
-  const playerInDb = await PlayersService.getPlayerById(db, address);
-  if (!playerInDb) {
+  const playerByTwitterId = await PlayersService.getPlayerByTwitterId(
+    db,
+    twitterUser.id,
+  );
+  if (playerByTwitterId) {
+    logger.info("Player already exists with this twitter id", {
+      player: playerByTwitterId,
+    });
+    return buildErrorResponse(
+      "This user is already signed up with a different wallet!",
+    );
+  }
+
+  const playerByAddress = await PlayersService.getPlayerById(db, address);
+  if (!playerByAddress) {
     logger.info("Player doesn't exist, creating new player");
     await PlayersService.insertNew(db, {
       address,
@@ -61,7 +75,7 @@ const saveTwitterProfile = async (
       ...twitterProfile,
     });
   } else {
-    const isTwitterAlreadyAdded = !!playerInDb.twitterUsername;
+    const isTwitterAlreadyAdded = !!playerByAddress.twitterUsername;
     if (!isTwitterAlreadyAdded) {
       await PlayersService.changePoints(
         db,

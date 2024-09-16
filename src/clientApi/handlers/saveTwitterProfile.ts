@@ -15,6 +15,7 @@ const POINTS_AWARDED_FOR_LINKING_TWITTER = 10;
 type SuccessPayload = {
   twitterUsername?: string;
   twitterPfpUrl?: string;
+  twitterId: string;
 };
 
 /**

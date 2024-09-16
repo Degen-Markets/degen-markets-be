@@ -57,6 +57,9 @@ const mockEvent = {
 } as APIGatewayProxyEventV2;
 
 describe("saveTwitterProfile", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   it("returns a bad request if the user's signature doesn't match their address", async () => {
     mockedVerifySignature.mockReturnValueOnce(false);
     const result: APIGatewayProxyResultV2 = await saveTwitterProfile(mockEvent);
@@ -112,7 +115,20 @@ describe("saveTwitterProfile", () => {
     expect(response).toEqual(buildErrorResponse("Invalid twitter user"));
   });
 
-  it("handles the case where user doesn't exist in db yet", async () => {
+  it("returns an error if the twitter id was already used for a different player", async () => {
+    MockedPlayersService.getPlayerByTwitterId.mockResolvedValueOnce(
+      expect.any(Object),
+    );
+
+    const response = await saveTwitterProfile(mockEvent);
+    expect(response).toEqual(
+      buildErrorResponse(
+        "This user is already signed up with a different wallet!",
+      ),
+    );
+  });
+
+  it("adds a new user (with twitter points) if user doesn't exist in db yet", async () => {
     MockedPlayersService.getPlayerByAddress.mockResolvedValueOnce(null);
 
     const response = await saveTwitterProfile(mockEvent);
@@ -129,7 +145,7 @@ describe("saveTwitterProfile", () => {
     expect(response).toEqual(buildOkResponse(expectedTwitterProfile));
   });
 
-  it("handles the case where user already exists in db", async () => {
+  it("awards points if user already exists in db but without twitter linked", async () => {
     const existingPlayer: PlayerEntity = {
       address: mockEventBodyObj.address,
       points: 100,
@@ -153,6 +169,35 @@ describe("saveTwitterProfile", () => {
       existingPlayer.address,
       expect.any(Number),
     );
+    expect(MockedPlayersService.updateTwitterProfile).toHaveBeenCalledWith(
+      mockDb,
+      existingPlayer.address,
+      expectedTwitterProfile,
+    );
+    expect(response).toEqual(buildOkResponse(expectedTwitterProfile));
+  });
+
+  it("doesn't award points if user already exists in db with twitter linked", async () => {
+    const existingPlayer: PlayerEntity = {
+      address: mockEventBodyObj.address,
+      points: 100,
+      twitterUsername: "mock_username_2",
+      // we currently internally only check if `twitterUsername` is set
+      twitterPfpUrl: null,
+      twitterId: null,
+    };
+    MockedPlayersService.getPlayerByAddress.mockResolvedValueOnce(
+      existingPlayer,
+    );
+
+    const response = await saveTwitterProfile(mockEvent);
+
+    const expectedTwitterProfile = {
+      twitterUsername: mockTwitterUser.username,
+      twitterPfpUrl: findHighResImageUrl(mockTwitterUser.profile_image_url),
+      twitterId: mockTwitterUser.id,
+    };
+    expect(MockedPlayersService.changePoints).not.toHaveBeenCalled();
     expect(MockedPlayersService.updateTwitterProfile).toHaveBeenCalledWith(
       mockDb,
       existingPlayer.address,

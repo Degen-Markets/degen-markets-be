@@ -3,7 +3,7 @@ import { buildBadRequestError } from "../../utils/errors";
 import { verifySignature } from "../../utils/cryptography";
 import { DrizzleClient } from "../../clients/DrizzleClient";
 import PlayersService from "../../players/service";
-import { buildErrorResponse, buildOkResponse } from "../../utils/httpResponses";
+import { buildOkResponse } from "../../utils/httpResponses";
 import { findConnectedUser, requestAccessToken } from "../../utils/twitter";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { findHighResImageUrl } from "./utils";
@@ -41,7 +41,7 @@ const saveTwitterProfile = async (
   const { data: twitterUser } = await findConnectedUser();
   if (!twitterUser) {
     logger.error("Couldn't find twitter user from code", { twitterCode });
-    return buildErrorResponse("Invalid twitter user");
+    return buildBadRequestError("Invalid twitter user");
   }
   logger.info("Found user's twitter profile", { twitterUser });
 
@@ -55,7 +55,7 @@ const saveTwitterProfile = async (
     logger.info("Player already exists with this twitter id", {
       player: playerByTwitterId,
     });
-    return buildErrorResponse(
+    return buildBadRequestError(
       "This user is already signed up with a different wallet!",
     );
   }

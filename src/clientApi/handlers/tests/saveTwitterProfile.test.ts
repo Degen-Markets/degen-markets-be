@@ -6,10 +6,7 @@ import { DrizzleClient } from "../../../clients/DrizzleClient";
 import saveTwitterProfile from "../saveTwitterProfile";
 import * as TwitterUtils from "../../../utils/twitter";
 import { findMyUser, TwitterResponse } from "twitter-api-sdk/dist/types";
-import {
-  buildErrorResponse,
-  buildOkResponse,
-} from "../../../utils/httpResponses";
+import { buildOkResponse } from "../../../utils/httpResponses";
 import { buildBadRequestError } from "../../../utils/errors";
 import { verifySignature } from "../../../utils/cryptography";
 import { findHighResImageUrl } from "../utils";
@@ -112,7 +109,7 @@ describe("saveTwitterProfile", () => {
     });
 
     const response = await saveTwitterProfile(mockEvent);
-    expect(response).toEqual(buildErrorResponse("Invalid twitter user"));
+    expect(response).toEqual(buildBadRequestError("Invalid twitter user"));
   });
 
   it("returns an error if the twitter id was already used for a different player", async () => {
@@ -122,7 +119,7 @@ describe("saveTwitterProfile", () => {
 
     const response = await saveTwitterProfile(mockEvent);
     expect(response).toEqual(
-      buildErrorResponse(
+      buildBadRequestError(
         "This user is already signed up with a different wallet!",
       ),
     );

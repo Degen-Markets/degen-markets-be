@@ -46,13 +46,6 @@ const saveTwitterProfile = async (
 
   // add to db
   const db = await DrizzleClient.makeDb();
-  const twitterProfile = {
-    twitterUsername: twitterUser.username,
-    twitterPfpUrl: twitterUser.profile_image_url
-      ? findHighResImageUrl(twitterUser.profile_image_url)
-      : undefined,
-    twitterId: twitterUser.id,
-  };
   const playerByTwitterId = await PlayersService.getPlayerByTwitterId(
     db,
     twitterUser.id,
@@ -66,6 +59,13 @@ const saveTwitterProfile = async (
     );
   }
 
+  const twitterProfile = {
+    twitterUsername: twitterUser.username,
+    twitterPfpUrl: twitterUser.profile_image_url
+      ? findHighResImageUrl(twitterUser.profile_image_url)
+      : undefined,
+    twitterId: twitterUser.id,
+  };
   const playerByAddress = await PlayersService.getPlayerByAddress(db, address);
   if (!playerByAddress) {
     logger.info("Player doesn't exist, creating new player");

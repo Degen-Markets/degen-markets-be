@@ -28,7 +28,9 @@ const mockDb = {} as any;
 jest.mocked(DrizzleClient.makeDb).mockResolvedValue(mockDb);
 
 jest.mock("../../../utils/cryptography");
-const mockedVerifySignature = jest.mocked(verifySignature);
+const mockedVerifySignature = jest
+  .mocked(verifySignature)
+  .mockReturnValue(true);
 
 jest.mock("../../../utils/twitter");
 const mockTwitterUser = {
@@ -45,18 +47,19 @@ MockedTwitterUtils.findConnectedUser.mockResolvedValue({
 jest.mock("../../../players/service");
 const MockedPlayersService = jest.mocked(PlayersService);
 
+const mockEventBodyObj = {
+  twitterCode: "twitterCode",
+  signature: "mock_signature",
+  address: "mock_address",
+};
+const mockEvent = {
+  body: JSON.stringify(mockEventBodyObj),
+} as APIGatewayProxyEventV2;
+
 describe("saveTwitterProfile", () => {
   it("returns a bad request if the user's signature doesn't match their address", async () => {
-    const event = {
-      body: JSON.stringify({
-        twitterCode: "twitterCode",
-        signature: "mock_signature",
-        address: "mock_address",
-      }),
-    } as APIGatewayProxyEventV2;
-
     mockedVerifySignature.mockReturnValueOnce(false);
-    const result: APIGatewayProxyResultV2 = await saveTwitterProfile(event);
+    const result: APIGatewayProxyResultV2 = await saveTwitterProfile(mockEvent);
     expect(mockedVerifySignature).toHaveBeenCalledWith(
       "mock_signature",
       "mock_address",
@@ -101,35 +104,18 @@ describe("saveTwitterProfile", () => {
   });
 
   it("returns an error if twitter user is not found", async () => {
-    mockedVerifySignature.mockReturnValueOnce(true);
     MockedTwitterUtils.findConnectedUser.mockResolvedValueOnce({
       data: undefined,
     });
 
-    const event = {
-      body: JSON.stringify({
-        twitterCode: "mock_twitterCode",
-        signature: "mock_signature",
-        address: "mock_address",
-      }),
-    } as APIGatewayProxyEventV2;
-    const response = await saveTwitterProfile(event);
+    const response = await saveTwitterProfile(mockEvent);
     expect(response).toEqual(buildErrorResponse("Invalid twitter user"));
   });
 
   it("handles the case where user doesn't exist in db yet", async () => {
-    mockedVerifySignature.mockReturnValueOnce(true);
     MockedPlayersService.getPlayerByAddress.mockResolvedValueOnce(null);
 
-    const event = {
-      body: JSON.stringify({
-        twitterCode: "mock_twitterCode",
-        signature: "mock_signature",
-        address: "mock_address",
-      }),
-    } as APIGatewayProxyEventV2;
-    const response = await saveTwitterProfile(event);
-
+    const response = await saveTwitterProfile(mockEvent);
     const expectedTwitterProfile = {
       twitterUsername: mockTwitterUser.username,
       twitterPfpUrl: findHighResImageUrl(mockTwitterUser.profile_image_url),
@@ -144,9 +130,8 @@ describe("saveTwitterProfile", () => {
   });
 
   it("handles the case where user already exists in db", async () => {
-    mockedVerifySignature.mockReturnValueOnce(true);
     const existingPlayer: PlayerEntity = {
-      address: "mock_address",
+      address: mockEventBodyObj.address,
       points: 100,
       twitterUsername: null,
       twitterPfpUrl: null,
@@ -156,14 +141,7 @@ describe("saveTwitterProfile", () => {
       existingPlayer,
     );
 
-    const event = {
-      body: JSON.stringify({
-        twitterCode: "mock_twitterCode",
-        signature: "mock_signature",
-        address: existingPlayer.address,
-      }),
-    } as APIGatewayProxyEventV2;
-    const response = await saveTwitterProfile(event);
+    const response = await saveTwitterProfile(mockEvent);
 
     const expectedTwitterProfile = {
       twitterUsername: mockTwitterUser.username,

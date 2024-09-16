@@ -75,7 +75,7 @@ export class DatabaseStack extends TaggedStack {
         commandHooks: {
           afterBundling: (inputDir: string, outputDir: string): string[] => [
             `mkdir -p ${outputDir}/resources/db`,
-            `cp -r ${inputDir}/resources/db/migrations ${outputDir}/resources/db/`,
+            `cp -r ${inputDir}/resources/db/migrations ${outputDir}/resources/db/migrations`,
             `cp ${inputDir}/resources/db/eu-west-1-bundle.pem ${outputDir}/resources/db/`,
           ],
           beforeBundling: (): string[] => [],

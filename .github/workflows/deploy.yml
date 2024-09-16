@@ -36,3 +36,8 @@ jobs:
           TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID }}
           TWITTER_CLIENT_SECRET: ${{ secrets.TWITTER_CLIENT_SECRET }}
         run: make deploy
+
+      - name: Run migrations
+        env:
+          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        run: make trigger_db_migration

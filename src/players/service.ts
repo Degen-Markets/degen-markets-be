@@ -63,6 +63,7 @@ export default class PlayersService {
         set: {
           twitterUsername: newPlayer.twitterUsername,
           twitterPfpUrl: newPlayer.twitterPfpUrl,
+          twitterId: newPlayer.twitterId,
         },
       })
       .returning();

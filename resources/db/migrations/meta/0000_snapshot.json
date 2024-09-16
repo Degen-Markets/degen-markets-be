@@ -1,5 +1,5 @@
 {
-  "id": "73f35524-b727-4351-b0e5-7c42623a86d9",
+  "id": "bcc59991-f8ba-405c-8941-19b952ea9f71",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -32,12 +32,40 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
+        },
+        "twitterId": {
+          "name": "twitterId",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "idx_twitterId": {
+          "name": "idx_twitterId",
+          "columns": [
+            {
+              "expression": "twitterId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "players_twitterId_unique": {
+          "name": "players_twitterId_unique",
+          "nullsNotDistinct": false,
+          "columns": ["twitterId"]
+        }
+      }
     },
     "public.pool_entries": {
       "name": "pool_entries",

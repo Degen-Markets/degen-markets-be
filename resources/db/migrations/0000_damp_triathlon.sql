@@ -2,7 +2,9 @@ CREATE TABLE IF NOT EXISTS "players" (
 	"address" varchar(44) PRIMARY KEY NOT NULL,
 	"points" integer DEFAULT 0 NOT NULL,
 	"twitterUsername" varchar(15),
-	"twitterPfpUrl" varchar
+	"twitterPfpUrl" varchar,
+	"twitterId" varchar(30),
+	CONSTRAINT "players_twitterId_unique" UNIQUE("twitterId")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "pool_entries" (
@@ -19,6 +21,7 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_twitterId" ON "players" USING btree ("twitterId");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_entrant" ON "pool_entries" USING btree ("entrant");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_option" ON "pool_entries" USING btree ("option");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_pool" ON "pool_entries" USING btree ("pool");

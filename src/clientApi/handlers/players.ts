@@ -2,10 +2,14 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { DrizzleClient } from "../../clients/DrizzleClient";
 import PlayersService from "../../players/service";
-import { buildErrorResponse, buildOkResponse } from "../../utils/httpResponses";
+import {
+  buildBadRequestError,
+  buildInternalServerError,
+  buildNotFoundError,
+  buildOkResponse,
+} from "../../utils/httpResponses";
 import { asc, desc } from "drizzle-orm";
 import { playersTable } from "../../players/schema";
-import { buildBadRequestError } from "../../utils/errors";
 
 const logger = new Logger({ serviceName: "clientApi" });
 
@@ -44,7 +48,7 @@ export const getPlayersHandler = async (
     return buildOkResponse(players);
   } catch (e) {
     logger.error("Error fetching players", { error: e });
-    return buildErrorResponse("An unexpected error occurred");
+    return buildInternalServerError("An unexpected error occurred");
   }
 };
 
@@ -54,7 +58,7 @@ export const getPlayerByIdHandler = async (
   const playerId = event.pathParameters?.id;
 
   if (!playerId) {
-    return buildErrorResponse("Player ID is required", 400);
+    return buildBadRequestError("Player ID is required");
   }
 
   logger.info("Received request to fetch player by ID", { playerId });
@@ -66,12 +70,12 @@ export const getPlayerByIdHandler = async (
     player = await PlayersService.getPlayerByAddress(db, playerId);
   } catch (e) {
     logger.error("Error fetching player", { error: e });
-    return buildErrorResponse("An unexpected error occurred");
+    return buildInternalServerError("An unexpected error occurred");
   }
 
   if (!player) {
     logger.error("Player not found", { playerId });
-    return buildErrorResponse("Player not found", 404);
+    return buildNotFoundError("Player not found");
   }
 
   logger.info("Successfully retrieved player", { player });

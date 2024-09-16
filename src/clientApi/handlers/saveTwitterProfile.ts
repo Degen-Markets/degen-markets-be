@@ -1,9 +1,11 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { buildBadRequestError } from "../../utils/errors";
 import { verifySignature } from "../../utils/cryptography";
 import { DrizzleClient } from "../../clients/DrizzleClient";
 import PlayersService from "../../players/service";
-import { buildOkResponse } from "../../utils/httpResponses";
+import {
+  buildBadRequestError,
+  buildOkResponse,
+} from "../../utils/httpResponses";
 import { findConnectedUser, requestAccessToken } from "../../utils/twitter";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { findHighResImageUrl } from "./utils";

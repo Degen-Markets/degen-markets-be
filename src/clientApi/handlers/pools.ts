@@ -1,11 +1,13 @@
 import PoolsJson from "../../solanaActions/pools.json";
-import { buildOkResponse } from "../../utils/httpResponses";
+import {
+  buildBadRequestError,
+  buildOkResponse,
+} from "../../utils/httpResponses";
 import {
   APIGatewayEvent,
   APIGatewayProxyEventV2,
   APIGatewayProxyResultV2,
 } from "aws-lambda";
-import { buildBadRequestError } from "../../utils/errors";
 
 export const getAllPools = () => {
   const pools = Object.entries(PoolsJson).map(([id, pool]) => ({

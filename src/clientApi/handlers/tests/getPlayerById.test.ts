@@ -3,9 +3,10 @@ import { getPlayerByIdHandler } from "../players";
 import PlayersService from "../../../players/service";
 import { DrizzleClient } from "../../../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
-import { buildBadRequestError, ErrorProps } from "../../../utils/errors";
 import {
-  buildErrorResponse,
+  buildBadRequestError,
+  buildInternalServerError,
+  buildNotFoundError,
   buildOkResponse,
 } from "../../../utils/httpResponses";
 
@@ -53,8 +54,8 @@ describe("getPlayerByIdHandler", () => {
       pathParameters: {},
     } as any;
 
-    const response = (await getPlayerByIdHandler(mockEvent)) as ErrorProps;
-    expect(response).toEqual(buildErrorResponse("Player ID is required", 400));
+    const response = await getPlayerByIdHandler(mockEvent);
+    expect(response).toEqual(buildBadRequestError("Player ID is required"));
   });
 
   it("returns a 404 error when player not found", async () => {
@@ -67,14 +68,14 @@ describe("getPlayerByIdHandler", () => {
     mockDrizzleClient.mockResolvedValue({} as any);
     mockGetPlayerByAddress.mockResolvedValue(null as any);
 
-    const response = (await getPlayerByIdHandler(mockEvent)) as ErrorProps;
+    const response = await getPlayerByIdHandler(mockEvent);
 
     expect(mockDrizzleClient).toHaveBeenCalled();
     expect(mockGetPlayerByAddress).toHaveBeenCalledWith(
       expect.anything(),
       "player1",
     );
-    expect(response).toEqual(buildErrorResponse("Player not found", 404));
+    expect(response).toEqual(buildNotFoundError("Player not found"));
   });
 
   it("logs and returns error on database access failure", async () => {
@@ -86,13 +87,13 @@ describe("getPlayerByIdHandler", () => {
 
     mockDrizzleClient.mockRejectedValue(new Error("Database error"));
 
-    const response = (await getPlayerByIdHandler(mockEvent)) as ErrorProps;
+    const response = await getPlayerByIdHandler(mockEvent);
 
     expect(logger.error).toHaveBeenCalledWith("Error fetching player", {
       error: new Error("Database error"),
     });
     expect(response).toEqual(
-      buildErrorResponse("An unexpected error occurred"),
+      buildInternalServerError("An unexpected error occurred"),
     );
   });
 });

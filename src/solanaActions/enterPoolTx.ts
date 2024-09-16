@@ -3,7 +3,6 @@ import {
   APIGatewayProxyEventV2,
   APIGatewayProxyResultV2,
 } from "aws-lambda";
-import { buildBadRequestError } from "../utils/errors";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
 import {
@@ -14,6 +13,7 @@ import {
 import BN from "bn.js";
 import * as anchor from "@coral-xyz/anchor";
 import { connection, program, programId } from "./constants";
+import { buildBadRequestError } from "../utils/httpResponses";
 
 const logger: Logger = new Logger({ serviceName: "enterPoolService" });
 

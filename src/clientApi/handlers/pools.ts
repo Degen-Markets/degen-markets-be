@@ -1,13 +1,6 @@
 import PoolsJson from "../../solanaActions/pools.json";
-import {
-  buildBadRequestError,
-  buildOkResponse,
-} from "../../utils/httpResponses";
-import {
-  APIGatewayEvent,
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResultV2,
-} from "aws-lambda";
+import { buildNotFoundError, buildOkResponse } from "../../utils/httpResponses";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 
 export const getAllPools = () => {
   const pools = Object.entries(PoolsJson).map(([id, pool]) => ({
@@ -23,7 +16,7 @@ export const getPoolById = (
   const id = event.pathParameters?.id as keyof typeof PoolsJson;
   const pool = PoolsJson[id];
   if (!pool) {
-    return buildBadRequestError("Pool not found!");
+    return buildNotFoundError("Pool not found!");
   }
   return buildOkResponse(pool);
 };

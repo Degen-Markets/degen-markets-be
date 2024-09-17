@@ -6,8 +6,10 @@ import { DrizzleClient } from "../../../clients/DrizzleClient";
 import saveTwitterProfile from "../saveTwitterProfile";
 import * as TwitterUtils from "../../../utils/twitter";
 import { findMyUser, TwitterResponse } from "twitter-api-sdk/dist/types";
-import { buildOkResponse } from "../../../utils/httpResponses";
-import { buildBadRequestError } from "../../../utils/errors";
+import {
+  buildBadRequestError,
+  buildOkResponse,
+} from "../../../utils/httpResponses";
 import { verifySignature } from "../../../utils/cryptography";
 import { findHighResImageUrl } from "../utils";
 import { PlayerEntity } from "../../../players/types";

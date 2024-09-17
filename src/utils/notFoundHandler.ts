@@ -1,7 +1,7 @@
 import middy from "@middy/core";
 import { APIGatewayProxyEventV2, APIGatewayProxyResult } from "aws-lambda";
-import { buildNotFoundError } from "./errors";
 import { Logger } from "@aws-lambda-powertools/logger";
+import { buildNotFoundError } from "./httpResponses";
 
 const logger = new Logger({ serviceName: "notFoundHandler" });
 

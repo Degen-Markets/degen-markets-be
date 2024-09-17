@@ -11,7 +11,8 @@ import { ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { generateEnterPoolTx } from "./enterPoolTx";
 import { getPool } from "./getPool";
 import { claimWinTx } from "./claimWinTx";
-import { buildBadRequestError } from "../utils/errors";
+
+import { buildBadRequestError } from "../utils/httpResponses";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
 

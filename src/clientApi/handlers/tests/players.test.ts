@@ -3,9 +3,9 @@ import PlayersService from "../../../players/service";
 import { DrizzleClient } from "../../../clients/DrizzleClient";
 import { createOrderByClause, getPlayersHandler } from "../players";
 import { Logger } from "@aws-lambda-powertools/logger";
-import { buildBadRequestError, ErrorProps } from "../../../utils/errors";
 import {
-  buildErrorResponse,
+  buildBadRequestError,
+  buildInternalServerError,
   buildOkResponse,
 } from "../../../utils/httpResponses";
 
@@ -61,7 +61,7 @@ describe("getPlayersHandler", () => {
       },
     } as any;
 
-    const response = (await getPlayersHandler(mockEvent)) as ErrorProps;
+    const response = await getPlayersHandler(mockEvent);
     expect(response).toEqual(
       buildBadRequestError("Invalid field: invalidField"),
     );
@@ -93,13 +93,13 @@ describe("getPlayersHandler", () => {
 
     mockDrizzleClient.mockRejectedValue(new Error("Database error"));
 
-    const response = (await getPlayersHandler(mockEvent)) as ErrorProps;
+    const response = await getPlayersHandler(mockEvent);
 
     expect(logger.error).toHaveBeenCalledWith("Error fetching players", {
       error: new Error("Database error"),
     });
     expect(response).toEqual(
-      buildErrorResponse("An unexpected error occurred"),
+      buildInternalServerError("An unexpected error occurred"),
     );
   });
 });

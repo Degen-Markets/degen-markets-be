@@ -70,12 +70,6 @@ cli_pager =
 
 Example test which mocks an AWS service can be found in `src/clients/SecretClient.test.ts`
 
-### BE Changes:
-
--
-- bet-withdrawn handler (should set bet `isPaid = true`)
-- settler should have separate settle logic for each betType
-
 ### Blinks:
 
 - Blink URL format: https://dial.to/?action=solana-action:https://actions.degenmarkets.com/pools/<POOL_ID>

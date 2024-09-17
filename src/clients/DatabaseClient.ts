@@ -79,6 +79,7 @@ export class DatabaseClient {
         rejectUnauthorized: true,
         ca: fs.readFileSync("resources/db/eu-west-1-bundle.pem", "utf8"),
       },
+      connectionTimeoutMillis: 10_000,
     };
     this.logger.info("connecting to database", { ...config, password: "***" });
     const client = new Client(config);

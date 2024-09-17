@@ -31,7 +31,7 @@ const { vpc } = new NetworkingStack(app, "Networking", {
 
 const { databaseInstance } = new DatabaseStack(app, "Database", {
   vpc,
-  instanceSize: InstanceSize.MICRO,
+  instanceSize: InstanceSize.MEDIUM,
   env: getEnv(),
   crossRegionReferences: true,
 });

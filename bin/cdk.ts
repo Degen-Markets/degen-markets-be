@@ -9,23 +9,21 @@ import { NetworkingStack } from "../lib/NetworkingStack";
 import { ClientApiStack } from "../lib/ClientApiStack";
 import { WebhookApiStack } from "../lib/WebhookApiStack";
 import { SolanaActionsStack } from "../lib/SolanaActionsStack";
+import { AdminWebsiteStack } from "../lib/AdminWebsiteStack";
 
 configDotEnv();
 
 const app = new cdk.App();
 
-const { certificate, zone, solanaActionsCertificate } = new CertificateStack(
-  app,
-  "Certificates",
-  {
+const { certificate, zone, solanaActionsCertificate, adminWebsiteCertificate } =
+  new CertificateStack(app, "Certificates", {
     domain: "degenmarkets.com",
     cnames: ["api", "webhooks"],
     env: {
       ...getEnv(),
       region: "us-east-1",
     },
-  },
-);
+  });
 
 const { vpc } = new NetworkingStack(app, "Networking", {
   env: getEnv(),
@@ -65,4 +63,12 @@ new SolanaActionsStack(app, "SolanaActionsApi", {
   cname: "actions",
   env: getEnv(),
   crossRegionReferences: true,
+});
+
+new AdminWebsiteStack(app, "AdminWebsiteStack", {
+  certificate: adminWebsiteCertificate,
+  zone,
+  cname: "admin",
+  crossRegionReferences: true,
+  env: getEnv(),
 });

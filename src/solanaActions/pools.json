@@ -92,8 +92,8 @@
     "title": "How many cats will be eaten in Ohio by the end of the week?",
     "description": "An average will be taken using several news sources that will be documented afterwards. The time period is from now until 15.09.2024 23:59 UTC.",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/trump_holding_cats.jpeg",
-    "isPaused": false,
-    "winningOption": null,
+    "isPaused": true,
+    "winningOption": "5CiVcR116ii9FK33BP3MCnJacDRfgSb2z2nsoTZBU3nN",
     "options": [
       {
         "title": "Less than 10",

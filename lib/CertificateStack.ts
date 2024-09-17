@@ -16,6 +16,7 @@ export class CertificateStack extends TaggedStack {
   readonly certificate: Certificate;
   readonly zone: IHostedZone;
   readonly solanaActionsCertificate: Certificate;
+  readonly adminWebsiteCertificate: Certificate;
 
   constructor(scope: Construct, id: string, props: CertificateStackProps) {
     super(scope, id, props);
@@ -34,6 +35,11 @@ export class CertificateStack extends TaggedStack {
 
     this.solanaActionsCertificate = new Certificate(this, `SolanaActionsCert`, {
       domainName: `actions.${domain}`,
+      validation: CertificateValidation.fromDns(this.zone),
+    });
+
+    this.adminWebsiteCertificate = new Certificate(this, `AdminWebsiteCert`, {
+      domainName: `admin.${domain}`,
       validation: CertificateValidation.fromDns(this.zone),
     });
   }

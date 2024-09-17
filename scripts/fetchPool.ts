@@ -10,4 +10,4 @@ const fetchPool = async (poolId: string) => {
   });
 };
 
-fetchPool("9o3t3HnhrzZrmsU69XYNqAq1x2KwdruXCtr8KeQ86jb5");
+fetchPool("BBMN3cEYWhjGxkcrNzQJyTYJP2EoJd23MZo5buuqLJCH");

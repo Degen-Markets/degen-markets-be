@@ -9,6 +9,7 @@ import {
 } from "../../../utils/httpResponses";
 import * as TwitterUtils from "../../../utils/twitter";
 import PoolsJson from "../../../solanaActions/pools.json";
+import PoolSharingTweetsService from "../../../poolSharingTweets/service";
 
 // This is a bad practice because `getMandatoryEnvValue` isn't a direct dependency of `saveTwitterProfile`.
 // Ideally we only need to mock direct dependencies (otherwise it's a slippery slope). Here we're forced to
@@ -44,6 +45,9 @@ MockedTwitterUtils.findTweetContentById.mockResolvedValue(
   `Check out this pool\n${Utils.getPoolPageUrlFromPoolId(mockPoolId)}`,
 );
 
+jest.mock("../../../poolSharingTweets/service");
+const MockedPoolSharingTweetsService = jest.mocked(PoolSharingTweetsService);
+
 const mockEventBody = {
   tweetUrl: "https://twitter.com/user/status/123456789",
   poolId: mockPoolId,
@@ -52,6 +56,9 @@ const mockEventBody = {
 const mockEvent = {
   body: JSON.stringify(mockEventBody),
 } as APIGatewayProxyEventV2;
+const tweetIdInMockEventBody = Utils.parseTweetIdFromUrl(
+  mockEventBody.tweetUrl,
+);
 
 describe("verifyTwitterShareHandler", () => {
   beforeEach(() => {
@@ -153,7 +160,7 @@ describe("verifyTwitterShareHandler", () => {
       mockEventBody.playerAddress,
     );
     expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
-      Utils.parseTweetIdFromUrl(mockEventBody.tweetUrl),
+      tweetIdInMockEventBody,
     );
     expect(response).toEqual(buildBadRequestError("Tweet not found"));
   });
@@ -169,12 +176,20 @@ describe("verifyTwitterShareHandler", () => {
       mockEventBody.playerAddress,
     );
     expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
-      Utils.parseTweetIdFromUrl(mockEventBody.tweetUrl),
+      tweetIdInMockEventBody,
     );
     expect(MockedPlayersService.changePoints).toHaveBeenCalledWith(
       mockDb,
       mockEventBody.playerAddress,
       expect.any(Number),
+    );
+    expect(MockedPoolSharingTweetsService.insertNew).toHaveBeenCalledWith(
+      mockDb,
+      {
+        tweetId: tweetIdInMockEventBody,
+        poolId: mockEventBody.poolId,
+        playerAddress: mockEventBody.playerAddress,
+      },
     );
     expect(response).toEqual(buildOkResponse({ isSuccess: true }));
   });
@@ -193,9 +208,10 @@ describe("verifyTwitterShareHandler", () => {
       mockEventBody.playerAddress,
     );
     expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
-      Utils.parseTweetIdFromUrl(mockEventBody.tweetUrl),
+      tweetIdInMockEventBody,
     );
     expect(MockedPlayersService.changePoints).not.toHaveBeenCalled();
+    expect(MockedPoolSharingTweetsService.insertNew).not.toHaveBeenCalled();
     expect(response).toEqual(buildOkResponse({ isSuccess: false }));
   });
 });

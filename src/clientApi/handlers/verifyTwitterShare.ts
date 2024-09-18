@@ -9,6 +9,7 @@ import { findTweetContentById } from "../../utils/twitter";
 import PlayersService from "../../players/service";
 import { DrizzleClient } from "../../clients/DrizzleClient";
 import PoolsJson from "../../solanaActions/pools.json";
+import PoolSharingTweetsService from "../../poolSharingTweets/service";
 
 const POINTS_AWARDED_FOR_TWITTER_SHARE = 10;
 
@@ -58,6 +59,11 @@ const verifyTwitterShareHandler = async (event: APIGatewayProxyEventV2) => {
       playerAddress,
       POINTS_AWARDED_FOR_TWITTER_SHARE,
     );
+    await PoolSharingTweetsService.insertNew(db, {
+      tweetId,
+      poolId,
+      playerAddress,
+    });
   }
 
   return buildOkResponse({ isSuccess });

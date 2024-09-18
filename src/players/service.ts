@@ -6,7 +6,6 @@ import {
 import { DrizzleDb } from "../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQL, sql } from "drizzle-orm";
-import BN from "bn.js";
 import { eq } from "drizzle-orm";
 
 const logger = new Logger({

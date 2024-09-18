@@ -12,7 +12,7 @@ import {
 } from "../../../utils/httpResponses";
 import { verifySignature } from "../../../utils/cryptography";
 import { findHighResImageUrl } from "../utils";
-import { PlayerEntity } from "../../../players/types";
+import { PlayerEntity } from "../../../players/schema";
 
 jest.mock("@aws-lambda-powertools/logger");
 

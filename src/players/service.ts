@@ -1,5 +1,8 @@
-import { PlayerEntity, PlayerInsertEntity } from "./types";
-import { playersTable } from "./schema";
+import {
+  playersTable,
+  type PlayerEntity,
+  type PlayerInsertEntity,
+} from "./schema";
 import { DrizzleDb } from "../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SQL, sql } from "drizzle-orm";

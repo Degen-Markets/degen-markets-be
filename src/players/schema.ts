@@ -21,3 +21,6 @@ export const playersTable = pgTable(
     idxTwitterId: index("idx_twitterId").on(table.twitterId),
   }),
 );
+
+export type PlayerEntity = typeof playersTable.$inferSelect;
+export type PlayerInsertEntity = typeof playersTable.$inferInsert;

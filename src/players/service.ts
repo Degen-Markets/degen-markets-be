@@ -54,7 +54,9 @@ export default class PlayersService {
    */
   static async insertNew(db: DrizzleDb, player: PlayerInsertEntity) {
     const result = await db.insert(playersTable).values(player).returning();
-    logger.info("Inserted new player", { player: result[0] });
+    const updatedPlayer = result[0];
+    logger.info("Inserted new player", { player: updatedPlayer });
+    return updatedPlayer;
   }
 
   /**
@@ -67,7 +69,7 @@ export default class PlayersService {
     playerAddress: PlayerEntity["address"],
     twitterProfile: {
       twitterUsername: string;
-      twitterPfpUrl?: string;
+      twitterPfpUrl: string | null;
       twitterId: string;
     },
   ) {
@@ -80,9 +82,11 @@ export default class PlayersService {
       })
       .where(eq(playersTable.address, playerAddress))
       .returning();
+    const player = result[0];
     logger.info("Updated player's twitter profile", {
-      player: result[0],
+      player,
     });
+    return player;
   }
 
   /**
@@ -180,6 +184,8 @@ export default class PlayersService {
       .set({ points: sql`${playersTable.points} + ${pointsDelta}` })
       .where(eq(playersTable.address, address))
       .returning();
-    logger.info("Updated points for player", { player: result[0] });
+    const player = result[0];
+    logger.info("Updated points for player", { player });
+    return player;
   }
 }

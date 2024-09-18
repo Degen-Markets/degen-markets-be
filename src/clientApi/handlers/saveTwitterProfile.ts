@@ -9,26 +9,25 @@ import {
 import { findConnectedUser, requestAccessToken } from "../../utils/twitter";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { findHighResImageUrl } from "./utils";
+import { PlayerEntity } from "../../players/types";
 
 const logger = new Logger({ serviceName: "saveTwitterProfile" });
 
-const POINTS_AWARDED_FOR_LINKING_TWITTER = 10;
-
-type SuccessPayload = {
-  twitterUsername?: string;
-  twitterPfpUrl?: string;
-  twitterId: string;
-};
+export const POINTS_AWARDED_FOR_LINKING_TWITTER = 10;
 
 /**
- * This method should return the {@linkcode SuccessPayload} in the HTTP response for happy path
+ * This method should return the {@linkcode PlayerEntity} in the HTTP response for happy path
  */
 const saveTwitterProfile = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
   logger.info("Running `saveTwitterProfile` handler", { event });
   const body = JSON.parse(event.body || "{}");
-  const { twitterCode, signature, address } = body;
+  const {
+    twitterCode,
+    signature,
+    address,
+  }: { twitterCode: string; signature: string; address: string } = body;
   if (!twitterCode || !signature || !address) {
     return buildBadRequestError("Missing properties in request body");
   }
@@ -66,13 +65,14 @@ const saveTwitterProfile = async (
     twitterUsername: twitterUser.username,
     twitterPfpUrl: twitterUser.profile_image_url
       ? findHighResImageUrl(twitterUser.profile_image_url)
-      : undefined,
+      : null,
     twitterId: twitterUser.id,
   };
   const playerByAddress = await PlayersService.getPlayerByAddress(db, address);
+  let updatedPlayer: PlayerEntity;
   if (!playerByAddress) {
     logger.info("Player doesn't exist, creating new player");
-    await PlayersService.insertNew(db, {
+    updatedPlayer = await PlayersService.insertNew(db, {
       address,
       points: POINTS_AWARDED_FOR_LINKING_TWITTER,
       ...twitterProfile,
@@ -80,16 +80,20 @@ const saveTwitterProfile = async (
   } else {
     const isTwitterAlreadyAdded = !!playerByAddress.twitterUsername;
     if (!isTwitterAlreadyAdded) {
-      await PlayersService.changePoints(
+      updatedPlayer = await PlayersService.changePoints(
         db,
         address,
         POINTS_AWARDED_FOR_LINKING_TWITTER,
       );
     }
-    await PlayersService.updateTwitterProfile(db, address, twitterProfile);
+    updatedPlayer = await PlayersService.updateTwitterProfile(
+      db,
+      address,
+      twitterProfile,
+    );
   }
 
-  return buildOkResponse(twitterProfile satisfies SuccessPayload);
+  return buildOkResponse(updatedPlayer satisfies PlayerEntity);
 };
 
 export default saveTwitterProfile;

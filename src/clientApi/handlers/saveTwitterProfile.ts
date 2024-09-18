@@ -1,6 +1,5 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { verifySignature } from "../../utils/cryptography";
-import { DrizzleClient } from "../../clients/DrizzleClient";
 import PlayersService from "../../players/service";
 import {
   buildBadRequestError,
@@ -13,7 +12,9 @@ import { PlayerEntity } from "../../players/types";
 
 const logger = new Logger({ serviceName: "saveTwitterProfile" });
 
-export const POINTS_AWARDED_FOR_LINKING_TWITTER = 10;
+const POINTS_AWARDED_FOR_LINKING_TWITTER = 10;
+
+const playerService = new PlayersService();
 
 /**
  * This method should return the {@linkcode PlayerEntity} in the HTTP response for happy path
@@ -47,9 +48,7 @@ const saveTwitterProfile = async (
   logger.info("Found user's twitter profile", { twitterUser });
 
   // add to db
-  const db = await DrizzleClient.makeDb();
-  const playerByTwitterId = await PlayersService.getPlayerByTwitterId(
-    db,
+  const playerByTwitterId = await playerService.getPlayerByTwitterId(
     twitterUser.id,
   );
   if (playerByTwitterId) {
@@ -68,11 +67,11 @@ const saveTwitterProfile = async (
       : null,
     twitterId: twitterUser.id,
   };
-  const playerByAddress = await PlayersService.getPlayerByAddress(db, address);
+  const playerByAddress = await playerService.getPlayerByAddress(address);
   let updatedPlayer: PlayerEntity;
   if (!playerByAddress) {
     logger.info("Player doesn't exist, creating new player");
-    updatedPlayer = await PlayersService.insertNew(db, {
+    updatedPlayer = await playerService.insertNew({
       address,
       points: POINTS_AWARDED_FOR_LINKING_TWITTER,
       ...twitterProfile,
@@ -81,13 +80,11 @@ const saveTwitterProfile = async (
     const isTwitterAlreadyAdded = !!playerByAddress.twitterUsername;
     if (!isTwitterAlreadyAdded) {
       updatedPlayer = await PlayersService.changePoints(
-        db,
         address,
         POINTS_AWARDED_FOR_LINKING_TWITTER,
       );
     }
     updatedPlayer = await PlayersService.updateTwitterProfile(
-      db,
       address,
       twitterProfile,
     );

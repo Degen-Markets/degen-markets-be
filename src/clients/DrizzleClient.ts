@@ -10,6 +10,4 @@ export class DrizzleClient {
     const db = drizzle(client);
     return db;
   }
-
-  private constructor() {}
 }

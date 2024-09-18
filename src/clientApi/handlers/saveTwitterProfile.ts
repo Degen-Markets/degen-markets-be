@@ -14,7 +14,6 @@ const logger = new Logger({ serviceName: "saveTwitterProfile" });
 
 const POINTS_AWARDED_FOR_LINKING_TWITTER = 10;
 
-
 /**
  * This method should return the {@linkcode PlayerEntity} in the HTTP response for happy path
  */

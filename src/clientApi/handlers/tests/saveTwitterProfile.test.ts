@@ -49,6 +49,13 @@ const mockEvent = {
 } as APIGatewayProxyEventV2;
 
 describe("saveTwitterProfile", () => {
+  const mockedPlayer: PlayerEntity = {
+    twitterUsername: mockTwitterUser.username,
+    twitterPfpUrl: findHighResImageUrl(mockTwitterUser.profile_image_url),
+    twitterId: mockTwitterUser.id,
+    address: mockEventBodyObj.address,
+    points: 0,
+  };
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -108,13 +115,6 @@ describe("saveTwitterProfile", () => {
   });
 
   it("returns an error if the twitter id was already used for a different player", async () => {
-    const mockedPlayer: PlayerEntity = {
-      twitterUsername: mockTwitterUser.username,
-      twitterPfpUrl: mockTwitterUser.profile_image_url,
-      twitterId: mockTwitterUser.id,
-      address: mockEventBodyObj.address,
-      points: 0,
-    };
     jest
       .spyOn(PlayersService, "getPlayerByTwitterId")
       .mockResolvedValue(mockedPlayer);
@@ -128,7 +128,7 @@ describe("saveTwitterProfile", () => {
   });
 
   it("adds a new user (with twitter points) if user doesn't exist in db yet", async () => {
-    const mockInsert = jest.fn();
+    const mockInsert = jest.fn().mockResolvedValue(mockedPlayer);
     jest.spyOn(PlayersService, "getPlayerByTwitterId").mockResolvedValue(null);
     jest.spyOn(PlayersService, "getPlayerByAddress").mockResolvedValue(null);
     jest.spyOn(PlayersService, "insertNew").mockImplementation(mockInsert);
@@ -145,7 +145,7 @@ describe("saveTwitterProfile", () => {
       points: expect.any(Number),
       ...expectedTwitterProfile,
     });
-    // expect(response).toEqual(buildOkResponse(expectedTwitterProfile));
+    expect(response).toEqual(buildOkResponse(mockedPlayer));
   });
 
   it("awards points if user already exists in db but without twitter linked", async () => {
@@ -159,11 +159,14 @@ describe("saveTwitterProfile", () => {
     jest
       .spyOn(PlayersService, "getPlayerByAddress")
       .mockResolvedValue(existingPlayer);
+    jest.spyOn(PlayersService, "getPlayerByTwitterId").mockResolvedValue(null);
     const mockedChangePoints = jest.fn();
     jest
       .spyOn(PlayersService, "changePoints")
       .mockImplementation(mockedChangePoints);
-    const mockedUpdateTwitterProfile = jest.fn();
+    const mockedUpdateTwitterProfile = jest
+      .fn()
+      .mockResolvedValue(mockedPlayer);
     jest
       .spyOn(PlayersService, "updateTwitterProfile")
       .mockImplementation(mockedUpdateTwitterProfile);
@@ -183,7 +186,7 @@ describe("saveTwitterProfile", () => {
       existingPlayer.address,
       expectedTwitterProfile,
     );
-    // expect(response).toEqual(buildOkResponse(expectedTwitterProfile));
+    expect(response).toEqual(buildOkResponse(mockedPlayer));
   });
 
   it("doesn't award points if user already exists in db with twitter linked", async () => {
@@ -195,6 +198,7 @@ describe("saveTwitterProfile", () => {
       twitterPfpUrl: null,
       twitterId: null,
     };
+    jest.spyOn(PlayersService, "getPlayerByTwitterId").mockResolvedValue(null);
     jest
       .spyOn(PlayersService, "getPlayerByAddress")
       .mockResolvedValue(existingPlayer);
@@ -202,7 +206,9 @@ describe("saveTwitterProfile", () => {
     jest
       .spyOn(PlayersService, "changePoints")
       .mockImplementation(mockedChangePoints);
-    const mockedUpdateTwitterProfile = jest.fn();
+    const mockedUpdateTwitterProfile = jest
+      .fn()
+      .mockResolvedValue(existingPlayer);
     jest
       .spyOn(PlayersService, "updateTwitterProfile")
       .mockImplementation(mockedUpdateTwitterProfile);
@@ -219,6 +225,6 @@ describe("saveTwitterProfile", () => {
       existingPlayer.address,
       expectedTwitterProfile,
     );
-    // expect(response).toEqual(buildOkResponse(expectedTwitterProfile));
+    expect(response).toEqual(buildOkResponse(existingPlayer));
   });
 });

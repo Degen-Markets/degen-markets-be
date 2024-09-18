@@ -14,7 +14,6 @@ const logger = new Logger({ serviceName: "saveTwitterProfile" });
 
 const POINTS_AWARDED_FOR_LINKING_TWITTER = 10;
 
-const playerService = new PlayersService();
 
 /**
  * This method should return the {@linkcode PlayerEntity} in the HTTP response for happy path
@@ -48,7 +47,7 @@ const saveTwitterProfile = async (
   logger.info("Found user's twitter profile", { twitterUser });
 
   // add to db
-  const playerByTwitterId = await playerService.getPlayerByTwitterId(
+  const playerByTwitterId = await PlayersService.getPlayerByTwitterId(
     twitterUser.id,
   );
   if (playerByTwitterId) {
@@ -67,11 +66,11 @@ const saveTwitterProfile = async (
       : null,
     twitterId: twitterUser.id,
   };
-  const playerByAddress = await playerService.getPlayerByAddress(address);
+  const playerByAddress = await PlayersService.getPlayerByAddress(address);
   let updatedPlayer: PlayerEntity;
   if (!playerByAddress) {
     logger.info("Player doesn't exist, creating new player");
-    updatedPlayer = await playerService.insertNew({
+    updatedPlayer = await PlayersService.insertNew({
       address,
       points: POINTS_AWARDED_FOR_LINKING_TWITTER,
       ...twitterProfile,

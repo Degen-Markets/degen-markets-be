@@ -116,7 +116,7 @@ describe("saveTwitterProfile", () => {
       points: 0,
     };
     jest
-      .spyOn(PlayersService.prototype, "getPlayerByTwitterId")
+      .spyOn(PlayersService, "getPlayerByTwitterId")
       .mockResolvedValue(mockedPlayer);
 
     const response = await saveTwitterProfile(mockEvent);
@@ -129,15 +129,9 @@ describe("saveTwitterProfile", () => {
 
   it("adds a new user (with twitter points) if user doesn't exist in db yet", async () => {
     const mockInsert = jest.fn();
-    jest
-      .spyOn(PlayersService.prototype, "getPlayerByTwitterId")
-      .mockResolvedValue(null);
-    jest
-      .spyOn(PlayersService.prototype, "getPlayerByAddress")
-      .mockResolvedValue(null);
-    jest
-      .spyOn(PlayersService.prototype, "insertNew")
-      .mockImplementation(mockInsert);
+    jest.spyOn(PlayersService, "getPlayerByTwitterId").mockResolvedValue(null);
+    jest.spyOn(PlayersService, "getPlayerByAddress").mockResolvedValue(null);
+    jest.spyOn(PlayersService, "insertNew").mockImplementation(mockInsert);
 
     const response = await saveTwitterProfile(mockEvent);
     const expectedTwitterProfile = {
@@ -163,15 +157,15 @@ describe("saveTwitterProfile", () => {
       twitterId: null,
     };
     jest
-      .spyOn(PlayersService.prototype, "getPlayerByAddress")
+      .spyOn(PlayersService, "getPlayerByAddress")
       .mockResolvedValue(existingPlayer);
     const mockedChangePoints = jest.fn();
     jest
-      .spyOn(PlayersService.prototype, "changePoints")
+      .spyOn(PlayersService, "changePoints")
       .mockImplementation(mockedChangePoints);
     const mockedUpdateTwitterProfile = jest.fn();
     jest
-      .spyOn(PlayersService.prototype, "updateTwitterProfile")
+      .spyOn(PlayersService, "updateTwitterProfile")
       .mockImplementation(mockedUpdateTwitterProfile);
 
     const response = await saveTwitterProfile(mockEvent);
@@ -202,15 +196,15 @@ describe("saveTwitterProfile", () => {
       twitterId: null,
     };
     jest
-      .spyOn(PlayersService.prototype, "getPlayerByAddress")
+      .spyOn(PlayersService, "getPlayerByAddress")
       .mockResolvedValue(existingPlayer);
     const mockedChangePoints = jest.fn();
     jest
-      .spyOn(PlayersService.prototype, "changePoints")
+      .spyOn(PlayersService, "changePoints")
       .mockImplementation(mockedChangePoints);
     const mockedUpdateTwitterProfile = jest.fn();
     jest
-      .spyOn(PlayersService.prototype, "updateTwitterProfile")
+      .spyOn(PlayersService, "updateTwitterProfile")
       .mockImplementation(mockedUpdateTwitterProfile);
 
     const response = await saveTwitterProfile(mockEvent);

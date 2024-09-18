@@ -17,23 +17,19 @@ const logger = new Logger({
   serviceName: "PoolEnteredEventHandler",
 });
 
-const playerService = new PlayersService();
-
 export const poolEnteredEventHandler = async (
   eventData: PoolEnteredEventData,
 ) => {
   logger.info("Processing event", { eventData });
 
   const { entrant, option, pool, value: valueStr, entry } = eventData;
-
   const pointsEarned = calculatePointsEarned(
     new BN(valueStr),
     POINTS_EARNED_PER_SOL,
   );
   logger.info(`Points calculation returned ${pointsEarned}`);
 
-  await playerService.insertNewOrAwardPoints(entrant, pointsEarned);
-
+  await PlayersService.insertNewOrAwardPoints(entrant, pointsEarned);
   const db = await DrizzleClient.makeDb();
   await PoolEntriesService.insertNewOrIncrementValue(db, {
     address: entry,

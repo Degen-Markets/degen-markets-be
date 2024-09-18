@@ -5,8 +5,8 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../../players/service";
 import { calculatePointsEarned } from "../utils";
 import BN from "bn.js";
+import { mockClient } from "aws-sdk-client-mock";
 
-jest.mock("../../../players/service");
 jest.mock("../../../poolEntries/service");
 
 jest.mock("../utils");
@@ -38,14 +38,17 @@ describe("poolEnteredEventHandler", () => {
   it("calls the database services with correct arguments", async () => {
     const randomPointsEarned = Math.floor(Math.random() * 100);
     mockedCalculatePointsEarned.mockReturnValue(randomPointsEarned);
+    const mockedInsert = jest.fn();
+    jest
+      .spyOn(PlayersService, "insertNewOrAwardPoints")
+      .mockImplementation(mockedInsert);
     await poolEnteredEventHandler(mockEventData);
 
     expect(mockedCalculatePointsEarned).toHaveBeenCalledWith(
       new BN(mockEventData.value),
       expect.any(Number),
     );
-    expect(PlayersService.insertNewOrAwardPoints).toHaveBeenCalledWith(
-      mockDb,
+    expect(mockedInsert).toHaveBeenCalledWith(
       mockEventData.entrant,
       randomPointsEarned,
     );
@@ -63,6 +66,9 @@ describe("poolEnteredEventHandler", () => {
   });
 
   it("logs the correct messages with event data", async () => {
+    jest
+      .spyOn(PlayersService, "insertNewOrAwardPoints")
+      .mockImplementation(async () => {});
     await poolEnteredEventHandler(mockEventData);
 
     expect(logger.info).toHaveBeenCalledTimes(3);

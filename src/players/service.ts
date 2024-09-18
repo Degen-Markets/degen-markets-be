@@ -8,10 +8,10 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Client } from "pg";
 
 export default class PlayersService {
-  private readonly logger = new Logger({
+  private static readonly logger = new Logger({
     serviceName: "PlayersService",
   });
-  async makeDb(): Promise<{ db: DrizzleDb; connection: Client }> {
+  static async makeDb(): Promise<{ db: DrizzleDb; connection: Client }> {
     const dbClient = new DatabaseClient();
     const connection = await dbClient.createConnection();
     const db = drizzle(connection);
@@ -26,7 +26,10 @@ export default class PlayersService {
    * @param pointsAwarded - The number of points newly awarded to the player
    * @throws Will throw an error if the points awarded is negative
    */
-  async insertNewOrAwardPoints(playerAddress: string, pointsAwarded: number) {
+  static async insertNewOrAwardPoints(
+    playerAddress: string,
+    pointsAwarded: number,
+  ) {
     const { db, connection } = await this.makeDb();
     this.logger.info("Inserting user into db", {
       playerAddress,
@@ -61,7 +64,7 @@ export default class PlayersService {
    * @param player - The player entity to insert
    * @returns The inserted player entity
    */
-  async insertNew(player: PlayerInsertEntity) {
+  static async insertNew(player: PlayerInsertEntity) {
     const { db, connection } = await this.makeDb();
     const result = await db.insert(playersTable).values(player).returning();
     const updatedPlayer = result[0];
@@ -75,7 +78,7 @@ export default class PlayersService {
    * @param playerAddress - The address of the player
    * @param twitterProfile - The new player entity with their twitter details (username & pfpUrl)
    */
-  async updateTwitterProfile(
+  static async updateTwitterProfile(
     playerAddress: PlayerEntity["address"],
     twitterProfile: {
       twitterUsername: string;
@@ -109,7 +112,7 @@ export default class PlayersService {
    * @returns A list of players
    * @throws Will throw an error if the field is invalid or the direction is not 'ASC' or 'DESC'
    */
-  async getPlayers(
+  static async getPlayers(
     limit: number = 10,
     offset: number = 0,
     orderDirection: SQL<unknown>,
@@ -144,7 +147,7 @@ export default class PlayersService {
    * @returns A single player object from ( playersTable )
    */
 
-  async getPlayerByAddress(
+  static async getPlayerByAddress(
     address: PlayerEntity["address"],
   ): Promise<PlayerEntity | null> {
     const { db, connection } = await this.makeDb();
@@ -162,7 +165,9 @@ export default class PlayersService {
    * @param twitterId - The Twitter ID of the player
    * @returns A single player object from playersTable or null if not found
    */
-  async getPlayerByTwitterId(twitterId: string): Promise<PlayerEntity | null> {
+  static async getPlayerByTwitterId(
+    twitterId: string,
+  ): Promise<PlayerEntity | null> {
     const { db, connection } = await this.makeDb();
     const players = await db
       .select()
@@ -188,7 +193,7 @@ export default class PlayersService {
    * @param pointsDelta - The number of points to add(if number is positive) or subtract(if number is negative)
    * @returns The updated player entity
    */
-  async changePoints(address: string, pointsDelta: number) {
+  static async changePoints(address: string, pointsDelta: number) {
     const { db, connection } = await this.makeDb();
     const result = await db
       .update(playersTable)

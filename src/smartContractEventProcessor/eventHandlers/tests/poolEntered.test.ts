@@ -1,6 +1,5 @@
 import { poolEnteredEventHandler } from "../poolEntered";
 import PoolEntriesService from "../../../poolEntries/service";
-import { DrizzleClient } from "../../../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../../players/service";
 import { calculatePointsEarned } from "../utils";
@@ -10,10 +9,6 @@ jest.mock("../../../poolEntries/service");
 
 jest.mock("../utils");
 const mockedCalculatePointsEarned = jest.mocked(calculatePointsEarned);
-
-jest.mock("../../../clients/DrizzleClient");
-const mockDb = {} as any;
-jest.mocked(DrizzleClient.makeDb).mockResolvedValue(mockDb);
 
 describe("poolEnteredEventHandler", () => {
   // randomize mock event data
@@ -48,16 +43,13 @@ describe("poolEnteredEventHandler", () => {
       randomPointsEarned,
     );
 
-    expect(PoolEntriesService.insertNewOrIncrementValue).toHaveBeenCalledWith(
-      mockDb,
-      {
-        address: mockEventData.entry,
-        entrant: mockEventData.entrant,
-        option: mockEventData.option,
-        pool: mockEventData.pool,
-        value: mockEventData.value,
-      },
-    );
+    expect(PoolEntriesService.insertNewOrIncrementValue).toHaveBeenCalledWith({
+      address: mockEventData.entry,
+      entrant: mockEventData.entrant,
+      option: mockEventData.option,
+      pool: mockEventData.pool,
+      value: mockEventData.value,
+    });
   });
 
   it("logs the correct messages with event data", async () => {

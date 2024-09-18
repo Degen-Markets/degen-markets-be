@@ -1,6 +1,5 @@
 import { SmartContractEvent } from "../types";
 import PoolEntriesService from "../../poolEntries/service";
-import { DrizzleClient } from "../../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../players/service";
 import { calculatePointsEarned } from "./utils";
@@ -30,8 +29,7 @@ export const poolEnteredEventHandler = async (
   logger.info(`Points calculation returned ${pointsEarned}`);
 
   await PlayersService.insertNewOrAwardPoints(entrant, pointsEarned);
-  const db = await DrizzleClient.makeDb();
-  await PoolEntriesService.insertNewOrIncrementValue(db, {
+  await PoolEntriesService.insertNewOrIncrementValue({
     address: entry,
     entrant,
     option,

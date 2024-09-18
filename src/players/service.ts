@@ -1,17 +1,16 @@
 import { PlayerEntity, PlayerInsertEntity } from "./types";
 import { playersTable } from "./schema";
-import { DrizzleDb } from "../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { eq, sql, SQL } from "drizzle-orm";
 import { DatabaseClient } from "../clients/DatabaseClient";
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Client } from "pg";
 
 export default class PlayersService {
   private static readonly logger = new Logger({
     serviceName: "PlayersService",
   });
-  static async makeDb(): Promise<{ db: DrizzleDb; connection: Client }> {
+  static async makeDb(): Promise<{ db: NodePgDatabase; connection: Client }> {
     const dbClient = new DatabaseClient();
     const connection = await dbClient.createConnection();
     const db = drizzle(connection);

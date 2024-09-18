@@ -30,3 +30,13 @@ export const findConnectedUser = async (): Promise<
     "user.fields": ["id", "profile_image_url", "username"],
   });
 };
+
+export const findTweetContentById = async (
+  tweetId: string,
+): Promise<string | null> => {
+  const client = new Client(authClient);
+  logger.info("Requesting tweet by ID", { tweetId });
+  const response = await client.tweets.findTweetById(tweetId);
+  logger.info("Received response for `findTweetById`", { response });
+  return response.data?.text || null;
+};

@@ -12,8 +12,6 @@ import { playersTable } from "../../players/schema";
 
 const logger = new Logger({ serviceName: "clientApi" });
 
-const playerService = new PlayersService();
-
 export const getPlayersHandler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
@@ -36,7 +34,7 @@ export const getPlayersHandler = async (
     const validLimit = Math.min(limit, 10);
     const orderByClause = createOrderByClause(direction);
 
-    const players = await playerService.getPlayers(
+    const players = await PlayersService.getPlayers(
       validLimit,
       offset,
       orderByClause,
@@ -65,7 +63,7 @@ export const getPlayerByIdHandler = async (
   let player;
 
   try {
-    player = await playerService.getPlayerByAddress(playerId);
+    player = await PlayersService.getPlayerByAddress(playerId);
   } catch (e) {
     logger.error("Error fetching player", { error: e });
     return buildInternalServerError("An unexpected error occurred");

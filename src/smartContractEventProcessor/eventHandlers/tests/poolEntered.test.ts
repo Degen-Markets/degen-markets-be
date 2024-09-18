@@ -5,15 +5,11 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../../players/service";
 import { calculatePointsEarned } from "../utils";
 import BN from "bn.js";
-import { mockClient } from "aws-sdk-client-mock";
 
 jest.mock("../../../poolEntries/service");
 
 jest.mock("../utils");
 const mockedCalculatePointsEarned = jest.mocked(calculatePointsEarned);
-
-jest.mock("@aws-lambda-powertools/logger");
-const logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
 
 jest.mock("../../../clients/DrizzleClient");
 const mockDb = {} as any;
@@ -31,7 +27,6 @@ describe("poolEnteredEventHandler", () => {
   };
 
   beforeEach(() => {
-    logger.info.mockClear();
     jest.clearAllMocks();
   });
 
@@ -69,16 +64,18 @@ describe("poolEnteredEventHandler", () => {
     jest
       .spyOn(PlayersService, "insertNewOrAwardPoints")
       .mockImplementation(async () => {});
+
+    const logSpy = jest.fn();
+    jest.spyOn(Logger.prototype, "info").mockImplementation(logSpy);
+
     await poolEnteredEventHandler(mockEventData);
 
-    expect(logger.info).toHaveBeenCalledTimes(3);
-    expect(logger.info).toHaveBeenNthCalledWith(1, "Processing event", {
+    expect(logSpy).toHaveBeenCalledTimes(3);
+    expect(logSpy).toHaveBeenNthCalledWith(1, "Processing event", {
       eventData: mockEventData,
     });
-    expect(logger.info).toHaveBeenNthCalledWith(
-      3,
-      "Completed processing event",
-      { eventData: mockEventData },
-    );
+    expect(logSpy).toHaveBeenNthCalledWith(3, "Completed processing event", {
+      eventData: mockEventData,
+    });
   });
 });

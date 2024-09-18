@@ -12,6 +12,7 @@ import { getAllPools, getPoolById } from "./handlers/pools";
 import getLoginLink from "./handlers/getLoginLink";
 import saveTwitterProfile from "./handlers/saveTwitterProfile";
 import { getPlayerByIdHandler, getPlayersHandler } from "./handlers/players";
+import verifyTwitterShareHandler from "./handlers/verifyTwitterShare";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 
@@ -43,6 +44,11 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     method: "POST",
     path: "/save-twitter-profile",
     handler: middy().handler(saveTwitterProfile),
+  },
+  {
+    method: "POST",
+    path: "/verify-twitter-share",
+    handler: middy().handler(verifyTwitterShareHandler),
   },
   {
     method: "GET",

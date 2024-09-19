@@ -11,9 +11,9 @@ import { DrizzleClient } from "../../clients/DrizzleClient";
 import PoolsJson from "../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../poolSharingTweets/service";
 
-const POINTS_AWARDED_FOR_TWITTER_SHARE = 10;
+const POINTS_AWARDED_FOR_SHARE = 10;
 
-const verifyTwitterShareHandler = async (event: APIGatewayProxyEventV2) => {
+const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
   const bodyParseTrial = tryIt(() => JSON.parse(event.body || "{}"));
   if (!bodyParseTrial.success) {
     return buildBadRequestError("Couldn't parse request body");
@@ -65,7 +65,7 @@ const verifyTwitterShareHandler = async (event: APIGatewayProxyEventV2) => {
     await PlayersService.changePoints(
       db,
       playerAddress,
-      POINTS_AWARDED_FOR_TWITTER_SHARE,
+      POINTS_AWARDED_FOR_SHARE,
     );
     await PoolSharingTweetsService.insertNew(db, {
       tweetId,
@@ -77,4 +77,4 @@ const verifyTwitterShareHandler = async (event: APIGatewayProxyEventV2) => {
   return buildOkResponse({ isSuccess });
 };
 
-export default verifyTwitterShareHandler;
+export default claimPoolTweetPointsHandler;

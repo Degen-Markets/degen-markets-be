@@ -12,7 +12,7 @@ import { getAllPools, getPoolById } from "./handlers/pools";
 import getLoginLink from "./handlers/getLoginLink";
 import saveTwitterProfile from "./handlers/saveTwitterProfile";
 import { getPlayerByIdHandler, getPlayersHandler } from "./handlers/players";
-import verifyTwitterShareHandler from "./handlers/verifyTwitterShare";
+import claimPoolTweetPointsHandler from "./handlers/claimPoolTweetPoints";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 
@@ -47,8 +47,8 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   },
   {
     method: "POST",
-    path: "/verify-twitter-share",
-    handler: middy().handler(verifyTwitterShareHandler),
+    path: "/claim-pool-tweet-points",
+    handler: middy().handler(claimPoolTweetPointsHandler),
   },
   {
     method: "GET",

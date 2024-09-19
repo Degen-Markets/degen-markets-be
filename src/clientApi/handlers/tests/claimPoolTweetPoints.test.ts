@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import verifyTwitterShareHandler from "../verifyTwitterShare";
+import claimPoolTweetPointsHandler from "../claimPoolTweetPoints";
 import * as Utils from "../utils";
 import PlayersService from "../../../players/service";
 import { DrizzleClient } from "../../../clients/DrizzleClient";
@@ -65,7 +65,7 @@ const tweetIdInMockEventBody = Utils.parseTweetIdFromUrl(
   mockEventBody.tweetUrl,
 );
 
-describe("verifyTwitterShareHandler", () => {
+describe("claimPoolTweetPointsHandler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -74,7 +74,7 @@ describe("verifyTwitterShareHandler", () => {
     const invalidJsonEvent = {
       body: "{invalid json",
     } as APIGatewayProxyEventV2;
-    const response = await verifyTwitterShareHandler(invalidJsonEvent);
+    const response = await claimPoolTweetPointsHandler(invalidJsonEvent);
 
     expect(response).toEqual(
       buildBadRequestError("Couldn't parse request body"),
@@ -104,7 +104,7 @@ describe("verifyTwitterShareHandler", () => {
       const event = {
         body: JSON.stringify(body),
       } as APIGatewayProxyEventV2;
-      const response = await verifyTwitterShareHandler(event);
+      const response = await claimPoolTweetPointsHandler(event);
 
       expect(response).toEqual(
         buildBadRequestError("Missing required fields in request body"),
@@ -116,7 +116,7 @@ describe("verifyTwitterShareHandler", () => {
     spiedParseTweetIdFromUrl.mockImplementationOnce(() => {
       throw new Error("Invalid tweet URL");
     });
-    const response = await verifyTwitterShareHandler(mockEvent);
+    const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
@@ -131,7 +131,7 @@ describe("verifyTwitterShareHandler", () => {
         poolId: "invalidPoolId",
       }),
     } as APIGatewayProxyEventV2;
-    const response = await verifyTwitterShareHandler(invalidEvent);
+    const response = await claimPoolTweetPointsHandler(invalidEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
@@ -141,7 +141,7 @@ describe("verifyTwitterShareHandler", () => {
 
   it("returns a bad request for invalid player address", async () => {
     MockedPlayersService.getPlayerByAddress.mockResolvedValueOnce(null);
-    const response = await verifyTwitterShareHandler(mockEvent);
+    const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
@@ -159,7 +159,7 @@ describe("verifyTwitterShareHandler", () => {
       pool: "",
       player: "",
     });
-    const response = await verifyTwitterShareHandler(mockEvent);
+    const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
@@ -177,7 +177,7 @@ describe("verifyTwitterShareHandler", () => {
 
   it("returns a bad request when tweet is not found", async () => {
     MockedTwitterUtils.findTweetContentById.mockResolvedValueOnce(null);
-    const response = await verifyTwitterShareHandler(mockEvent);
+    const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
@@ -197,7 +197,7 @@ describe("verifyTwitterShareHandler", () => {
   });
 
   it("returns success when tweet contains pool URL", async () => {
-    const response = await verifyTwitterShareHandler(mockEvent);
+    const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
@@ -238,7 +238,7 @@ describe("verifyTwitterShareHandler", () => {
     MockedTwitterUtils.findTweetContentById.mockResolvedValueOnce(
       "A tweet without pool URL",
     );
-    const response = await verifyTwitterShareHandler(mockEvent);
+    const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,

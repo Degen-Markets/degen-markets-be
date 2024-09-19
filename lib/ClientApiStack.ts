@@ -74,6 +74,6 @@ export class ClientApiStack extends TaggedStack {
       Port.tcp(5432),
       "Client Api access",
     );
-    bucket.grantRead(lambda);
+    bucket.grantReadWrite(lambda);
   }
 }

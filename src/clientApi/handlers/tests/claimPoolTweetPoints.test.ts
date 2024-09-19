@@ -3,10 +3,7 @@ import claimPoolTweetPointsHandler from "../claimPoolTweetPoints";
 import * as Utils from "../utils";
 import PlayersService from "../../../players/service";
 import { DrizzleClient } from "../../../clients/DrizzleClient";
-import {
-  buildBadRequestError,
-  buildOkResponse,
-} from "../../../utils/httpResponses";
+import { buildBadRequestError } from "../../../utils/httpResponses";
 import * as TwitterUtils from "../../../utils/twitter";
 import PoolsJson from "../../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../../poolSharingTweets/service";
@@ -16,6 +13,8 @@ import PoolSharingTweetsService from "../../../poolSharingTweets/service";
 // mock `getMandatoryEnvValue` as `twitter-api-sdk` has a weird usage (`authClient` is shared statefully).
 // Otherwise, mocking `TwitterUtils` (as we have done here) would have been enough.
 jest.mock("../../../utils/getMandatoryEnvValue");
+
+jest.mock("@aws-lambda-powertools/logger"); // don't want to see logger logs in test output
 
 const spiedParseTweetIdFromUrl = jest.spyOn(Utils, "parseTweetIdFromUrl");
 const spiedGetPoolPageUrlFromPoolId = jest.spyOn(
@@ -253,8 +252,16 @@ describe("claimPoolTweetPointsHandler", () => {
         player: mockEventBody.playerAddress,
       },
     );
-    expect(response).toEqual(
-      buildOkResponse("Pool tweet points claimed successfully"),
+    if (typeof response !== "object") {
+      expect(typeof response).toBe("object");
+      return;
+    }
+    expect(response.statusCode).toEqual(200);
+    const parsedBody = JSON.parse(response.body || "{}");
+    expect(parsedBody.message).toEqual(
+      "Pool tweet points claimed successfully",
     );
+    expect(parsedBody.pointsAwarded).toEqual(expect.any(Number));
+    expect(parsedBody.pointsAwarded).toBeGreaterThan(0);
   });
 });

@@ -4,6 +4,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../../players/service";
 import { calculatePointsEarned } from "../utils";
 import BN from "bn.js";
+import { PlayerEntity } from "../../../players/types";
 
 jest.mock("../../../poolEntries/service");
 
@@ -53,9 +54,16 @@ describe("poolEnteredEventHandler", () => {
   });
 
   it("logs the correct messages with event data", async () => {
+    const dummyPlayer: PlayerEntity = {
+      address: "randomChar",
+      points: 0,
+      twitterId: null,
+      twitterPfpUrl: null,
+      twitterUsername: null,
+    };
     jest
       .spyOn(PlayersService, "insertNewOrAwardPoints")
-      .mockImplementation(async () => {});
+      .mockResolvedValue(dummyPlayer);
 
     const logSpy = jest.fn();
     jest.spyOn(Logger.prototype, "info").mockImplementation(logSpy);

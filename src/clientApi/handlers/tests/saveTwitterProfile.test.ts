@@ -1,4 +1,3 @@
-import * as dotenv from "dotenv";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import PlayersService from "../../../players/service";
 import saveTwitterProfile from "../saveTwitterProfile";
@@ -12,15 +11,7 @@ import { verifySignature } from "../../../utils/cryptography";
 import { findHighResImageUrl } from "../utils";
 import { PlayerEntity } from "../../../players/types";
 
-dotenv.config();
-
 jest.mock("@aws-lambda-powertools/logger");
-
-// This is a bad practice because `getMandatoryEnvValue` isn't a direct dependency of `saveTwitterProfile`.
-// Ideally we only need to mock direct dependencies (otherwise it's a slippery slope). Here we're forced to
-// mock `getMandatoryEnvValue` as `twitter-api-sdk` has a weird usage (`authClient` is shared statefully).
-// Otherwise, mocking `TwitterUtils` (as we have done here) would have been enough.
-jest.mock("../../../utils/getMandatoryEnvValue");
 
 jest.mock("../../../utils/cryptography");
 const mockedVerifySignature = jest

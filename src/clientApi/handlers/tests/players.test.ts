@@ -1,6 +1,5 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import PlayersService from "../../../players/service";
-import { DrizzleClient } from "../../../clients/DrizzleClient";
 import { createOrderByClause, getPlayersHandler } from "../players";
 import { Logger } from "@aws-lambda-powertools/logger";
 import {
@@ -8,14 +7,7 @@ import {
   buildInternalServerError,
   buildOkResponse,
 } from "../../../utils/httpResponses";
-
-jest.mock("../../../players/service");
-jest.mock("../../../clients/DrizzleClient");
-jest.mock("@aws-lambda-powertools/logger");
-
-const mockGetPlayers = jest.mocked(PlayersService.getPlayers);
-const mockDrizzleClient = jest.mocked(DrizzleClient.makeDb);
-const logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
+import { PlayerEntity } from "../../../players/types";
 
 describe("getPlayersHandler", () => {
   beforeEach(() => {
@@ -31,25 +23,35 @@ describe("getPlayersHandler", () => {
       },
     } as any;
 
-    const mockPlayers = [
-      { id: 1, points: 10 },
-      { id: 2, points: 20 },
+    const mockedPlayers: PlayerEntity[] = [
+      {
+        address: "1",
+        points: 10,
+        twitterUsername: null,
+        twitterId: null,
+        twitterPfpUrl: null,
+      },
+      {
+        address: "2",
+        points: 20,
+        twitterUsername: null,
+        twitterId: null,
+        twitterPfpUrl: null,
+      },
     ];
-    mockDrizzleClient.mockResolvedValue({} as any);
+    const mockedGetPlayers = jest.fn().mockResolvedValue(mockedPlayers);
     jest
-      .mocked(PlayersService.getPlayers)
-      .mockResolvedValue(mockPlayers as any);
+      .spyOn(PlayersService, "getPlayers")
+      .mockImplementation(mockedGetPlayers);
 
     const response = await getPlayersHandler(mockEvent);
 
-    expect(mockDrizzleClient).toHaveBeenCalled();
-    expect(mockGetPlayers).toHaveBeenCalledWith(
-      expect.anything(),
+    expect(mockedGetPlayers).toHaveBeenCalledWith(
       5,
       0,
       createOrderByClause("ASC"),
     );
-    expect(response).toEqual(buildOkResponse(mockPlayers));
+    expect(response).toEqual(buildOkResponse(mockedPlayers));
   });
 
   it("returns a Bad Request error for invalid sort field", async () => {
@@ -90,13 +92,15 @@ describe("getPlayersHandler", () => {
         sort: "points:ASC",
       },
     } as any;
-
-    mockDrizzleClient.mockRejectedValue(new Error("Database error"));
+    const error = new Error("Database error");
+    jest.spyOn(PlayersService, "getPlayers").mockRejectedValue(error);
+    const errorSpy = jest.fn();
+    jest.spyOn(Logger.prototype, "error").mockImplementation(errorSpy);
 
     const response = await getPlayersHandler(mockEvent);
 
-    expect(logger.error).toHaveBeenCalledWith("Error fetching players", {
-      error: new Error("Database error"),
+    expect(errorSpy).toHaveBeenCalledWith("Error fetching players", {
+      error,
     });
     expect(response).toEqual(
       buildInternalServerError("An unexpected error occurred"),

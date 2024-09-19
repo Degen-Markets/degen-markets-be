@@ -18,6 +18,10 @@ import PoolSharingTweetsService from "../../../poolSharingTweets/service";
 jest.mock("../../../utils/getMandatoryEnvValue");
 
 const spiedParseTweetIdFromUrl = jest.spyOn(Utils, "parseTweetIdFromUrl");
+const spiedGetPoolPageUrlFromPoolId = jest.spyOn(
+  Utils,
+  "getPoolPageUrlFromPoolId",
+);
 
 jest.mock("../../../clients/DrizzleClient");
 const mockDb = "mockDb";
@@ -47,6 +51,7 @@ MockedTwitterUtils.findTweetContentById.mockResolvedValue(
 
 jest.mock("../../../poolSharingTweets/service");
 const MockedPoolSharingTweetsService = jest.mocked(PoolSharingTweetsService);
+MockedPoolSharingTweetsService.findByTweetId.mockResolvedValue(null);
 
 const mockEventBody = {
   tweetUrl: "https://twitter.com/user/status/123456789",
@@ -148,6 +153,28 @@ describe("verifyTwitterShareHandler", () => {
     expect(response).toEqual(buildBadRequestError("Invalid player address"));
   });
 
+  it("returns a bad request when tweet has already been verified", async () => {
+    MockedPoolSharingTweetsService.findByTweetId.mockResolvedValueOnce({
+      tweetId: "",
+      pool: "",
+      player: "",
+    });
+    const response = await verifyTwitterShareHandler(mockEvent);
+
+    expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
+      mockEventBody.tweetUrl,
+    );
+    expect(MockedPlayersService.getPlayerByAddress).toHaveBeenCalledWith(
+      mockDb,
+      mockEventBody.playerAddress,
+    );
+    expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
+      mockDb,
+      tweetIdInMockEventBody,
+    );
+    expect(response).toEqual(buildBadRequestError("Tweet already verified"));
+  });
+
   it("returns a bad request when tweet is not found", async () => {
     MockedTwitterUtils.findTweetContentById.mockResolvedValueOnce(null);
     const response = await verifyTwitterShareHandler(mockEvent);
@@ -158,6 +185,10 @@ describe("verifyTwitterShareHandler", () => {
     expect(MockedPlayersService.getPlayerByAddress).toHaveBeenCalledWith(
       mockDb,
       mockEventBody.playerAddress,
+    );
+    expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
+      mockDb,
+      tweetIdInMockEventBody,
     );
     expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
       tweetIdInMockEventBody,
@@ -175,9 +206,18 @@ describe("verifyTwitterShareHandler", () => {
       mockDb,
       mockEventBody.playerAddress,
     );
+    expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
+      mockDb,
+      tweetIdInMockEventBody,
+    );
+    expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
+      mockDb,
+      tweetIdInMockEventBody,
+    );
     expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
       tweetIdInMockEventBody,
     );
+    expect(spiedGetPoolPageUrlFromPoolId).toHaveBeenCalledWith(mockPoolId);
     expect(MockedPlayersService.changePoints).toHaveBeenCalledWith(
       mockDb,
       mockEventBody.playerAddress,
@@ -187,8 +227,8 @@ describe("verifyTwitterShareHandler", () => {
       mockDb,
       {
         tweetId: tweetIdInMockEventBody,
-        poolId: mockEventBody.poolId,
-        playerAddress: mockEventBody.playerAddress,
+        pool: mockEventBody.poolId,
+        player: mockEventBody.playerAddress,
       },
     );
     expect(response).toEqual(buildOkResponse({ isSuccess: true }));
@@ -210,6 +250,7 @@ describe("verifyTwitterShareHandler", () => {
     expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
       tweetIdInMockEventBody,
     );
+    expect(spiedGetPoolPageUrlFromPoolId).toHaveBeenCalledWith(mockPoolId);
     expect(MockedPlayersService.changePoints).not.toHaveBeenCalled();
     expect(MockedPoolSharingTweetsService.insertNew).not.toHaveBeenCalled();
     expect(response).toEqual(buildOkResponse({ isSuccess: false }));

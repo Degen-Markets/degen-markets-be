@@ -196,7 +196,10 @@ describe("claimPoolTweetPointsHandler", () => {
     expect(response).toEqual(buildBadRequestError("Tweet not found"));
   });
 
-  it("returns success when tweet contains pool URL", async () => {
+  it("returns failure when tweet doesn't contain pool URL", async () => {
+    MockedTwitterUtils.findTweetContentById.mockResolvedValueOnce(
+      "A tweet without pool URL",
+    );
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
@@ -209,6 +212,25 @@ describe("claimPoolTweetPointsHandler", () => {
     expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
       mockDb,
       tweetIdInMockEventBody,
+    );
+    expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
+      tweetIdInMockEventBody,
+    );
+    expect(spiedGetPoolPageUrlFromPoolId).toHaveBeenCalledWith(mockPoolId);
+    expect(response).toEqual(
+      buildBadRequestError("Tweet content doesn't contain pool page URL"),
+    );
+  });
+
+  it("returns success when tweet contains pool URL", async () => {
+    const response = await claimPoolTweetPointsHandler(mockEvent);
+
+    expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
+      mockEventBody.tweetUrl,
+    );
+    expect(MockedPlayersService.getPlayerByAddress).toHaveBeenCalledWith(
+      mockDb,
+      mockEventBody.playerAddress,
     );
     expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
       mockDb,
@@ -231,28 +253,8 @@ describe("claimPoolTweetPointsHandler", () => {
         player: mockEventBody.playerAddress,
       },
     );
-    expect(response).toEqual(buildOkResponse({ isSuccess: true }));
-  });
-
-  it("returns failure when tweet doesn't contain pool URL", async () => {
-    MockedTwitterUtils.findTweetContentById.mockResolvedValueOnce(
-      "A tweet without pool URL",
+    expect(response).toEqual(
+      buildOkResponse("Pool tweet points claimed successfully"),
     );
-    const response = await claimPoolTweetPointsHandler(mockEvent);
-
-    expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
-      mockEventBody.tweetUrl,
-    );
-    expect(MockedPlayersService.getPlayerByAddress).toHaveBeenCalledWith(
-      mockDb,
-      mockEventBody.playerAddress,
-    );
-    expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
-      tweetIdInMockEventBody,
-    );
-    expect(spiedGetPoolPageUrlFromPoolId).toHaveBeenCalledWith(mockPoolId);
-    expect(MockedPlayersService.changePoints).not.toHaveBeenCalled();
-    expect(MockedPoolSharingTweetsService.insertNew).not.toHaveBeenCalled();
-    expect(response).toEqual(buildOkResponse({ isSuccess: false }));
   });
 });

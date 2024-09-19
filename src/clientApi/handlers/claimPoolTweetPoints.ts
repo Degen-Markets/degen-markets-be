@@ -84,34 +84,43 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     logger.error("Tweet not found", { tweetId });
     return buildBadRequestError("Tweet not found");
   }
-  logger.info("Tweet content retrieved", { tweetContent });
 
   const poolPageUrl = getPoolPageUrlFromPoolId(poolId);
   const isSuccess = tweetContent.includes(poolPageUrl);
-  logger.info("Tweet verification result", { isSuccess, poolPageUrl });
 
-  if (isSuccess) {
-    await PlayersService.changePoints(
-      db,
-      playerAddress,
-      POINTS_AWARDED_FOR_SHARE,
-    );
-    logger.info("Awarded points to player", {
-      playerAddress,
-      points: POINTS_AWARDED_FOR_SHARE,
+  if (!isSuccess) {
+    logger.error("Tweet content doesn't contain pool page URL", {
+      poolPageUrl,
+      tweetContent,
     });
-    await PoolSharingTweetsService.insertNew(db, {
-      tweetId,
-      pool: poolId,
-      player: playerAddress,
-    });
-    logger.info("Inserted new pool sharing tweet record", {
-      tweetId,
-    });
+    return buildBadRequestError("Tweet content doesn't contain pool page URL");
   }
+  logger.info("Tweet content contains pool page URL", {
+    poolPageUrl,
+    tweetId,
+  });
 
-  logger.info("Claim pool tweet points operation completed", { isSuccess });
-  return buildOkResponse({ isSuccess });
+  await PlayersService.changePoints(
+    db,
+    playerAddress,
+    POINTS_AWARDED_FOR_SHARE,
+  );
+  logger.info("Awarded points to player", {
+    playerAddress,
+    points: POINTS_AWARDED_FOR_SHARE,
+  });
+
+  await PoolSharingTweetsService.insertNew(db, {
+    tweetId,
+    pool: poolId,
+    player: playerAddress,
+  });
+  logger.info("Inserted new pool sharing tweet record", {
+    tweetId,
+  });
+
+  logger.info("Completed running `claimPoolTweetPoints` handler");
+  return buildOkResponse("Pool tweet points claimed successfully");
 };
 
 export default claimPoolTweetPointsHandler;

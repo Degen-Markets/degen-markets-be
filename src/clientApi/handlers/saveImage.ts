@@ -5,7 +5,7 @@ import {
   buildOkResponse,
   buildUnauthorizedError,
 } from "../../utils/httpResponses";
-import { S3 } from "aws-sdk";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { verifySignature } from "../../utils/cryptography";
 
@@ -36,15 +36,14 @@ export const saveImage = async (
   try {
     const imageBuffer = Buffer.from(imageBase64String, "base64");
     const bucketName = getMandatoryEnvVariable("BUCKET_NAME");
-    const s3 = new S3();
+    const s3Client = new S3Client();
     const uploadParams = {
+      Body: imageBuffer,
       Bucket: bucketName,
       Key: `images/${title}.jpg`,
-      Body: imageBuffer,
-      ContentEncoding: "base64",
-      ContentType: "image/jpeg",
     };
-    await s3.upload(uploadParams).promise();
+    const putObjectCommand = new PutObjectCommand(uploadParams);
+    await s3Client.send(putObjectCommand);
 
     return buildOkResponse({
       status: "SUCCESS",

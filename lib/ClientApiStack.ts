@@ -7,6 +7,7 @@ import { Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
+import { Bucket, BucketAccessControl } from "aws-cdk-lib/aws-s3";
 
 export interface ClientApiStackProps extends StackProps {
   certificate: Certificate;
@@ -21,6 +22,10 @@ export class ClientApiStack extends TaggedStack {
     super(scope, id, props);
 
     const { database, vpc, cname, zone, certificate } = props;
+
+    const bucket = new Bucket(this, "Bucket", {
+      accessControl: BucketAccessControl.PUBLIC_READ,
+    });
 
     const { lambda } = new LambdaApi(this, "ClientApiLambda", {
       cname,
@@ -39,6 +44,7 @@ export class ClientApiStack extends TaggedStack {
           TWITTER_CLIENT_SECRET: getMandatoryEnvVariable(
             "TWITTER_CLIENT_SECRET",
           ),
+          BUCKET_NAME: bucket.bucketName,
         },
         vpc,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
@@ -68,5 +74,6 @@ export class ClientApiStack extends TaggedStack {
       Port.tcp(5432),
       "Client Api access",
     );
+    bucket.grantReadWrite(lambda);
   }
 }

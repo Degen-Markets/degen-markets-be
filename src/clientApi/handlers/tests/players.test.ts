@@ -106,4 +106,44 @@ describe("getPlayersHandler", () => {
       buildInternalServerError("An unexpected error occurred"),
     );
   });
+
+  it("returns players with a limit capped at 20 when limit exceeds 20", async () => {
+    const mockEvent: APIGatewayProxyEventV2 = {
+      queryStringParameters: {
+        limit: "50",
+        offset: "0",
+        sort: "points:ASC",
+      },
+    } as any;
+
+    const mockedPlayers: PlayerEntity[] = [
+      {
+        address: "1",
+        points: 10,
+        twitterUsername: null,
+        twitterId: null,
+        twitterPfpUrl: null,
+      },
+      {
+        address: "2",
+        points: 20,
+        twitterUsername: null,
+        twitterId: null,
+        twitterPfpUrl: null,
+      },
+    ];
+    const mockedGetPlayers = jest.fn().mockResolvedValue(mockedPlayers);
+    jest
+      .spyOn(PlayersService, "getPlayers")
+      .mockImplementation(mockedGetPlayers);
+
+    const response = await getPlayersHandler(mockEvent);
+
+    expect(mockedGetPlayers).toHaveBeenCalledWith(
+      20,
+      0,
+      createOrderByClause("ASC"),
+    );
+    expect(response).toEqual(buildOkResponse(mockedPlayers));
+  });
 });

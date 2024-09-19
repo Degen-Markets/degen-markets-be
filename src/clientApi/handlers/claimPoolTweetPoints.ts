@@ -10,12 +10,22 @@ import PlayersService from "../../players/service";
 import { DrizzleClient } from "../../clients/DrizzleClient";
 import PoolsJson from "../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../poolSharingTweets/service";
+import { Logger } from "@aws-lambda-powertools/logger";
 
 const POINTS_AWARDED_FOR_SHARE = 10;
 
+const logger = new Logger({
+  serviceName: "claimPoolTweetPointsHandler",
+});
+
 const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
+  logger.info("Running `claimPoolTweetPoints` handler", { event });
+
   const bodyParseTrial = tryIt(() => JSON.parse(event.body || "{}"));
   if (!bodyParseTrial.success) {
+    logger.error("Failed to parse request body", {
+      error: bodyParseTrial.err,
+    });
     return buildBadRequestError("Couldn't parse request body");
   }
 
@@ -25,41 +35,60 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     typeof poolId !== "string" ||
     typeof playerAddress !== "string"
   ) {
+    logger.error("Missing required fields in request body", {
+      tweetUrl,
+      poolId,
+      playerAddress,
+    });
     return buildBadRequestError("Missing required fields in request body");
   }
+  logger.info("Parsed request body", { tweetUrl, poolId, playerAddress });
 
   const tweetIdParseTrial = tryIt(() => parseTweetIdFromUrl(tweetUrl));
   if (!tweetIdParseTrial.success) {
+    logger.error("Failed to parse tweet ID from URL", {
+      tweetUrl,
+      error: tweetIdParseTrial.err,
+    });
     return buildBadRequestError("Invalid tweet URL");
   }
   const tweetId = tweetIdParseTrial.data;
+  logger.info("Parsed tweet ID", { tweetId });
 
   if (!PoolsJson.hasOwnProperty(poolId)) {
+    logger.error("Invalid pool ID", { poolId });
     return buildBadRequestError("Invalid pool ID");
   }
 
   const db = await DrizzleClient.makeDb();
+  logger.info("Database connection established");
 
   const player = await PlayersService.getPlayerByAddress(db, playerAddress);
   if (!player) {
+    logger.error("Invalid player address", { playerAddress });
     return buildBadRequestError("Invalid player address");
   }
+  logger.info("Player found", { playerAddress });
 
   const tweetWithSameIdInDb = await PoolSharingTweetsService.findByTweetId(
     db,
     tweetId,
   );
   if (tweetWithSameIdInDb !== null) {
+    logger.error("Tweet already verified", { tweetId });
     return buildBadRequestError("Tweet already verified");
   }
 
   const tweetContent = await findTweetContentById(tweetId);
   if (tweetContent === null) {
+    logger.error("Tweet not found", { tweetId });
     return buildBadRequestError("Tweet not found");
   }
+  logger.info("Tweet content retrieved", { tweetContent });
 
   const poolPageUrl = getPoolPageUrlFromPoolId(poolId);
   const isSuccess = tweetContent.includes(poolPageUrl);
+  logger.info("Tweet verification result", { isSuccess, poolPageUrl });
 
   if (isSuccess) {
     await PlayersService.changePoints(
@@ -67,13 +96,21 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
       playerAddress,
       POINTS_AWARDED_FOR_SHARE,
     );
+    logger.info("Awarded points to player", {
+      playerAddress,
+      points: POINTS_AWARDED_FOR_SHARE,
+    });
     await PoolSharingTweetsService.insertNew(db, {
       tweetId,
       pool: poolId,
       player: playerAddress,
     });
+    logger.info("Inserted new pool sharing tweet record", {
+      tweetId,
+    });
   }
 
+  logger.info("Claim pool tweet points operation completed", { isSuccess });
   return buildOkResponse({ isSuccess });
 };
 

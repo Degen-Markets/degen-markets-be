@@ -31,7 +31,7 @@ export const getPlayersHandler = async (
       return buildBadRequestError(`Invalid direction: ${direction}`);
     }
 
-    const validLimit = Math.min(limit, 10);
+    const validLimit = Math.min(limit, 20);
     const orderByClause = createOrderByClause(direction);
 
     const players = await PlayersService.getPlayers(

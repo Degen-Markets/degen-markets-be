@@ -23,6 +23,25 @@ class PoolSharingTweetsService {
       .returning();
     logger.info("Inserted tweet into db", { tweet: result[0] });
   }
+
+  static async findByTweetId(
+    db: DrizzleDb,
+    tweetId: string,
+  ): Promise<PoolSharingTweetEntity | null> {
+    logger.info("Finding tweet by id", { tweetId });
+    const result = await db
+      .select()
+      .from(poolSharingTweetsTable)
+      .where(eq(poolSharingTweetsTable.tweetId, tweetId));
+    const tweet = result[0];
+    if (!tweet) {
+      logger.info("Tweet not found", { tweetId });
+      return null;
+    }
+
+    logger.info("Found tweet by id", { tweet });
+    return tweet;
+  }
 }
 
 export default PoolSharingTweetsService;

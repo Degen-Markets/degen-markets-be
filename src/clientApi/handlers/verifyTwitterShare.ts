@@ -45,6 +45,14 @@ const verifyTwitterShareHandler = async (event: APIGatewayProxyEventV2) => {
     return buildBadRequestError("Invalid player address");
   }
 
+  const tweetWithSameIdInDb = await PoolSharingTweetsService.findByTweetId(
+    db,
+    tweetId,
+  );
+  if (tweetWithSameIdInDb !== null) {
+    return buildBadRequestError("Tweet already verified");
+  }
+
   const tweetContent = await findTweetContentById(tweetId);
   if (tweetContent === null) {
     return buildBadRequestError("Tweet not found");

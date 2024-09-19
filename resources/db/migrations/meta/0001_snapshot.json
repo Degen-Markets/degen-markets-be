@@ -1,5 +1,5 @@
 {
-  "id": "3b4a010b-6f37-4cbb-8928-57b33217cb2c",
+  "id": "adcce6ad-c044-4e51-b46e-96134560ac96",
   "prevId": "bcc59991-f8ba-405c-8941-19b952ea9f71",
   "version": "7",
   "dialect": "postgresql",
@@ -173,25 +173,25 @@
           "primaryKey": true,
           "notNull": true
         },
-        "poolId": {
-          "name": "poolId",
+        "pool": {
+          "name": "pool",
           "type": "varchar(44)",
           "primaryKey": false,
           "notNull": true
         },
-        "playerAddress": {
-          "name": "playerAddress",
+        "player": {
+          "name": "player",
           "type": "varchar(44)",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {
-        "idx_poolId": {
-          "name": "idx_poolId",
+        "idx_pool_sharing_tweets_pool": {
+          "name": "idx_pool_sharing_tweets_pool",
           "columns": [
             {
-              "expression": "poolId",
+              "expression": "pool",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -202,11 +202,11 @@
           "method": "btree",
           "with": {}
         },
-        "idx_playerAddress": {
-          "name": "idx_playerAddress",
+        "idx_pool_sharing_tweets_player": {
+          "name": "idx_pool_sharing_tweets_player",
           "columns": [
             {
-              "expression": "playerAddress",
+              "expression": "player",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -219,11 +219,11 @@
         }
       },
       "foreignKeys": {
-        "pool_sharing_tweets_playerAddress_players_address_fk": {
-          "name": "pool_sharing_tweets_playerAddress_players_address_fk",
+        "pool_sharing_tweets_player_players_address_fk": {
+          "name": "pool_sharing_tweets_player_players_address_fk",
           "tableFrom": "pool_sharing_tweets",
           "tableTo": "players",
-          "columnsFrom": ["playerAddress"],
+          "columnsFrom": ["player"],
           "columnsTo": ["address"],
           "onDelete": "no action",
           "onUpdate": "no action"

@@ -8,16 +8,16 @@ export const poolSharingTweetsTable = pgTable(
     tweetId: varchar("tweetId", { length: 100 }).primaryKey(),
 
     /** The address of the pool shared by the player */
-    poolId: varchar("poolId", { length: 44 }).notNull(),
+    pool: varchar("pool", { length: 44 }).notNull(),
 
     /** The address of the player who shared the tweet */
-    playerAddress: varchar("playerAddress", { length: 44 })
+    player: varchar("player", { length: 44 })
       .notNull()
       .references(() => playersTable.address),
   },
   (table) => ({
-    idxPoolId: index("idx_poolId").on(table.poolId),
-    idxPlayerAddress: index("idx_playerAddress").on(table.playerAddress),
+    idxPool: index("idx_pool_sharing_tweets_pool").on(table.pool),
+    idxPlayer: index("idx_pool_sharing_tweets_player").on(table.player),
   }),
 );
 

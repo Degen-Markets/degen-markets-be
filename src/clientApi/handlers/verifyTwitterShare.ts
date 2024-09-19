@@ -61,8 +61,8 @@ const verifyTwitterShareHandler = async (event: APIGatewayProxyEventV2) => {
     );
     await PoolSharingTweetsService.insertNew(db, {
       tweetId,
-      poolId,
-      playerAddress,
+      pool: poolId,
+      player: playerAddress,
     });
   }
 

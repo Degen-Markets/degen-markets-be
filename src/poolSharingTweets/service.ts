@@ -18,18 +18,20 @@ class PoolSharingTweetsService {
   private static async _insertNew(
     db: NodePgDatabase,
     tweetData: PoolSharingTweetInsertEntity,
-  ): Promise<void> {
+  ): Promise<PoolSharingTweetEntity> {
     this.logger.info("Inserting tweet into db", { tweetData });
     const result = await db
       .insert(poolSharingTweetsTable)
       .values(tweetData)
       .returning();
-    this.logger.info("Inserted tweet into db", { tweet: result[0] });
+    const insertedTweet = result[0];
+    this.logger.info("Inserted tweet into db", { tweet: insertedTweet });
+    return insertedTweet;
   }
 
   static insertNew = async (
     tweetData: PoolSharingTweetInsertEntity,
-  ): Promise<void> =>
+  ): Promise<PoolSharingTweetEntity> =>
     this.databaseClient.withDb(async (db) => this._insertNew(db, tweetData));
 
   private static async _findByTweetId(

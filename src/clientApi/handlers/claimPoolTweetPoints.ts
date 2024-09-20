@@ -80,9 +80,7 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
   }
 
   const poolPageUrl = getPoolPageUrlFromPoolId(poolId);
-  const isSuccess = tweetContent.includes(poolPageUrl);
-
-  if (!isSuccess) {
+  if (!tweetContent.includes(poolPageUrl)) {
     logger.error("Tweet content doesn't contain pool page URL", {
       poolPageUrl,
       tweetContent,

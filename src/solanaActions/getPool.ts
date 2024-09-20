@@ -120,24 +120,18 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
         },
       );
     }
-    metadata.links.actions = [
-      ...pool.options.map((option) => ({
-        label: `Bet 0.1 SOL on "${option.title}"`,
-        href: `/pools/${poolId}/options/${option.id}?value=0.1`,
-      })),
-      ...poolOptionsWithPercOfTotalPoolValArr
-        .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
-        .map((option) => ({
-          label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
-          href: `/pools/${poolId}/options/${option.id}?value={amount}`,
-          parameters: [
-            {
-              name: "amount",
-              label: "Enter a SOL amount",
-            },
-          ],
-        })),
-    ];
+    metadata.links.actions = poolOptionsWithPercOfTotalPoolValArr
+      .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
+      .map((option) => ({
+        label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
+        href: `/pools/${poolId}/options/${option.id}?value={amount}`,
+        parameters: [
+          {
+            name: "amount",
+            label: "Enter a SOL amount",
+          },
+        ],
+      }));
   }
 
   return {

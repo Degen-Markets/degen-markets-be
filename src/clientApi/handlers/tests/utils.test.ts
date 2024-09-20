@@ -14,6 +14,10 @@ describe("parseTweetIdFromUrl", () => {
     const tweetId = Math.round(Math.random() * 100000000000000).toString(); // has to be digits
     expect(parseTweetIdFromUrl(`status/${tweetId}`)).toBe(tweetId);
     expect(parseTweetIdFromUrl(`status/${tweetId}/`)).toBe(tweetId);
+    expect(parseTweetIdFromUrl(`status/${tweetId}?abc=1234`)).toBe(tweetId);
+    expect(parseTweetIdFromUrl(`status/${tweetId}/?abc=1234`)).toBe(tweetId);
+    expect(parseTweetIdFromUrl(`status/${tweetId}#abc`)).toBe(tweetId);
+    expect(parseTweetIdFromUrl(`status/${tweetId}/#abc`)).toBe(tweetId);
   });
 
   it("should throw an error for invalid tweet URL", () => {
@@ -30,6 +34,11 @@ describe("parseTweetIdFromUrl", () => {
 
     // no number
     expect(() => parseTweetIdFromUrl("status/abc")).toThrow(
+      "Invalid tweet URL",
+    );
+
+    // no /status/numberstring/
+    expect(() => parseTweetIdFromUrl("status/1234abc")).toThrow(
       "Invalid tweet URL",
     );
   });

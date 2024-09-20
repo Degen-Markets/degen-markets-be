@@ -109,7 +109,7 @@
     "title": "Will SOL reach $150 by Breakpoint?",
     "description": "Resolves to 'Yes' if the price of SOL reaches $150 on a major exchange from now until the start of Solana Breakpoint (20th September 2024)",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/solana-breakpoint.jpeg",
-    "isPaused": false,
+    "isPaused": true,
     "winningOption": null,
     "options": [
       {

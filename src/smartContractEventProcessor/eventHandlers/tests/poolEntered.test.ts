@@ -4,7 +4,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../../players/service";
 import { calculatePointsEarned } from "../utils";
 import BN from "bn.js";
-import { PlayerEntity } from "../../../players/types";
+import { PlayerEntity } from "../../../players/schema";
 
 jest.mock("../../../poolEntries/service");
 

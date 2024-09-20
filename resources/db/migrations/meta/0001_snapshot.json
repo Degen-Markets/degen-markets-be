@@ -1,0 +1,244 @@
+{
+  "id": "adcce6ad-c044-4e51-b46e-96134560ac96",
+  "prevId": "bcc59991-f8ba-405c-8941-19b952ea9f71",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.players": {
+      "name": "players",
+      "schema": "",
+      "columns": {
+        "address": {
+          "name": "address",
+          "type": "varchar(44)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "points": {
+          "name": "points",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "twitterUsername": {
+          "name": "twitterUsername",
+          "type": "varchar(15)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "twitterPfpUrl": {
+          "name": "twitterPfpUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "twitterId": {
+          "name": "twitterId",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "idx_twitterId": {
+          "name": "idx_twitterId",
+          "columns": [
+            {
+              "expression": "twitterId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "players_twitterId_unique": {
+          "name": "players_twitterId_unique",
+          "nullsNotDistinct": false,
+          "columns": ["twitterId"]
+        }
+      }
+    },
+    "public.pool_entries": {
+      "name": "pool_entries",
+      "schema": "",
+      "columns": {
+        "address": {
+          "name": "address",
+          "type": "varchar(44)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "entrant": {
+          "name": "entrant",
+          "type": "varchar(44)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "option": {
+          "name": "option",
+          "type": "varchar(44)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pool": {
+          "name": "pool",
+          "type": "varchar(44)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric(50, 0)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_entrant": {
+          "name": "idx_entrant",
+          "columns": [
+            {
+              "expression": "entrant",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_option": {
+          "name": "idx_option",
+          "columns": [
+            {
+              "expression": "option",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_pool": {
+          "name": "idx_pool",
+          "columns": [
+            {
+              "expression": "pool",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pool_entries_entrant_players_address_fk": {
+          "name": "pool_entries_entrant_players_address_fk",
+          "tableFrom": "pool_entries",
+          "tableTo": "players",
+          "columnsFrom": ["entrant"],
+          "columnsTo": ["address"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.pool_sharing_tweets": {
+      "name": "pool_sharing_tweets",
+      "schema": "",
+      "columns": {
+        "tweetId": {
+          "name": "tweetId",
+          "type": "varchar(100)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pool": {
+          "name": "pool",
+          "type": "varchar(44)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "player": {
+          "name": "player",
+          "type": "varchar(44)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_pool_sharing_tweets_pool": {
+          "name": "idx_pool_sharing_tweets_pool",
+          "columns": [
+            {
+              "expression": "pool",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_pool_sharing_tweets_player": {
+          "name": "idx_pool_sharing_tweets_player",
+          "columns": [
+            {
+              "expression": "player",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pool_sharing_tweets_player_players_address_fk": {
+          "name": "pool_sharing_tweets_player_players_address_fk",
+          "tableFrom": "pool_sharing_tweets",
+          "tableTo": "players",
+          "columnsFrom": ["player"],
+          "columnsTo": ["address"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

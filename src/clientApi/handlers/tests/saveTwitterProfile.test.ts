@@ -9,9 +9,7 @@ import {
 } from "../../../utils/httpResponses";
 import { verifySignature } from "../../../utils/cryptography";
 import { findHighResImageUrl } from "../utils";
-import { PlayerEntity } from "../../../players/types";
-
-jest.mock("@aws-lambda-powertools/logger");
+import { PlayerEntity } from "../../../players/schema";
 
 jest.mock("../../../utils/cryptography");
 const mockedVerifySignature = jest

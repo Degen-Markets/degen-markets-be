@@ -13,6 +13,8 @@ export const authClient = new auth.OAuth2User({
   scopes: ["tweet.read", "users.read", "offline.access"],
 });
 
+const twitterBearerToken = getMandatoryEnvVariable("TWITTER_BEARER_TOKEN");
+
 export const requestAccessToken = async (
   twitterCode: string,
 ): Promise<string | undefined> => {
@@ -29,4 +31,14 @@ export const findConnectedUser = async (): Promise<
   return client.users.findMyUser({
     "user.fields": ["id", "profile_image_url", "username"],
   });
+};
+
+export const findTweetContentById = async (
+  tweetId: string,
+): Promise<string | null> => {
+  logger.info("Requesting tweet by ID", { tweetId });
+  const client = new Client(twitterBearerToken);
+  const response = await client.tweets.findTweetById(tweetId);
+  logger.info("Received response for `findTweetById`", { response });
+  return response.data?.text || null;
 };

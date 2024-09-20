@@ -7,7 +7,7 @@ import {
   buildInternalServerError,
   buildOkResponse,
 } from "../../../utils/httpResponses";
-import { PlayerEntity } from "../../../players/types";
+import { PlayerEntity } from "../../../players/schema";
 
 describe("getPlayersHandler", () => {
   beforeEach(() => {

@@ -1,5 +1,8 @@
-import { PlayerEntity, PlayerInsertEntity } from "./types";
-import { playersTable } from "./schema";
+import {
+  playersTable,
+  type PlayerEntity,
+  type PlayerInsertEntity,
+} from "./schema";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { eq, sql, SQL } from "drizzle-orm";
 import { DatabaseClient } from "../clients/DatabaseClient";
@@ -120,7 +123,7 @@ export default class PlayersService {
       this._updateTwitterProfile(db, playerAddress, twitterProfile),
     );
 
-  static async _getPlayers(
+  private static async _getPlayers(
     db: NodePgDatabase,
     limit: number = 10,
     offset: number = 0,

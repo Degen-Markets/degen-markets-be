@@ -1,6 +1,5 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { verifySignature } from "../../utils/cryptography";
-import { DrizzleClient } from "../../clients/DrizzleClient";
 import PlayersService from "../../players/service";
 import {
   buildBadRequestError,
@@ -9,26 +8,25 @@ import {
 import { findConnectedUser, requestAccessToken } from "../../utils/twitter";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { findHighResImageUrl } from "./utils";
+import { PlayerEntity } from "../../players/schema";
 
 const logger = new Logger({ serviceName: "saveTwitterProfile" });
 
 const POINTS_AWARDED_FOR_LINKING_TWITTER = 10;
 
-type SuccessPayload = {
-  twitterUsername?: string;
-  twitterPfpUrl?: string;
-  twitterId: string;
-};
-
 /**
- * This method should return the {@linkcode SuccessPayload} in the HTTP response for happy path
+ * This method should return the {@linkcode PlayerEntity} in the HTTP response for happy path
  */
 const saveTwitterProfile = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
   logger.info("Running `saveTwitterProfile` handler", { event });
   const body = JSON.parse(event.body || "{}");
-  const { twitterCode, signature, address } = body;
+  const {
+    twitterCode,
+    signature,
+    address,
+  }: { twitterCode: string; signature: string; address: string } = body;
   if (!twitterCode || !signature || !address) {
     return buildBadRequestError("Missing properties in request body");
   }
@@ -48,9 +46,7 @@ const saveTwitterProfile = async (
   logger.info("Found user's twitter profile", { twitterUser });
 
   // add to db
-  const db = await DrizzleClient.makeDb();
   const playerByTwitterId = await PlayersService.getPlayerByTwitterId(
-    db,
     twitterUser.id,
   );
   if (playerByTwitterId) {
@@ -66,13 +62,14 @@ const saveTwitterProfile = async (
     twitterUsername: twitterUser.username,
     twitterPfpUrl: twitterUser.profile_image_url
       ? findHighResImageUrl(twitterUser.profile_image_url)
-      : undefined,
+      : null,
     twitterId: twitterUser.id,
   };
-  const playerByAddress = await PlayersService.getPlayerByAddress(db, address);
+  const playerByAddress = await PlayersService.getPlayerByAddress(address);
+  let updatedPlayer: PlayerEntity;
   if (!playerByAddress) {
     logger.info("Player doesn't exist, creating new player");
-    await PlayersService.insertNew(db, {
+    updatedPlayer = await PlayersService.insertNew({
       address,
       points: POINTS_AWARDED_FOR_LINKING_TWITTER,
       ...twitterProfile,
@@ -80,16 +77,18 @@ const saveTwitterProfile = async (
   } else {
     const isTwitterAlreadyAdded = !!playerByAddress.twitterUsername;
     if (!isTwitterAlreadyAdded) {
-      await PlayersService.changePoints(
-        db,
+      updatedPlayer = await PlayersService.changePoints(
         address,
         POINTS_AWARDED_FOR_LINKING_TWITTER,
       );
     }
-    await PlayersService.updateTwitterProfile(db, address, twitterProfile);
+    updatedPlayer = await PlayersService.updateTwitterProfile(
+      address,
+      twitterProfile,
+    );
   }
 
-  return buildOkResponse(twitterProfile satisfies SuccessPayload);
+  return buildOkResponse(updatedPlayer satisfies PlayerEntity);
 };
 
 export default saveTwitterProfile;

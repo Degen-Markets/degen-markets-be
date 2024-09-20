@@ -2,17 +2,10 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
 import claimPoolTweetPointsHandler from "../claimPoolTweetPoints";
 import * as Utils from "../utils";
 import PlayersService from "../../../players/service";
-import { DrizzleClient } from "../../../clients/DrizzleClient";
 import { buildBadRequestError } from "../../../utils/httpResponses";
 import * as TwitterUtils from "../../../utils/twitter";
 import PoolsJson from "../../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../../poolSharingTweets/service";
-
-// This is a bad practice because `getMandatoryEnvValue` isn't a direct dependency of `saveTwitterProfile`.
-// Ideally we only need to mock direct dependencies (otherwise it's a slippery slope). Here we're forced to
-// mock `getMandatoryEnvValue` as `twitter-api-sdk` has a weird usage (`authClient` is shared statefully).
-// Otherwise, mocking `TwitterUtils` (as we have done here) would have been enough.
-jest.mock("../../../utils/getMandatoryEnvValue");
 
 jest.mock("@aws-lambda-powertools/logger"); // don't want to see logger logs in test output
 
@@ -22,12 +15,6 @@ const spiedGetPoolPageUrlFromPoolId = jest.spyOn(
   "getPoolPageUrlFromPoolId",
 );
 
-jest.mock("../../../clients/DrizzleClient");
-const mockDb = "mockDb";
-jest.mocked(DrizzleClient.makeDb).mockResolvedValue(mockDb as any);
-
-jest.mock("../../../players/service");
-const MockedPlayersService = jest.mocked(PlayersService);
 const mockPlayer = {
   address: "player123",
   points: 0,
@@ -35,22 +22,30 @@ const mockPlayer = {
   twitterPfpUrl: null,
   twitterId: null,
 };
-MockedPlayersService.getPlayerByAddress.mockResolvedValue(mockPlayer);
+const spiedGetPlayerByAddress = jest
+  .spyOn(PlayersService, "getPlayerByAddress")
+  .mockResolvedValue(mockPlayer);
+const spiedChangePoints = jest
+  .spyOn(PlayersService, "changePoints")
+  .mockImplementation();
 
 jest.mock("../../../solanaActions/pools.json", () => ({
   pool123: {},
 }));
 const mockPoolId = Object.keys(PoolsJson)[0];
 
-jest.mock("../../../utils/twitter");
-const MockedTwitterUtils = jest.mocked(TwitterUtils);
-MockedTwitterUtils.findTweetContentById.mockResolvedValue(
-  `Check out this pool\n${Utils.getPoolPageUrlFromPoolId(mockPoolId)}`,
-);
+const spiedFindTweetContentById = jest
+  .spyOn(TwitterUtils, "findTweetContentById")
+  .mockResolvedValue(
+    `Check out this pool\n${Utils.getPoolPageUrlFromPoolId(mockPoolId)}`,
+  );
 
-jest.mock("../../../poolSharingTweets/service");
-const MockedPoolSharingTweetsService = jest.mocked(PoolSharingTweetsService);
-MockedPoolSharingTweetsService.findByTweetId.mockResolvedValue(null);
+const spiedFindByTweetId = jest
+  .spyOn(PoolSharingTweetsService, "findByTweetId")
+  .mockResolvedValue(null);
+const spiedInsertNew = jest
+  .spyOn(PoolSharingTweetsService, "insertNew")
+  .mockImplementation();
 
 const mockEventBody = {
   tweetUrl: "https://twitter.com/user/status/123456789",
@@ -139,21 +134,20 @@ describe("claimPoolTweetPointsHandler", () => {
   });
 
   it("returns a bad request for invalid player address", async () => {
-    MockedPlayersService.getPlayerByAddress.mockResolvedValueOnce(null);
+    spiedGetPlayerByAddress.mockResolvedValueOnce(null);
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
     );
-    expect(MockedPlayersService.getPlayerByAddress).toHaveBeenCalledWith(
-      mockDb,
+    expect(spiedGetPlayerByAddress).toHaveBeenCalledWith(
       mockEventBody.playerAddress,
     );
     expect(response).toEqual(buildBadRequestError("Invalid player address"));
   });
 
   it("returns a bad request when tweet has already been verified", async () => {
-    MockedPoolSharingTweetsService.findByTweetId.mockResolvedValueOnce({
+    spiedFindByTweetId.mockResolvedValueOnce({
       tweetId: "",
       pool: "",
       player: "",
@@ -163,56 +157,42 @@ describe("claimPoolTweetPointsHandler", () => {
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
     );
-    expect(MockedPlayersService.getPlayerByAddress).toHaveBeenCalledWith(
-      mockDb,
+    expect(spiedGetPlayerByAddress).toHaveBeenCalledWith(
       mockEventBody.playerAddress,
     );
-    expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
-      mockDb,
-      tweetIdInMockEventBody,
-    );
+    expect(spiedFindByTweetId).toHaveBeenCalledWith(tweetIdInMockEventBody);
     expect(response).toEqual(buildBadRequestError("Tweet already verified"));
   });
 
   it("returns a bad request when tweet is not found", async () => {
-    MockedTwitterUtils.findTweetContentById.mockResolvedValueOnce(null);
+    spiedFindTweetContentById.mockResolvedValueOnce(null);
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
     );
-    expect(MockedPlayersService.getPlayerByAddress).toHaveBeenCalledWith(
-      mockDb,
+    expect(spiedGetPlayerByAddress).toHaveBeenCalledWith(
       mockEventBody.playerAddress,
     );
-    expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
-      mockDb,
-      tweetIdInMockEventBody,
-    );
-    expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
+    expect(spiedFindByTweetId).toHaveBeenCalledWith(tweetIdInMockEventBody);
+    expect(spiedFindTweetContentById).toHaveBeenCalledWith(
       tweetIdInMockEventBody,
     );
     expect(response).toEqual(buildBadRequestError("Tweet not found"));
   });
 
   it("returns failure when tweet doesn't contain pool URL", async () => {
-    MockedTwitterUtils.findTweetContentById.mockResolvedValueOnce(
-      "A tweet without pool URL",
-    );
+    spiedFindTweetContentById.mockResolvedValueOnce("A tweet without pool URL");
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
     );
-    expect(MockedPlayersService.getPlayerByAddress).toHaveBeenCalledWith(
-      mockDb,
+    expect(spiedGetPlayerByAddress).toHaveBeenCalledWith(
       mockEventBody.playerAddress,
     );
-    expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
-      mockDb,
-      tweetIdInMockEventBody,
-    );
-    expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
+    expect(spiedFindByTweetId).toHaveBeenCalledWith(tweetIdInMockEventBody);
+    expect(spiedFindTweetContentById).toHaveBeenCalledWith(
       tweetIdInMockEventBody,
     );
     expect(spiedGetPoolPageUrlFromPoolId).toHaveBeenCalledWith(mockPoolId);
@@ -227,31 +207,23 @@ describe("claimPoolTweetPointsHandler", () => {
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
       mockEventBody.tweetUrl,
     );
-    expect(MockedPlayersService.getPlayerByAddress).toHaveBeenCalledWith(
-      mockDb,
+    expect(spiedGetPlayerByAddress).toHaveBeenCalledWith(
       mockEventBody.playerAddress,
     );
-    expect(MockedPoolSharingTweetsService.findByTweetId).toHaveBeenCalledWith(
-      mockDb,
-      tweetIdInMockEventBody,
-    );
-    expect(MockedTwitterUtils.findTweetContentById).toHaveBeenCalledWith(
+    expect(spiedFindByTweetId).toHaveBeenCalledWith(tweetIdInMockEventBody);
+    expect(spiedFindTweetContentById).toHaveBeenCalledWith(
       tweetIdInMockEventBody,
     );
     expect(spiedGetPoolPageUrlFromPoolId).toHaveBeenCalledWith(mockPoolId);
-    expect(MockedPlayersService.changePoints).toHaveBeenCalledWith(
-      mockDb,
+    expect(spiedChangePoints).toHaveBeenCalledWith(
       mockEventBody.playerAddress,
       expect.any(Number),
     );
-    expect(MockedPoolSharingTweetsService.insertNew).toHaveBeenCalledWith(
-      mockDb,
-      {
-        tweetId: tweetIdInMockEventBody,
-        pool: mockEventBody.poolId,
-        player: mockEventBody.playerAddress,
-      },
-    );
+    expect(spiedInsertNew).toHaveBeenCalledWith({
+      tweetId: tweetIdInMockEventBody,
+      pool: mockEventBody.poolId,
+      player: mockEventBody.playerAddress,
+    });
     if (typeof response !== "object") {
       expect(typeof response).toBe("object");
       return;

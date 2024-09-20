@@ -1,7 +1,6 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { getPlayerByIdHandler } from "../players";
 import PlayersService from "../../../players/service";
-import { DrizzleClient } from "../../../clients/DrizzleClient";
 import { Logger } from "@aws-lambda-powertools/logger";
 import {
   buildBadRequestError,
@@ -10,13 +9,6 @@ import {
   buildOkResponse,
 } from "../../../utils/httpResponses";
 
-jest.mock("../../../players/service");
-jest.mock("../../../clients/DrizzleClient");
-jest.mock("@aws-lambda-powertools/logger");
-
-const mockGetPlayerByAddress = jest.mocked(PlayersService.getPlayerByAddress);
-const mockDrizzleClient = jest.mocked(DrizzleClient.makeDb);
-const logger = jest.mocked(Logger).mock.instances[0] as jest.Mocked<Logger>;
 const id = "14RTAiwGjWYsMUZqmFvpsyvKEiW22FmbJrvBqmF98i7y";
 
 describe("getPlayerByIdHandler", () => {
@@ -38,14 +30,14 @@ describe("getPlayerByIdHandler", () => {
       twitterPfpUrl: "http://example.com/pfp.jpg",
       twitterId: "1",
     };
-
-    mockDrizzleClient.mockResolvedValue({} as any);
-    mockGetPlayerByAddress.mockResolvedValue(mockPlayer);
+    const mockedGetPlayerByAddress = jest.fn().mockResolvedValue(mockPlayer);
+    jest
+      .spyOn(PlayersService, "getPlayerByAddress")
+      .mockImplementation(mockedGetPlayerByAddress);
 
     const response = await getPlayerByIdHandler(mockEvent);
 
-    expect(mockDrizzleClient).toHaveBeenCalled();
-    expect(mockGetPlayerByAddress).toHaveBeenCalledWith(expect.anything(), id);
+    expect(mockedGetPlayerByAddress).toHaveBeenCalledWith(id);
     expect(response).toEqual(buildOkResponse(mockPlayer));
   });
 
@@ -65,16 +57,13 @@ describe("getPlayerByIdHandler", () => {
       },
     } as any;
 
-    mockDrizzleClient.mockResolvedValue({} as any);
-    mockGetPlayerByAddress.mockResolvedValue(null as any);
-
+    const mockGetPlayerByAddress = jest.fn().mockResolvedValue(null);
+    jest
+      .spyOn(PlayersService, "getPlayerByAddress")
+      .mockImplementation(mockGetPlayerByAddress);
     const response = await getPlayerByIdHandler(mockEvent);
 
-    expect(mockDrizzleClient).toHaveBeenCalled();
-    expect(mockGetPlayerByAddress).toHaveBeenCalledWith(
-      expect.anything(),
-      "player1",
-    );
+    expect(mockGetPlayerByAddress).toHaveBeenCalledWith("player1");
     expect(response).toEqual(buildNotFoundError("Player not found"));
   });
 
@@ -84,13 +73,14 @@ describe("getPlayerByIdHandler", () => {
         id: id,
       },
     } as any;
-
-    mockDrizzleClient.mockRejectedValue(new Error("Database error"));
+    const error = new Error("Database error");
+    jest.spyOn(PlayersService, "getPlayerByAddress").mockRejectedValue(error);
+    const errorSpy = jest.fn();
+    jest.spyOn(Logger.prototype, "error").mockImplementation(errorSpy);
 
     const response = await getPlayerByIdHandler(mockEvent);
-
-    expect(logger.error).toHaveBeenCalledWith("Error fetching player", {
-      error: new Error("Database error"),
+    expect(errorSpy).toHaveBeenCalledWith("Error fetching player", {
+      error,
     });
     expect(response).toEqual(
       buildInternalServerError("An unexpected error occurred"),

@@ -7,7 +7,6 @@ import {
 import { tryIt } from "../../utils/tryIt";
 import { findTweetContentById } from "../../utils/twitter";
 import PlayersService from "../../players/service";
-import { DrizzleClient } from "../../clients/DrizzleClient";
 import PoolsJson from "../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../poolSharingTweets/service";
 import { Logger } from "@aws-lambda-powertools/logger";
@@ -60,20 +59,15 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     return buildBadRequestError("Invalid pool ID");
   }
 
-  const db = await DrizzleClient.makeDb();
-  logger.info("Database connection established");
-
-  const player = await PlayersService.getPlayerByAddress(db, playerAddress);
+  const player = await PlayersService.getPlayerByAddress(playerAddress);
   if (!player) {
     logger.error("Invalid player address", { playerAddress });
     return buildBadRequestError("Invalid player address");
   }
   logger.info("Player found", { playerAddress });
 
-  const tweetWithSameIdInDb = await PoolSharingTweetsService.findByTweetId(
-    db,
-    tweetId,
-  );
+  const tweetWithSameIdInDb =
+    await PoolSharingTweetsService.findByTweetId(tweetId);
   if (tweetWithSameIdInDb !== null) {
     logger.error("Tweet already verified", { tweetId });
     return buildBadRequestError("Tweet already verified");
@@ -100,17 +94,13 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     tweetId,
   });
 
-  await PlayersService.changePoints(
-    db,
-    playerAddress,
-    POINTS_AWARDED_FOR_SHARE,
-  );
+  await PlayersService.changePoints(playerAddress, POINTS_AWARDED_FOR_SHARE);
   logger.info("Awarded points to player", {
     playerAddress,
     points: POINTS_AWARDED_FOR_SHARE,
   });
 
-  await PoolSharingTweetsService.insertNew(db, {
+  await PoolSharingTweetsService.insertNew({
     tweetId,
     pool: poolId,
     player: playerAddress,

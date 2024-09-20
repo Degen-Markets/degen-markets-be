@@ -1,8 +1,9 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { Client, ClientConfig, QueryResultRow } from "pg";
+import { Client, ClientConfig } from "pg";
 import { getMandatoryEnvVariable } from "../utils/getMandatoryEnvValue";
 import * as fs from "fs";
 import { SecretClient } from "./SecretClient";
+import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 
 export class DatabaseClient {
   private readonly logger = new Logger({ serviceName: "DatabaseClient" });
@@ -13,45 +14,6 @@ export class DatabaseClient {
   private host = getMandatoryEnvVariable("DATABASE_HOST");
   private port = Number(getMandatoryEnvVariable("DATABASE_PORT"));
   private password: string | undefined = undefined;
-
-  executeStatement = async <T extends QueryResultRow>(
-    statement: string,
-    values: any[] = [],
-  ) => {
-    const connection = await this.createConnection();
-    try {
-      this.logger.info(`Running query: ${statement}, with values: ${values}`);
-      const result = await connection.query<T>(statement, values);
-      return result;
-    } finally {
-      await connection.end(); // Close the connection
-    }
-  };
-
-  executeStatements = async <T extends QueryResultRow>(
-    statements: string[],
-    values: any[][],
-  ) => {
-    const connection = await this.createConnection();
-    try {
-      await connection.query("BEGIN"); // Begin the transaction
-
-      const results = [];
-      for (let i = 0; i < statements.length; i++) {
-        const result = await connection.query<T>(statements[i], values[i]);
-        results.push(result);
-      }
-
-      await connection.query("COMMIT"); // Commit the transaction
-      return results;
-    } catch (e) {
-      await connection.query("ROLLBACK"); // Rollback the transaction if an error occurs
-      this.logger.error("Transaction rolled back", { error: e });
-      throw e;
-    } finally {
-      await connection.end(); // Close the connection
-    }
-  };
 
   private getPassword = async (): Promise<string> => {
     try {
@@ -86,4 +48,22 @@ export class DatabaseClient {
     await client.connect();
     return client;
   };
+
+  async makeDb(): Promise<{ db: NodePgDatabase; connection: Client }> {
+    const connection = await this.createConnection();
+    const db = drizzle(connection);
+    return {
+      db,
+      connection,
+    };
+  }
+
+  async withDb<T>(fn: (db: NodePgDatabase) => Promise<T>): Promise<T> {
+    const { db, connection } = await this.makeDb();
+    try {
+      return await fn(db);
+    } finally {
+      await connection.end();
+    }
+  }
 }

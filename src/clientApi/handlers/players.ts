@@ -1,6 +1,5 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
-import { DrizzleClient } from "../../clients/DrizzleClient";
 import PlayersService from "../../players/service";
 import {
   buildBadRequestError,
@@ -32,12 +31,10 @@ export const getPlayersHandler = async (
       return buildBadRequestError(`Invalid direction: ${direction}`);
     }
 
-    const validLimit = Math.min(limit, 10);
+    const validLimit = Math.min(limit, 20);
     const orderByClause = createOrderByClause(direction);
 
-    const db = await DrizzleClient.makeDb();
     const players = await PlayersService.getPlayers(
-      db,
       validLimit,
       offset,
       orderByClause,
@@ -66,8 +63,7 @@ export const getPlayerByIdHandler = async (
   let player;
 
   try {
-    const db = await DrizzleClient.makeDb();
-    player = await PlayersService.getPlayerByAddress(db, playerId);
+    player = await PlayersService.getPlayerByAddress(playerId);
   } catch (e) {
     logger.error("Error fetching player", { error: e });
     return buildInternalServerError("An unexpected error occurred");

@@ -12,6 +12,7 @@ import { getAllPools, getPoolById } from "./handlers/pools";
 import getLoginLink from "./handlers/getLoginLink";
 import saveTwitterProfile from "./handlers/saveTwitterProfile";
 import { getPlayerByIdHandler, getPlayersHandler } from "./handlers/players";
+import { saveImage } from "./handlers/saveImage";
 import claimPoolTweetPointsHandler from "./handlers/claimPoolTweetPoints";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
@@ -59,6 +60,11 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
     method: "GET",
     path: "/players/{id}",
     handler: middy().handler(getPlayerByIdHandler),
+  },
+  {
+    method: "POST",
+    path: "/upload-image",
+    handler: middy().handler(saveImage),
   },
   {
     method: "ANY",

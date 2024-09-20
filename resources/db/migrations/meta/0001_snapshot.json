@@ -1,6 +1,6 @@
 {
-  "id": "cfa9e504-5888-4aea-91b6-f44692b5cc0a",
-  "prevId": "bcc59991-f8ba-405c-8941-19b952ea9f71",
+  "id": "0c977652-fcc8-4812-bf68-3d7f72d660ac",
+  "prevId": "adcce6ad-c044-4e51-b46e-96134560ac96",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -159,21 +159,21 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "pool_entries_option_pool_options_id_fk": {
-          "name": "pool_entries_option_pool_options_id_fk",
+        "pool_entries_option_pool_options_address_fk": {
+          "name": "pool_entries_option_pool_options_address_fk",
           "tableFrom": "pool_entries",
           "tableTo": "pool_options",
           "columnsFrom": ["option"],
-          "columnsTo": ["id"],
+          "columnsTo": ["address"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "pool_entries_pool_pools_id_fk": {
-          "name": "pool_entries_pool_pools_id_fk",
+        "pool_entries_pool_pools_address_fk": {
+          "name": "pool_entries_pool_pools_address_fk",
           "tableFrom": "pool_entries",
           "tableTo": "pools",
           "columnsFrom": ["pool"],
-          "columnsTo": ["id"],
+          "columnsTo": ["address"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -185,21 +185,21 @@
       "name": "pool_options",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
+        "address": {
+          "name": "address",
           "type": "varchar(44)",
           "primaryKey": true,
           "notNull": true
         },
-        "pool_id": {
-          "name": "pool_id",
+        "pool": {
+          "name": "pool",
           "type": "varchar(44)",
           "primaryKey": false,
           "notNull": true
         },
         "title": {
           "name": "title",
-          "type": "varchar(255)",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true
         },
@@ -215,7 +215,7 @@
           "name": "idx_pool_id",
           "columns": [
             {
-              "expression": "pool_id",
+              "expression": "pool",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -228,12 +228,81 @@
         }
       },
       "foreignKeys": {
-        "pool_options_pool_id_pools_id_fk": {
-          "name": "pool_options_pool_id_pools_id_fk",
+        "pool_options_pool_pools_address_fk": {
+          "name": "pool_options_pool_pools_address_fk",
           "tableFrom": "pool_options",
           "tableTo": "pools",
-          "columnsFrom": ["pool_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": ["pool"],
+          "columnsTo": ["address"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.pool_sharing_tweets": {
+      "name": "pool_sharing_tweets",
+      "schema": "",
+      "columns": {
+        "tweetId": {
+          "name": "tweetId",
+          "type": "varchar(100)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pool": {
+          "name": "pool",
+          "type": "varchar(44)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "player": {
+          "name": "player",
+          "type": "varchar(44)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_pool_sharing_tweets_pool": {
+          "name": "idx_pool_sharing_tweets_pool",
+          "columns": [
+            {
+              "expression": "pool",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_pool_sharing_tweets_player": {
+          "name": "idx_pool_sharing_tweets_player",
+          "columns": [
+            {
+              "expression": "player",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pool_sharing_tweets_player_players_address_fk": {
+          "name": "pool_sharing_tweets_player_players_address_fk",
+          "tableFrom": "pool_sharing_tweets",
+          "tableTo": "players",
+          "columnsFrom": ["player"],
+          "columnsTo": ["address"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -245,38 +314,38 @@
       "name": "pools",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
+        "address": {
+          "name": "address",
           "type": "varchar(44)",
           "primaryKey": true,
           "notNull": true
         },
         "title": {
           "name": "title",
-          "type": "varchar(255)",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true
         },
         "description": {
           "name": "description",
-          "type": "varchar(5000)",
+          "type": "varchar(200)",
           "primaryKey": false,
           "notNull": false
         },
         "image": {
           "name": "image",
-          "type": "varchar(1000)",
+          "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false
         },
-        "is_paused": {
-          "name": "is_paused",
+        "isPaused": {
+          "name": "isPaused",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "winning_option": {
-          "name": "winning_option",
+        "winningOption": {
+          "name": "winningOption",
           "type": "varchar(44)",
           "primaryKey": false,
           "notNull": false
@@ -293,7 +362,7 @@
           "name": "idx_winning_option",
           "columns": [
             {
-              "expression": "winning_option",
+              "expression": "winningOption",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

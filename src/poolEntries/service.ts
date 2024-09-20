@@ -15,7 +15,7 @@ export default class PoolEntriesService {
   });
   private static readonly databaseClient: DatabaseClient = new DatabaseClient();
 
-  static async _insertNewOrIncrementValue(
+  private static async _insertNewOrIncrementValue(
     db: NodePgDatabase,
     data: PoolEntriesInsertEntity,
   ): Promise<PoolEntriesEntity> {

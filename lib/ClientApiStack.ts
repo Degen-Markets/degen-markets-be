@@ -24,7 +24,13 @@ export class ClientApiStack extends TaggedStack {
     const { database, vpc, cname, zone, certificate } = props;
 
     const bucket = new Bucket(this, "Bucket", {
-      accessControl: BucketAccessControl.PUBLIC_READ,
+      publicReadAccess: true,
+      blockPublicAccess: {
+        blockPublicAcls: false,
+        blockPublicPolicy: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false,
+      },
     });
 
     const { lambda } = new LambdaApi(this, "ClientApiLambda", {
@@ -44,6 +50,7 @@ export class ClientApiStack extends TaggedStack {
           TWITTER_CLIENT_SECRET: getMandatoryEnvVariable(
             "TWITTER_CLIENT_SECRET",
           ),
+          TWITTER_BEARER_TOKEN: getMandatoryEnvVariable("TWITTER_BEARER_TOKEN"),
           BUCKET_NAME: bucket.bucketName,
         },
         vpc,

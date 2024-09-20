@@ -8,7 +8,7 @@ import {
 import { findConnectedUser, requestAccessToken } from "../../utils/twitter";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { findHighResImageUrl } from "./utils";
-import { PlayerEntity } from "../../players/types";
+import { PlayerEntity } from "../../players/schema";
 
 const logger = new Logger({ serviceName: "saveTwitterProfile" });
 

@@ -155,5 +155,26 @@
         "id": "3TF8TTh1yaYcRGeX6T3M9WyA4MrWQRJBDUJnUb796Wc9"
       }
     ]
+  },
+  "2H2zLUHyjscNrQiCZwtBt1BjhtHU9DNBST3chxRvd3ph": {
+    "title": "Bitboy vs Ansem - who wins the fight?",
+    "description": "",
+    "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/ansem_bitboy.jpeg",
+    "isPaused": false,
+    "winningOption": null,
+    "options": [
+      {
+        "title": "Bitboy",
+        "id": "4dZyo12HZbEhfo3g5JyLxqUvGEGVsDHieB2VeyEqSTcV"
+      },
+      {
+        "title": "Ansem",
+        "id": "3crUgB6KR8YstQgpTNiXvB8VNfZVWBZHiS6WVJUMBxSZ"
+      },
+      {
+        "title": "Draw/Doesn't happen",
+        "id": "6AWjnvojqj83HbkaeookjMm8aN9fQbKAM3jbCuh6bPcU"
+      }
+    ]
   }
 }

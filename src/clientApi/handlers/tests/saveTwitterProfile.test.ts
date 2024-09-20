@@ -11,8 +11,6 @@ import { verifySignature } from "../../../utils/cryptography";
 import { findHighResImageUrl } from "../utils";
 import { PlayerEntity } from "../../../players/schema";
 
-jest.mock("@aws-lambda-powertools/logger");
-
 jest.mock("../../../utils/cryptography");
 const mockedVerifySignature = jest
   .mocked(verifySignature)

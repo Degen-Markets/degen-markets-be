@@ -7,8 +7,6 @@ import * as TwitterUtils from "../../../utils/twitter";
 import PoolsJson from "../../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../../poolSharingTweets/service";
 
-jest.mock("@aws-lambda-powertools/logger"); // don't want to see logger logs in test output
-
 const spiedParseTweetIdFromUrl = jest.spyOn(Utils, "parseTweetIdFromUrl");
 const spiedGetPoolPageUrlFromPoolId = jest.spyOn(
   Utils,

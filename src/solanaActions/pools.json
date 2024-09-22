@@ -110,7 +110,7 @@
     "description": "Resolves to 'Yes' if the price of SOL reaches $150 on a major exchange from now until the start of Solana Breakpoint (20th September 2024)",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/solana-breakpoint.jpeg",
     "isPaused": true,
-    "winningOption": null,
+    "winningOption": "8zUxkTu44gko8nZec8bVFVo4wk8KDwVu3MUXf5wzjMfj",
     "options": [
       {
         "title": "Yes",
@@ -143,8 +143,8 @@
     "title": "What will be the $degod market cap at the end of the week?",
     "description": "Resolves based on the market capitalisation of $degod at 3pm (CET) on the 22nd of September 2024. ",
     "image": "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degod_mode.jpeg",
-    "isPaused": false,
-    "winningOption": null,
+    "isPaused": true,
+    "winningOption": "BkftGEJ9GqJste5NEW8eVdhn8Uvn1nKBr5qphXZutGV5",
     "options": [
       {
         "title": "Mid. Less than 80M",

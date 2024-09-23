@@ -1,4 +1,5 @@
 // Define Pools Table
+import { sql } from "drizzle-orm";
 import {
   index,
   numeric,
@@ -21,7 +22,9 @@ export const poolsTable = pgTable(
       precision: 50, // biggest number in rust is u128, so 50 precision gives us plenty of space
       scale: 0, // 0 scale because we do not want any decimals
     }).notNull(),
-    createdAt: timestamp("createdAt").defaultNow().notNull(), // defaultNow() Automatically sets the current timestamp on row insertion, eliminating the need to manually provide it.
+    createdAt: timestamp("createdAt", { mode: "string" })
+      .notNull()
+      .default(sql`now()`), // Automatically sets the current timestamp on row insertion, eliminating the need to manually provide it.
   },
   (table) => {
     return {

@@ -31,6 +31,6 @@ const setWinningOption = async (
 };
 
 setWinningOption(
-  "FhUW3K3Kv3R5g7uSZK1adrzYV2ff7q3QeKCusdBey1RP",
-  "BkftGEJ9GqJste5NEW8eVdhn8Uvn1nKBr5qphXZutGV5",
+  "3aCgJR22eBMmnBj2hYHHaossPZCmSMCZ5QNbCmsjDixF",
+  "EZNfgQWAcGdEoSkrmBAnkWUVNfUHnF2ZbPCXRFFmEYjX",
 );

@@ -1,4 +1,3 @@
-// Define Pools Table
 import { sql } from "drizzle-orm";
 import {
   index,
@@ -8,6 +7,7 @@ import {
   boolean,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { poolOptionsTable } from "../poolOptions/schema";
 
 export const poolsTable = pgTable(
   "pools",
@@ -17,7 +17,9 @@ export const poolsTable = pgTable(
     description: varchar("description", { length: 200 }),
     image: varchar("image", { length: 100 }),
     isPaused: boolean("isPaused").notNull(), // Field can be true, false
-    winningOption: varchar("winningOption", { length: 44 }).notNull(),
+    winningOption: varchar("winningOption", { length: 44 })
+      .notNull()
+      .references(() => poolOptionsTable.address),
     value: numeric("value", {
       precision: 50, // biggest number in rust is u128, so 50 precision gives us plenty of space
       scale: 0, // 0 scale because we do not want any decimals

@@ -7,7 +7,6 @@ import {
   boolean,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { poolOptionsTable } from "../poolOptions/schema";
 
 export const poolsTable = pgTable(
   "pools",

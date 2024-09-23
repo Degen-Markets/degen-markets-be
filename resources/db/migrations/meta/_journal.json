@@ -15,6 +15,13 @@
       "when": 1726724784986,
       "tag": "0001_cool_thanos",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1727100938560,
+      "tag": "0002_bent_cassandra_nova",
+      "breakpoints": true
     }
   ]
 }

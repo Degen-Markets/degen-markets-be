@@ -16,7 +16,7 @@ export const poolOptionsTable = pgTable(
   },
   (table) => {
     return {
-      idxPoolId: index("idx_pool_id").on(table.pool),
+      idxPoolOptionsPool: index("idx_poolOptions_pool").on(table.pool),
     };
   },
 );

@@ -1,5 +1,12 @@
 // Define Pools Table
-import { index, numeric, pgTable, varchar, boolean } from "drizzle-orm/pg-core";
+import {
+  index,
+  numeric,
+  pgTable,
+  varchar,
+  boolean,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 export const poolsTable = pgTable(
   "pools",
@@ -14,10 +21,11 @@ export const poolsTable = pgTable(
       precision: 50, // biggest number in rust is u128, so 50 precision gives us plenty of space
       scale: 0, // 0 scale because we do not want any decimals
     }).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(), // defaultNow() Automatically sets the current timestamp on row insertion, eliminating the need to manually provide it.
   },
   (table) => {
     return {
-      idxWinningOption: index("idx_winning_option").on(table.winningOption),
+      idxPoolsValue: index("idx_pools_value").on(table.value),
     };
   },
 );

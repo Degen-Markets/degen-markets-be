@@ -11,8 +11,9 @@ CREATE TABLE IF NOT EXISTS "pools" (
 	"description" varchar(200),
 	"image" varchar(100),
 	"isPaused" boolean NOT NULL,
-	"winningOption" varchar(44),
-	"value" numeric(50, 0) NOT NULL
+	"winningOption" varchar(44) NOT NULL,
+	"value" numeric(50, 0) NOT NULL,
+	"createdAt" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 DO $$ BEGIN
@@ -21,8 +22,8 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "idx_pool_id" ON "pool_options" USING btree ("pool");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "idx_winning_option" ON "pools" USING btree ("winningOption");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_poolOptions_pool" ON "pool_options" USING btree ("pool");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "idx_pools_value" ON "pools" USING btree ("value");--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "pool_entries" ADD CONSTRAINT "pool_entries_option_pool_options_address_fk" FOREIGN KEY ("option") REFERENCES "public"."pool_options"("address") ON DELETE no action ON UPDATE no action;
 EXCEPTION

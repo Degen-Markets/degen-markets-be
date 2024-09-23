@@ -1,5 +1,5 @@
 {
-  "id": "ac17c739-a28d-4fd2-b482-f862fee112f8",
+  "id": "ab965cb7-bc13-4cfe-b4df-505cae757d2d",
   "prevId": "adcce6ad-c044-4e51-b46e-96134560ac96",
   "version": "7",
   "dialect": "postgresql",
@@ -211,8 +211,8 @@
         }
       },
       "indexes": {
-        "idx_pool_id": {
-          "name": "idx_pool_id",
+        "idx_poolOptions_pool": {
+          "name": "idx_poolOptions_pool",
           "columns": [
             {
               "expression": "pool",
@@ -348,21 +348,28 @@
           "name": "winningOption",
           "type": "varchar(44)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "value": {
           "name": "value",
           "type": "numeric(50, 0)",
           "primaryKey": false,
           "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {
-        "idx_winning_option": {
-          "name": "idx_winning_option",
+        "idx_pools_value": {
+          "name": "idx_pools_value",
           "columns": [
             {
-              "expression": "winningOption",
+              "expression": "value",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

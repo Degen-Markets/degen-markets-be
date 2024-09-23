@@ -1,6 +1,6 @@
 {
-  "id": "adcce6ad-c044-4e51-b46e-96134560ac96",
-  "prevId": "bcc59991-f8ba-405c-8941-19b952ea9f71",
+  "id": "ac17c739-a28d-4fd2-b482-f862fee112f8",
+  "prevId": "adcce6ad-c044-4e51-b46e-96134560ac96",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -158,6 +158,84 @@
           "columnsTo": ["address"],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "pool_entries_option_pool_options_address_fk": {
+          "name": "pool_entries_option_pool_options_address_fk",
+          "tableFrom": "pool_entries",
+          "tableTo": "pool_options",
+          "columnsFrom": ["option"],
+          "columnsTo": ["address"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "pool_entries_pool_pools_address_fk": {
+          "name": "pool_entries_pool_pools_address_fk",
+          "tableFrom": "pool_entries",
+          "tableTo": "pools",
+          "columnsFrom": ["pool"],
+          "columnsTo": ["address"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.pool_options": {
+      "name": "pool_options",
+      "schema": "",
+      "columns": {
+        "address": {
+          "name": "address",
+          "type": "varchar(44)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pool": {
+          "name": "pool",
+          "type": "varchar(44)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric(50, 0)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_pool_id": {
+          "name": "idx_pool_id",
+          "columns": [
+            {
+              "expression": "pool",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pool_options_pool_pools_address_fk": {
+          "name": "pool_options_pool_pools_address_fk",
+          "tableFrom": "pool_options",
+          "tableTo": "pools",
+          "columnsFrom": ["pool"],
+          "columnsTo": ["address"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -229,6 +307,74 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.pools": {
+      "name": "pools",
+      "schema": "",
+      "columns": {
+        "address": {
+          "name": "address",
+          "type": "varchar(44)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image": {
+          "name": "image",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isPaused": {
+          "name": "isPaused",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "winningOption": {
+          "name": "winningOption",
+          "type": "varchar(44)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric(50, 0)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_winning_option": {
+          "name": "idx_winning_option",
+          "columns": [
+            {
+              "expression": "winningOption",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     }

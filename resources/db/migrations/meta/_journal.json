@@ -12,8 +12,15 @@
     {
       "idx": 1,
       "version": "7",
-      "when": 1726851913092,
-      "tag": "0001_dashing_thor",
+      "when": 1726724784986,
+      "tag": "0001_cool_thanos",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1727077696855,
+      "tag": "0002_heavy_quicksilver",
       "breakpoints": true
     }
   ]

@@ -9,7 +9,7 @@ export const poolsTable = pgTable(
     description: varchar("description", { length: 200 }),
     image: varchar("image", { length: 100 }),
     isPaused: boolean("isPaused").notNull(), // Field can be true, false
-    winningOption: varchar("winningOption", { length: 44 }), // Foreign key to winning option
+    winningOption: varchar("winningOption", { length: 44 }).notNull(), // Foreign key to winning option
     value: numeric("value", {
       precision: 50, // biggest number in rust is u128, so 50 precision gives us plenty of space
       scale: 0, // 0 scale because we do not want any decimals

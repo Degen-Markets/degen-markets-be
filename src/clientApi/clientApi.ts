@@ -8,7 +8,7 @@ import httpHeaderNormalizer from "@middy/http-header-normalizer";
 import httpSecurityHeaders from "@middy/http-security-headers";
 import { notFoundHandler } from "../utils/notFoundHandler";
 import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
-import { getAllPools, getPoolById } from "./handlers/pools";
+import { getAllPools, getPoolByAddress } from "./handlers/pools";
 import getLoginLink from "./handlers/getLoginLink";
 import saveTwitterProfile from "./handlers/saveTwitterProfile";
 import { getPlayerByIdHandler, getPlayersHandler } from "./handlers/players";
@@ -34,7 +34,7 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   {
     method: "GET",
     path: "/pools/{id}",
-    handler: middy().handler(getPoolById),
+    handler: middy().handler(getPoolByAddress),
   },
   {
     method: "GET",

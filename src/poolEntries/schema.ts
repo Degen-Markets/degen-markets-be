@@ -1,7 +1,5 @@
 import { index, numeric, pgTable, varchar } from "drizzle-orm/pg-core";
 import { playersTable } from "../players/schema";
-import { poolOptionsTable } from "../poolOptions/schema";
-import { poolsTable } from "../pool/schema";
 
 export const poolEntriesTable = pgTable(
   "pool_entries",

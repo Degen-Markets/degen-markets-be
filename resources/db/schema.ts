@@ -1,6 +1,6 @@
 import { poolEntriesTable } from "../../src/poolEntries/schema";
 import { poolOptionsTable } from "../../src/poolOptions/schema";
-import { poolsTable } from "../../src/pool/schema";
+import { poolsTable } from "../../src/pools/schema";
 import { playersTable } from "../../src/players/schema";
 import { poolSharingTweetsTable } from "../../src/poolSharingTweets/schema";
 

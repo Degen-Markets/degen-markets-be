@@ -1,10 +1,10 @@
 import {
+  boolean,
   index,
   numeric,
   pgTable,
-  varchar,
-  boolean,
   timestamp,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 export const poolsTable = pgTable(

@@ -1,5 +1,5 @@
 import { index, numeric, pgTable, varchar, boolean } from "drizzle-orm/pg-core";
-import { poolsTable } from "../pool/schema";
+import { poolsTable } from "../pools/schema";
 
 export const poolOptionsTable = pgTable(
   "pool_options",

@@ -23,15 +23,4 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "idx_poolOptions_pool" ON "pool_options" USING btree ("pool");--> statement-breakpoint
-CREATE INDEX IF NOT EXISTS "idx_pools_value" ON "pools" USING btree ("value");--> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "pool_entries" ADD CONSTRAINT "pool_entries_option_pool_options_address_fk" FOREIGN KEY ("option") REFERENCES "public"."pool_options"("address") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "pool_entries" ADD CONSTRAINT "pool_entries_pool_pools_address_fk" FOREIGN KEY ("pool") REFERENCES "public"."pools"("address") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
+CREATE INDEX IF NOT EXISTS "idx_pools_value" ON "pools" USING btree ("value");

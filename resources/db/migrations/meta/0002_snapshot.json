@@ -1,5 +1,5 @@
 {
-  "id": "28f526cb-fec1-40d4-a366-5274589963bf",
+  "id": "ec2700de-b0d7-43e8-9344-aefa3daf20ab",
   "prevId": "adcce6ad-c044-4e51-b46e-96134560ac96",
   "version": "7",
   "dialect": "postgresql",
@@ -155,24 +155,6 @@
           "tableFrom": "pool_entries",
           "tableTo": "players",
           "columnsFrom": ["entrant"],
-          "columnsTo": ["address"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "pool_entries_option_pool_options_address_fk": {
-          "name": "pool_entries_option_pool_options_address_fk",
-          "tableFrom": "pool_entries",
-          "tableTo": "pool_options",
-          "columnsFrom": ["option"],
-          "columnsTo": ["address"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "pool_entries_pool_pools_address_fk": {
-          "name": "pool_entries_pool_pools_address_fk",
-          "tableFrom": "pool_entries",
-          "tableTo": "pools",
-          "columnsFrom": ["pool"],
           "columnsTo": ["address"],
           "onDelete": "no action",
           "onUpdate": "no action"

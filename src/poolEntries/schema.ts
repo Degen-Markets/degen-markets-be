@@ -15,14 +15,10 @@ export const poolEntriesTable = pgTable(
       .references(() => playersTable.address), // Foreign key to playersTable
 
     /** The solana address of the option account */
-    option: varchar("option", { length: 44 })
-      .notNull()
-      .references(() => poolOptionsTable.address), // Foreign key to poolOptionsTable
+    option: varchar("option", { length: 44 }).notNull(), // Foreign key to poolOptionsTable
 
     /** The solana address of the pool account */
-    pool: varchar("pool", { length: 44 })
-      .notNull()
-      .references(() => poolsTable.address), // Foreign key to poolsTable
+    pool: varchar("pool", { length: 44 }).notNull(), // Foreign key to poolsTable
 
     /** The total value (money) in this specific entry */
     value: numeric("value", {

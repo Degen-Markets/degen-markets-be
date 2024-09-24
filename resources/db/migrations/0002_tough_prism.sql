@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS "pool_options" (
 	"address" varchar(44) PRIMARY KEY NOT NULL,
 	"pool" varchar(44) NOT NULL,
 	"title" varchar(100) NOT NULL,
-	"value" numeric(50, 0) NOT NULL
+	"value" numeric(50, 0) NOT NULL,
+	"isWinningOption" boolean NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "pools" (
@@ -11,7 +12,6 @@ CREATE TABLE IF NOT EXISTS "pools" (
 	"description" varchar(200),
 	"image" varchar(100),
 	"isPaused" boolean NOT NULL,
-	"winningOption" varchar(44) NOT NULL,
 	"value" numeric(50, 0) NOT NULL,
 	"createdAt" timestamp DEFAULT now() NOT NULL
 );

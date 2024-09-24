@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import {
   index,
   numeric,
@@ -16,14 +15,11 @@ export const poolsTable = pgTable(
     description: varchar("description", { length: 200 }),
     image: varchar("image", { length: 100 }),
     isPaused: boolean("isPaused").notNull(), // Field can be true, false
-    winningOption: varchar("winningOption", { length: 44 }).notNull(),
     value: numeric("value", {
       precision: 50, // biggest number in rust is u128, so 50 precision gives us plenty of space
       scale: 0, // 0 scale because we do not want any decimals
     }).notNull(),
-    createdAt: timestamp("createdAt", { mode: "string" })
-      .notNull()
-      .default(sql`now()`), // Automatically sets the current timestamp on row insertion, eliminating the need to manually provide it.
+    createdAt: timestamp("createdAt").defaultNow().notNull(), // Automatically sets the current timestamp on row insertion, eliminating the need to manually provide it.
   },
   (table) => {
     return {

@@ -1,5 +1,5 @@
 {
-  "id": "ac384054-d28b-4ebc-a527-ac17b8f4e5fc",
+  "id": "28f526cb-fec1-40d4-a366-5274589963bf",
   "prevId": "adcce6ad-c044-4e51-b46e-96134560ac96",
   "version": "7",
   "dialect": "postgresql",
@@ -208,6 +208,12 @@
           "type": "numeric(50, 0)",
           "primaryKey": false,
           "notNull": true
+        },
+        "isWinningOption": {
+          "name": "isWinningOption",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {
@@ -341,12 +347,6 @@
         "isPaused": {
           "name": "isPaused",
           "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "winningOption": {
-          "name": "winningOption",
-          "type": "varchar(44)",
           "primaryKey": false,
           "notNull": true
         },

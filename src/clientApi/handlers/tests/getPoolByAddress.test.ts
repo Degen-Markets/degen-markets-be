@@ -29,22 +29,6 @@ describe("getPoolByAddress", () => {
       isPaused: false,
       value: "1000",
       createdAt: new Date("2023-01-01"),
-      options: [
-        {
-          address: "option1-address",
-          title: "Option 1",
-          value: "500",
-          pool: address,
-          isWinningOption: false,
-        },
-        {
-          address: "option2-address",
-          title: "Option 2",
-          value: "500",
-          pool: address,
-          isWinningOption: true,
-        },
-      ],
     };
 
     MockedPoolsService.getPoolByAddress.mockResolvedValue(mockPool);

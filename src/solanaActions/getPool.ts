@@ -35,16 +35,21 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
     return invalidPoolBlinkResponse;
   }
 
-  let pool: PoolEntity;
+  let pool: PoolEntity | null;
   let options: PoolOptionEntity[];
   logger.info(`loading pool and options for pool address: ${poolAddress}`);
   try {
     [pool, options] = await Promise.all([
       PoolsService.getPoolByAddress(poolAddress),
-      PoolOptionsService.getAllByPool(poolAddress),
+      PoolOptionsService.getAllInPool(poolAddress),
     ]);
   } catch (e) {
-    logger.error("Error getting pool or its options", e as Error);
+    logger.error("Error interacting with db", e as Error);
+    return invalidPoolBlinkResponse;
+  }
+
+  if (!pool) {
+    logger.error("Pool not found!");
     return invalidPoolBlinkResponse;
   }
 

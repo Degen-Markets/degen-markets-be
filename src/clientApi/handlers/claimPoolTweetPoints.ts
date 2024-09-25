@@ -10,6 +10,7 @@ import PlayersService from "../../players/service";
 import PoolSharingTweetsService from "../../poolSharingTweets/service";
 import { Logger } from "@aws-lambda-powertools/logger";
 import PoolsService from "../../pools/service";
+import { PoolEntity } from "../../pools/schema";
 
 const POINTS_AWARDED_FOR_SHARE = 10;
 
@@ -54,10 +55,16 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
   const tweetId = tweetIdParseTrial.data;
   logger.info("Parsed tweet ID", { tweetId });
 
+  let pool: PoolEntity | null;
   try {
-    await PoolsService.getPoolByAddress(poolId);
+    pool = await PoolsService.getPoolByAddress(poolId);
   } catch (e) {
     logger.error("Invalid pool ID", e as Error);
+    return buildBadRequestError("Invalid pool ID");
+  }
+
+  if (!pool) {
+    logger.error(`Pool with address ${poolId} not found}`);
     return buildBadRequestError("Invalid pool ID");
   }
 

@@ -11,7 +11,7 @@ export default class PoolOptionsService {
 
   private static readonly databaseClient: DatabaseClient = new DatabaseClient();
 
-  static getAllByPool = async (
+  static getAllInPool = async (
     poolAddress: string,
   ): Promise<PoolOptionEntity[]> => {
     this.logger.info(`Fetching options by pool: ${poolAddress}`);

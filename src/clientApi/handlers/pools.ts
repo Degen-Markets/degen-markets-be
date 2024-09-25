@@ -6,6 +6,7 @@ import {
   buildOkResponse,
 } from "../../utils/httpResponses";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
+import { PoolEntity } from "../../pools/schema";
 
 const logger = new Logger({ serviceName: "clientApi" });
 
@@ -31,7 +32,7 @@ export const getPoolByAddress = async (
     return buildNotFoundError("Pool ID not provided");
   }
   logger.info("Received request to fetch Pool by Address", { address });
-  let pool;
+  let pool: PoolEntity | null;
   try {
     pool = await PoolsService.getPoolByAddress(address);
   } catch (error) {

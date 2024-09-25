@@ -12,8 +12,8 @@ export const poolsTable = pgTable(
   {
     address: varchar("address", { length: 44 }).primaryKey(),
     title: varchar("title", { length: 100 }).notNull(),
-    description: varchar("description", { length: 200 }),
-    image: varchar("image", { length: 100 }),
+    description: varchar("description", { length: 200 }).notNull().default(""),
+    image: varchar("image", { length: 100 }).notNull(),
     isPaused: boolean("isPaused").notNull(), // Field can be true, false
     value: numeric("value", {
       precision: 50, // biggest number in rust is u128, so 50 precision gives us plenty of space
@@ -27,3 +27,5 @@ export const poolsTable = pgTable(
     };
   },
 );
+
+export type PoolEntity = typeof poolsTable.$inferSelect;

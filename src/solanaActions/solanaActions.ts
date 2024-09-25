@@ -28,7 +28,7 @@ const routes: Route<APIGatewayProxyEventV2>[] = [
   },
   {
     method: "GET",
-    path: "/pools/{id}",
+    path: "/pools/{address}",
     handler: middy().handler(getPool),
   },
   {

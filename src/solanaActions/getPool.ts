@@ -6,6 +6,10 @@ import pools from "./pools.json";
 import { LinkedAction } from "@solana/actions-spec";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import BN from "bn.js";
+import PoolsService from "../pools/service";
+import { PoolEntity } from "../pools/schema";
+import { PoolOptionEntity } from "../poolOptions/schema";
+import PoolOptionsService from "../poolOptions/service";
 
 const logger: Logger = new Logger({ serviceName: "GetPoolService" });
 
@@ -28,28 +32,24 @@ const invalidPoolBlinkResponse = {
 };
 
 export const getPool = async (event: APIGatewayProxyEventV2) => {
-  const poolId = event.pathParameters?.id as keyof typeof pools;
-  if (!poolId) {
+  const poolAddress = event.pathParameters?.address;
+  if (!poolAddress) {
     return invalidPoolBlinkResponse;
   }
 
-  const pool = pools[poolId];
-  if (!pool) {
+  let pool: PoolEntity;
+  let options: PoolOptionEntity[];
+  logger.info(`loading pool and options for pool address: ${poolAddress}`);
+  try {
+    [pool, options] = await Promise.all([
+      PoolsService.getPoolByAddress(poolAddress),
+      PoolOptionsService.getAllByPool(poolAddress),
+    ]);
+  } catch (e) {
+    logger.error("Error getting pool or its options", e as Error);
     return invalidPoolBlinkResponse;
   }
 
-  logger.info(`loading pool with id: ${poolId}`);
-  let poolAccount: {
-    title: string;
-    isPaused: boolean;
-    value: BN;
-    winningOption: PublicKey;
-  } = {
-    title: pool.title,
-    isPaused: true,
-    value: new BN(0),
-    winningOption: SystemProgram.programId,
-  };
   const metadata: PoolResponse = {
     icon: pool.image,
     label: pool.title,
@@ -59,25 +59,17 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       actions: [],
     },
   };
-  try {
-    poolAccount = await program.account.pool.fetch(poolId);
-    logger.info(`Pool Found: ${JSON.stringify(poolAccount, null, 3)}`);
-  } catch (e) {
-    metadata.disabled = true;
-    metadata.description = "Pool ended!";
-  }
-  if (poolAccount.isPaused) {
+
+  if (pool.isPaused) {
     logger.info(`Pool concluded`);
-    const winningOption = pool.options.find(
-      (option) => option.id === poolAccount.winningOption.toString(),
-    );
+    const winningOption = options.find((option) => option.isWinningOption);
     if (winningOption) {
       logger.info(`Winning option found: ${JSON.stringify(winningOption)}`);
       metadata.description = `If you picked "${winningOption.title}", you can claim your win below:`;
       metadata.links.actions = [
         {
           label: `Claim Win`,
-          href: `/pools/${poolId}/options/${winningOption.id}/claim-win`,
+          href: `/pools/${poolAddress}/options/${winningOption.address}/claim-win`,
         },
       ];
     } else {
@@ -85,22 +77,24 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       metadata.links.actions = [];
     }
   } else {
-    const poolTotalVal = poolAccount.value;
+    const poolTotalVal = pool.value;
     let poolOptionsWithPercOfTotalPoolValArr: {
-      id: string;
+      address: string;
       title: string;
       percOfTotalPoolVal: number;
-    }[] = [];
+    }[];
     if (poolTotalVal.toString() === "0") {
-      poolOptionsWithPercOfTotalPoolValArr = pool.options.map((option) => ({
+      poolOptionsWithPercOfTotalPoolValArr = options.map((option) => ({
         title: option.title,
-        id: option.id,
-        percOfTotalPoolVal: 100 / pool.options.length,
+        address: option.address,
+        percOfTotalPoolVal: 100 / options.length,
       }));
     } else {
       const poolOptionsWithVal = await Promise.all(
-        pool.options.map(async (option) => {
-          const { value } = await program.account.poolOption.fetch(option.id);
+        options.map(async (option) => {
+          const { value } = await program.account.poolOption.fetch(
+            option.address,
+          );
           return { ...option, value };
         }),
       );
@@ -113,10 +107,14 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
               .muln(
                 10 ** (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION),
               )
-              .div(poolTotalVal)
+              .div(new BN(poolTotalVal))
               .toNumber() /
             10 ** REQUIRED_BASIS_POINT_PRECISION;
-          return { id: option.id, title: option.title, percOfTotalPoolVal };
+          return {
+            address: option.address,
+            title: option.title,
+            percOfTotalPoolVal,
+          };
         },
       );
     }
@@ -124,7 +122,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
       .map((option) => ({
         label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
-        href: `/pools/${poolId}/options/${option.id}?value={amount}`,
+        href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
         parameters: [
           {
             name: "amount",

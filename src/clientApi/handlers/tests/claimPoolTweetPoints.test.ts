@@ -28,9 +28,16 @@ const spiedChangePoints = jest
   .spyOn(PlayersService, "changePoints")
   .mockImplementation();
 
-jest.mock("../../../solanaActions/pools.json", () => ({
-  pool123: {},
-}));
+jest.spyOn(PoolsService, "getPoolByAddress").mockResolvedValue({
+  address: "",
+  description: "",
+  image: "",
+  title: "",
+  isPaused: false,
+  value: "0",
+  createdAt: new Date(),
+});
+
 const mockPoolId = Object.keys(PoolsJson)[0];
 
 const spiedFindTweetContentById = jest
@@ -118,6 +125,9 @@ describe("claimPoolTweetPointsHandler", () => {
   });
 
   it("returns a bad request for invalid pool ID", async () => {
+    jest
+      .spyOn(PoolsService, "getPoolByAddress")
+      .mockRejectedValueOnce(new Error("Pool not found!"));
     const invalidEvent = {
       body: JSON.stringify({
         ...mockEventBody,
@@ -201,16 +211,6 @@ describe("claimPoolTweetPointsHandler", () => {
   });
 
   it("returns success when tweet contains pool URL", async () => {
-    jest.spyOn(PoolsService, "getPoolByAddress").mockResolvedValueOnce({
-      address: "",
-      description: "",
-      image: "",
-      title: "",
-      isPaused: false,
-      value: "0",
-      createdAt: new Date(),
-    });
-
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(

@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { parseTweetIdFromUrl, getPoolPageUrlFromPoolId } from "./utils";
+import { getPoolPageUrlFromPoolId, parseTweetIdFromUrl } from "./utils";
 import {
   buildBadRequestError,
   buildOkResponse,
@@ -7,9 +7,9 @@ import {
 import { tryIt } from "../../utils/tryIt";
 import { findTweetContentById } from "../../utils/twitter";
 import PlayersService from "../../players/service";
-import PoolsJson from "../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../poolSharingTweets/service";
 import { Logger } from "@aws-lambda-powertools/logger";
+import PoolsService from "../../pools/service";
 
 const POINTS_AWARDED_FOR_SHARE = 10;
 
@@ -54,8 +54,10 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
   const tweetId = tweetIdParseTrial.data;
   logger.info("Parsed tweet ID", { tweetId });
 
-  if (!PoolsJson.hasOwnProperty(poolId)) {
-    logger.error("Invalid pool ID", { poolId });
+  try {
+    await PoolsService.getPoolByAddress(poolId);
+  } catch (e) {
+    logger.error("Invalid pool ID", e as Error);
     return buildBadRequestError("Invalid pool ID");
   }
 

@@ -1,10 +1,8 @@
-import { APIGatewayEvent, APIGatewayProxyEventV2 } from "aws-lambda";
+import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { program } from "./constants";
-import pools from "./pools.json";
 import { LinkedAction } from "@solana/actions-spec";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
 import BN from "bn.js";
 import PoolsService from "../pools/service";
 import { PoolEntity } from "../pools/schema";

@@ -6,6 +6,7 @@ import { buildBadRequestError } from "../../../utils/httpResponses";
 import * as TwitterUtils from "../../../utils/twitter";
 import PoolsJson from "../../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../../poolSharingTweets/service";
+import PoolsService from "../../../pools/service";
 
 const spiedParseTweetIdFromUrl = jest.spyOn(Utils, "parseTweetIdFromUrl");
 const spiedGetPoolPageUrlFromPoolId = jest.spyOn(
@@ -200,6 +201,16 @@ describe("claimPoolTweetPointsHandler", () => {
   });
 
   it("returns success when tweet contains pool URL", async () => {
+    jest.spyOn(PoolsService, "getPoolByAddress").mockResolvedValueOnce({
+      address: "",
+      description: "",
+      image: "",
+      title: "",
+      isPaused: false,
+      value: "0",
+      createdAt: new Date(),
+    });
+
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
     expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(

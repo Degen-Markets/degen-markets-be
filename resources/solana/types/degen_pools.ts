@@ -119,6 +119,14 @@ export type DegenPools = {
             array: ["u8", 32];
           };
         },
+        {
+          name: "imageUrl";
+          type: "string";
+        },
+        {
+          name: "description";
+          type: "string";
+        },
       ];
     },
     {
@@ -225,6 +233,14 @@ export type DegenPools = {
   ];
   events: [
     {
+      name: "optionCreated";
+      discriminator: [22, 155, 156, 185, 146, 155, 71, 83];
+    },
+    {
+      name: "poolCreated";
+      discriminator: [202, 44, 41, 88, 104, 220, 157, 82];
+    },
+    {
       name: "poolEntered";
       discriminator: [224, 196, 156, 64, 200, 219, 71, 199];
     },
@@ -260,6 +276,16 @@ export type DegenPools = {
       name: "entryNotDerivedFromOptionOrSigner";
       msg: "This entry was not derived from the winning option or the signer";
     },
+    {
+      code: 6006;
+      name: "imageUrlTooLong";
+      msg: "The image URL is too long. Maximum length is 100 characters.";
+    },
+    {
+      code: 6007;
+      name: "descriptionTooLong";
+      msg: "The description is too long. Maximum length is 200 characters.";
+    },
   ];
   types: [
     {
@@ -274,6 +300,26 @@ export type DegenPools = {
           {
             name: "isClaimed";
             type: "bool";
+          },
+        ];
+      };
+    },
+    {
+      name: "optionCreated";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "poolAccount";
+            type: "pubkey";
+          },
+          {
+            name: "option";
+            type: "pubkey";
+          },
+          {
+            name: "title";
+            type: "string";
           },
         ];
       };
@@ -298,6 +344,30 @@ export type DegenPools = {
           {
             name: "value";
             type: "u64";
+          },
+        ];
+      };
+    },
+    {
+      name: "poolCreated";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "poolAccount";
+            type: "pubkey";
+          },
+          {
+            name: "title";
+            type: "string";
+          },
+          {
+            name: "imageUrl";
+            type: "string";
+          },
+          {
+            name: "description";
+            type: "string";
           },
         ];
       };

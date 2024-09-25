@@ -112,6 +112,14 @@
           "type": {
             "array": ["u8", 32]
           }
+        },
+        {
+          "name": "image_url",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string"
         }
       ]
     },
@@ -219,6 +227,14 @@
   ],
   "events": [
     {
+      "name": "OptionCreated",
+      "discriminator": [22, 155, 156, 185, 146, 155, 71, 83]
+    },
+    {
+      "name": "PoolCreated",
+      "discriminator": [202, 44, 41, 88, 104, 220, 157, 82]
+    },
+    {
       "name": "PoolEntered",
       "discriminator": [224, 196, 156, 64, 200, 219, 71, 199]
     }
@@ -253,6 +269,16 @@
       "code": 6005,
       "name": "EntryNotDerivedFromOptionOrSigner",
       "msg": "This entry was not derived from the winning option or the signer"
+    },
+    {
+      "code": 6006,
+      "name": "ImageUrlTooLong",
+      "msg": "The image URL is too long. Maximum length is 100 characters."
+    },
+    {
+      "code": 6007,
+      "name": "DescriptionTooLong",
+      "msg": "The description is too long. Maximum length is 200 characters."
     }
   ],
   "types": [
@@ -268,6 +294,26 @@
           {
             "name": "is_claimed",
             "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OptionCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "option",
+            "type": "pubkey"
+          },
+          {
+            "name": "title",
+            "type": "string"
           }
         ]
       }
@@ -292,6 +338,30 @@
           {
             "name": "value",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "image_url",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
           }
         ]
       }

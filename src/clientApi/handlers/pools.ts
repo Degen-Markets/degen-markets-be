@@ -17,10 +17,6 @@ export const getAllPools = async (): Promise<APIGatewayProxyResultV2> => {
     logger.error("Error fetching pools", { error: error });
     return buildInternalServerError("An unexpected error occurred");
   }
-  if (!pools || pools.length === 0) {
-    logger.error("No pools found");
-    return buildNotFoundError("No pools found");
-  }
 
   logger.info("Successfully retrieved pools", { pools });
   return buildOkResponse(pools);

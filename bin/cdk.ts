@@ -63,6 +63,7 @@ new SolanaActionsStack(app, "SolanaActionsApi", {
   cname: "actions",
   env: getEnv(),
   crossRegionReferences: true,
+  database: databaseInstance,
 });
 
 new AdminWebsiteStack(app, "AdminWebsiteStack", {

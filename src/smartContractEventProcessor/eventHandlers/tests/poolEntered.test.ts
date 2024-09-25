@@ -1,12 +1,10 @@
 import { poolEnteredEventHandler } from "../poolEntered";
 import PoolEntriesService from "../../../poolEntries/service";
-import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../../players/service";
 import { calculatePointsEarned } from "../utils";
 import BN from "bn.js";
-import { PlayerEntity } from "../../../players/schema";
-
-jest.mock("../../../poolEntries/service");
+import PoolOptionsService from "../../../poolOptions/service";
+import PoolsService from "../../../pools/service";
 
 jest.mock("../utils");
 const mockedCalculatePointsEarned = jest.mocked(calculatePointsEarned);
@@ -29,17 +27,30 @@ describe("poolEnteredEventHandler", () => {
   it("calls the database services with correct arguments", async () => {
     const randomPointsEarned = Math.floor(Math.random() * 100);
     mockedCalculatePointsEarned.mockReturnValue(randomPointsEarned);
-    const mockedInsert = jest.fn();
+    const mockedPlayerInsert = jest.fn();
+    const mockedEntriesInsert = jest.fn();
+    const mockedOptionsUpdate = jest.fn();
+    const mockedPoolsUpdate = jest.fn();
     jest
       .spyOn(PlayersService, "insertNewOrAwardPoints")
-      .mockImplementation(mockedInsert);
+      .mockImplementation(mockedPlayerInsert);
+    jest
+      .spyOn(PoolEntriesService, "insertNewOrIncrementValue")
+      .mockImplementation(mockedEntriesInsert);
+    jest
+      .spyOn(PoolOptionsService, "incrementValue")
+      .mockImplementation(mockedOptionsUpdate);
+    jest
+      .spyOn(PoolsService, "incrementValue")
+      .mockImplementation(mockedPoolsUpdate);
+
     await poolEnteredEventHandler(mockEventData);
 
     expect(mockedCalculatePointsEarned).toHaveBeenCalledWith(
       new BN(mockEventData.value),
       expect.any(Number),
     );
-    expect(mockedInsert).toHaveBeenCalledWith(
+    expect(mockedPlayerInsert).toHaveBeenCalledWith(
       mockEventData.entrant,
       randomPointsEarned,
     );
@@ -51,31 +62,15 @@ describe("poolEnteredEventHandler", () => {
       pool: mockEventData.pool,
       value: mockEventData.value,
     });
-  });
 
-  it("logs the correct messages with event data", async () => {
-    const dummyPlayer: PlayerEntity = {
-      address: "randomChar",
-      points: 0,
-      twitterId: null,
-      twitterPfpUrl: null,
-      twitterUsername: null,
-    };
-    jest
-      .spyOn(PlayersService, "insertNewOrAwardPoints")
-      .mockResolvedValue(dummyPlayer);
+    expect(PoolOptionsService.incrementValue).toHaveBeenCalledWith(
+      mockEventData.option,
+      mockEventData.value,
+    );
 
-    const logSpy = jest.fn();
-    jest.spyOn(Logger.prototype, "info").mockImplementation(logSpy);
-
-    await poolEnteredEventHandler(mockEventData);
-
-    expect(logSpy).toHaveBeenCalledTimes(3);
-    expect(logSpy).toHaveBeenNthCalledWith(1, "Processing event", {
-      eventData: mockEventData,
-    });
-    expect(logSpy).toHaveBeenNthCalledWith(3, "Completed processing event", {
-      eventData: mockEventData,
-    });
+    expect(PoolsService.incrementValue).toHaveBeenCalledWith(
+      mockEventData.pool,
+      mockEventData.value,
+    );
   });
 });

@@ -5,19 +5,21 @@ import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { LambdaApi } from "./constructs/LambdaApi";
 import { Fn, StackProps } from "aws-cdk-lib";
+import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 
 export interface SolanaActionsStackProps extends StackProps {
   certificate: Certificate;
   zone: IHostedZone;
   cname: string;
   vpc: Vpc;
+  database: DatabaseInstance;
 }
 
 export class SolanaActionsStack extends TaggedStack {
   constructor(scope: Construct, id: string, props: SolanaActionsStackProps) {
     super(scope, id, props);
 
-    const { vpc, cname, zone, certificate } = props;
+    const { vpc, cname, zone, certificate, database } = props;
 
     const { lambda } = new LambdaApi(this, "SolanaActionsApiLambda", {
       cname,
@@ -26,6 +28,13 @@ export class SolanaActionsStack extends TaggedStack {
       entryFile: "solanaActions/solanaActions.ts",
       lambda: {
         functionName: "SolanaActionsHandler",
+        environment: {
+          DATABASE_PASSWORD_SECRET: database.secret!.secretName,
+          DATABASE_USERNAME: "postgres",
+          DATABASE_DATABASE_NAME: "degenmarkets",
+          DATABASE_HOST: database.instanceEndpoint.hostname,
+          DATABASE_PORT: database.instanceEndpoint.port.toString(),
+        },
         vpc,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
         bundling: {
@@ -43,6 +52,9 @@ export class SolanaActionsStack extends TaggedStack {
       },
       apiName: "SolanaActionsApi",
     });
+
+    database.secret?.grantRead(lambda);
+
     const securityGroup = SecurityGroup.fromSecurityGroupId(
       this,
       "ImportedSecurityGroup",

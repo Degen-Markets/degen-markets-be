@@ -1,5 +1,6 @@
 import { pgTable, varchar, index } from "drizzle-orm/pg-core";
 import { playersTable } from "../players/schema";
+import { poolsTable } from "../pools/schema";
 
 export const poolSharingTweetsTable = pgTable(
   "pool_sharing_tweets",
@@ -8,7 +9,9 @@ export const poolSharingTweetsTable = pgTable(
     tweetId: varchar("tweetId", { length: 100 }).primaryKey(),
 
     /** The address of the pool shared by the player */
-    pool: varchar("pool", { length: 44 }).notNull(),
+    pool: varchar("pool", { length: 44 })
+      .notNull()
+      .references(() => poolsTable.address),
 
     /** The address of the player who shared the tweet */
     player: varchar("player", { length: 44 })

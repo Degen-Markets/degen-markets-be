@@ -2,7 +2,7 @@ import { sql } from "drizzle-orm";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { DatabaseClient } from "../clients/DatabaseClient";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { poolsTable } from "./schema";
+import { PoolEntity, poolsTable } from "./schema";
 
 export default class PoolsService {
   private static readonly logger = new Logger({
@@ -19,7 +19,9 @@ export default class PoolsService {
     });
   };
 
-  static getPoolByAddress = async (poolAddress: string) => {
+  static getPoolByAddress = async (
+    poolAddress: string,
+  ): Promise<PoolEntity | null> => {
     this.logger.info(`Fetching pool by Address: ${poolAddress}`);
     return this.databaseClient.withDb(async (db: NodePgDatabase) => {
       const result = await db
@@ -27,9 +29,7 @@ export default class PoolsService {
         .from(poolsTable)
         .where(sql`${poolsTable.address} = ${poolAddress}`);
 
-      if (!result.length) throw new Error("Pool not found");
-      const pool = result[0];
-      return pool;
+      return result[0] || null;
     });
   };
 }

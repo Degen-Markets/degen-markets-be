@@ -6,6 +6,7 @@ import { buildBadRequestError } from "../../../utils/httpResponses";
 import * as TwitterUtils from "../../../utils/twitter";
 import PoolsJson from "../../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../../poolSharingTweets/service";
+import PoolsService from "../../../pools/service";
 
 const spiedParseTweetIdFromUrl = jest.spyOn(Utils, "parseTweetIdFromUrl");
 const spiedGetPoolPageUrlFromPoolId = jest.spyOn(
@@ -27,9 +28,16 @@ const spiedChangePoints = jest
   .spyOn(PlayersService, "changePoints")
   .mockImplementation();
 
-jest.mock("../../../solanaActions/pools.json", () => ({
-  pool123: {},
-}));
+jest.spyOn(PoolsService, "getPoolByAddress").mockResolvedValue({
+  address: "",
+  description: "",
+  image: "",
+  title: "",
+  isPaused: false,
+  value: "0",
+  createdAt: new Date(),
+});
+
 const mockPoolId = Object.keys(PoolsJson)[0];
 
 const spiedFindTweetContentById = jest
@@ -117,6 +125,9 @@ describe("claimPoolTweetPointsHandler", () => {
   });
 
   it("returns a bad request for invalid pool ID", async () => {
+    jest
+      .spyOn(PoolsService, "getPoolByAddress")
+      .mockRejectedValueOnce(new Error("Pool not found!"));
     const invalidEvent = {
       body: JSON.stringify({
         ...mockEventBody,

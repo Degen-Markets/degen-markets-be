@@ -13,7 +13,12 @@ const main = async () => {
   const imageUrl =
     "https://degen-markets-static.s3.eu-west-1.amazonaws.com/ansem_bitboy.jpeg";
   // const poolAccountKey = await derivePoolAccountKey(title);
-  const poolAccountKey = await createPool(title, adminAccount);
+  const poolAccountKey = await createPool(
+    title,
+    adminAccount,
+    imageUrl,
+    description,
+  );
   const optionAccountKeys = await Promise.all(
     optionTitles.map((optionTitle) => {
       // return deriveOptionAccountKey(optionTitle, poolAccountKey);

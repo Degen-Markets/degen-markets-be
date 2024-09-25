@@ -13,10 +13,12 @@ export const derivePoolAccountKey = async (title: string) => {
 export const createPool = async (
   title: string,
   keypair: anchor.web3.Keypair,
+  imageUrl: string,
+  description: string,
 ) => {
   const poolAccountKey = await derivePoolAccountKey(title);
   await program.methods
-    .createPool(title, getTitleHash(title))
+    .createPool(title, getTitleHash(title), imageUrl, description)
     .accounts({
       poolAccount: poolAccountKey,
       admin: keypair.publicKey,

@@ -25,6 +25,11 @@ class PoolSharingTweetsService {
       .values(tweetData)
       .returning();
     const insertedTweet = result[0];
+    if (!insertedTweet) {
+      this.logger.error("Failed to insert new tweet into db");
+      throw new Error("Failed to insert new tweet into db");
+    }
+
     this.logger.info("Inserted tweet into db", { tweet: insertedTweet });
     return insertedTweet;
   }

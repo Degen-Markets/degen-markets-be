@@ -39,6 +39,9 @@ jest.spyOn(PoolsService, "getPoolByAddress").mockResolvedValue({
 });
 
 const mockPoolId = Object.keys(PoolsJson)[0];
+if (!mockPoolId) {
+  throw new Error("No pool ID found");
+}
 
 const spiedFindTweetContentById = jest
   .spyOn(TwitterUtils, "findTweetContentById")

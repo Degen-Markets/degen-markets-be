@@ -34,6 +34,11 @@ export default class PoolEntriesService {
       .returning();
 
     const poolEntry = result[0];
+    if (!poolEntry) {
+      this.logger.error("Failed to insert or increment pool entry value");
+      throw new Error("Failed to insert or increment pool entry value");
+    }
+
     this.logger.debug("Inserted or incremented pool entry value", {
       poolEntry,
     });

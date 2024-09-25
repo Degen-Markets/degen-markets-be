@@ -18,7 +18,7 @@ export const parseTweetIdFromUrl = (url: string): string => {
   // We're not overcomplicating the tweet url regex. If it has status/number, it's valid enough.
   // Anyway, we are checking the tweet via twitter API, not via the tweet link sent in the request. So it's secure.
   const match = url.match(/status\/(\d+)\/?\b/);
-  if (!match) {
+  if (!match?.[1]) {
     throw new Error("Invalid tweet URL");
   }
   return match[1];

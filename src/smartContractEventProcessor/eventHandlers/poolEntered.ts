@@ -4,6 +4,8 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../players/service";
 import { calculatePointsEarned } from "./utils";
 import BN from "bn.js";
+import PoolOptionsService from "../../poolOptions/service";
+import PoolsService from "../../pools/service";
 
 type PoolEnteredEventData = Extract<
   SmartContractEvent,
@@ -28,14 +30,18 @@ export const poolEnteredEventHandler = async (
   );
   logger.info(`Points calculation returned ${pointsEarned}`);
 
-  await PlayersService.insertNewOrAwardPoints(entrant, pointsEarned);
-  await PoolEntriesService.insertNewOrIncrementValue({
-    address: entry,
-    entrant,
-    option,
-    pool,
-    value: valueStr,
-  });
+  await Promise.all([
+    PlayersService.insertNewOrAwardPoints(entrant, pointsEarned),
+    PoolEntriesService.insertNewOrIncrementValue({
+      address: entry,
+      entrant,
+      option,
+      pool,
+      value: valueStr,
+    }),
+    PoolsService.incrementValue(pool, valueStr),
+    PoolOptionsService.incrementValue(option, valueStr),
+  ]);
 
   logger.info("Completed processing event", { eventData });
 };

@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { DatabaseClient } from "../clients/DatabaseClient";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
@@ -30,6 +30,29 @@ export default class PoolsService {
         .where(sql`${poolsTable.address} = ${poolAddress}`);
 
       return result[0] || null;
+    });
+  };
+
+  static incrementValue = async (
+    poolAddress: string,
+    value: string,
+  ): Promise<PoolEntity> => {
+    this.logger.info(`Incrementing value of option: ${poolAddress}`);
+    return this.databaseClient.withDb(async (db: NodePgDatabase) => {
+      const result = await db
+        .update(poolsTable)
+        .set({ value: sql`${poolsTable.value} + ${value}` })
+        .where(eq(poolsTable.address, poolAddress))
+        .returning();
+
+      const updatedPool = result[0];
+
+      if (!updatedPool) {
+        this.logger.error(`Pool with address: ${poolAddress} failed to update`);
+        throw new Error("Pool Update failed");
+      }
+
+      return updatedPool;
     });
   };
 }

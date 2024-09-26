@@ -60,7 +60,7 @@ export default class PoolsService {
 
       if (!updatedPool) {
         this.logger.error(`Pool with address: ${poolAddress} failed to update`);
-        throw new Error("Pool Update failed found");
+        throw new Error("Pool Update failed");
       }
 
       return updatedPool;

@@ -55,7 +55,7 @@ export default class PoolOptionsService {
         this.logger.error(
           `Option with address: ${optionAddress} failed to update`,
         );
-        throw new Error("Pool Update failed found");
+        throw new Error("Pool Option update failed");
       }
 
       return updatedOption;

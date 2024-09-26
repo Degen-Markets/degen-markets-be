@@ -39,20 +39,9 @@ export default class PoolsService {
   ): Promise<PoolEntity> => {
     this.logger.info(`Incrementing value of option: ${poolAddress}`);
     return this.databaseClient.withDb(async (db: NodePgDatabase) => {
-      const pools = await db
-        .select()
-        .from(poolsTable)
-        .where(eq(poolsTable.address, poolAddress))
-        .limit(1);
-      const pool = pools[0];
-      if (!pool) {
-        this.logger.error(`Pool with address: ${poolAddress} not found`);
-        throw new Error("Pool not found");
-      }
-
       const result = await db
         .update(poolsTable)
-        .set({ value: sql`${pool.value} + ${value}` })
+        .set({ value: sql`${poolsTable.value} + ${value}` })
         .where(eq(poolsTable.address, poolAddress))
         .returning();
 

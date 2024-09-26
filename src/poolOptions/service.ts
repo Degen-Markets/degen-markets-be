@@ -32,20 +32,9 @@ export default class PoolOptionsService {
       `Adding ${value} to Option with address: ${optionAddress}`,
     );
     return this.databaseClient.withDb(async (db: NodePgDatabase) => {
-      const options = await db
-        .select()
-        .from(poolOptionsTable)
-        .where(eq(poolOptionsTable.address, optionAddress))
-        .limit(1);
-      const option = options[0];
-      if (!option) {
-        this.logger.error(`Option with address: ${optionAddress} not found`);
-        throw new Error("Option not found");
-      }
-
       const result = await db
         .update(poolOptionsTable)
-        .set({ value: sql`${option.value} + ${value}` })
+        .set({ value: sql`${poolOptionsTable.value} + ${value}` })
         .where(eq(poolOptionsTable.address, optionAddress))
         .returning();
 

@@ -41,6 +41,10 @@ export default class PlayersService {
       .returning();
 
     const player = result[0];
+    if (!player) {
+      this.logger.error("Failed to insert new or award points to player");
+      throw new Error("Failed to insert new or award points to player");
+    }
 
     this.logger.info("Inserted player or updated points of player", {
       player,
@@ -69,6 +73,10 @@ export default class PlayersService {
   ) => {
     const result = await db.insert(playersTable).values(player).returning();
     const updatedPlayer = result[0];
+    if (!updatedPlayer) {
+      this.logger.error("Failed to insert new player");
+      throw new Error("Failed to insert new player");
+    }
     this.logger.info("Inserted new player", { player: updatedPlayer });
     return updatedPlayer;
   };
@@ -100,6 +108,11 @@ export default class PlayersService {
       .where(eq(playersTable.address, playerAddress))
       .returning();
     const player = result[0];
+    if (!player) {
+      this.logger.error("Failed to update player's twitter profile");
+      throw new Error("Failed to update player's twitter profile");
+    }
+
     this.logger.info("Updated player's twitter profile", {
       player,
     });
@@ -228,6 +241,11 @@ export default class PlayersService {
       .where(eq(playersTable.address, address))
       .returning();
     const player = result[0];
+    if (!player) {
+      this.logger.error("Failed to change points for player");
+      throw new Error("Failed to change points for player");
+    }
+
     this.logger.info("Updated points for player", { player });
     return player;
   };
@@ -238,7 +256,10 @@ export default class PlayersService {
    * @param pointsDelta - The number of points to add(if number is positive) or subtract(if number is negative)
    * @returns The updated player entity
    */
-  static changePoints = async (address: string, pointsDelta: number) =>
+  static changePoints = async (
+    address: string,
+    pointsDelta: number,
+  ): Promise<PlayerEntity> =>
     this.databaseClient.withDb(async (db) =>
       this._changePoints(db, address, pointsDelta),
     );

@@ -107,8 +107,8 @@ export class DatabaseStack extends TaggedStack {
     );
 
     new CfnOutput(this, "DatabaseSecurityGroupOutput", {
-      value:
-        this.databaseInstance.connections.securityGroups[0].securityGroupId,
+      value: this.databaseInstance.connections.securityGroups[0]
+        ?.securityGroupId as string,
       description: "Database security group id",
       exportName: "Database:SecurityGroup:Id",
     });

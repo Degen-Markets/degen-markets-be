@@ -10,7 +10,7 @@
     "resolveJsonModule": true,
     "strictNullChecks": true,
     "noImplicitThis": true,
-    "noUncheckedIndexedAccess": false,
+    "noUncheckedIndexedAccess": true,
     "alwaysStrict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,

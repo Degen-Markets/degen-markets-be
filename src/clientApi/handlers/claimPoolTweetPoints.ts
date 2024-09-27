@@ -5,7 +5,7 @@ import {
   buildOkResponse,
 } from "../../utils/httpResponses";
 import { tryIt } from "../../utils/tryIt";
-import { findTweetContentById } from "../../utils/twitter";
+import { findTweetById } from "../../utils/twitter";
 import PlayersService from "../../players/service";
 import PoolSharingTweetsService from "../../poolSharingTweets/service";
 import { Logger } from "@aws-lambda-powertools/logger";
@@ -29,20 +29,15 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     return buildBadRequestError("Couldn't parse request body");
   }
 
-  const { tweetUrl, poolId, playerAddress } = bodyParseTrial.data;
-  if (
-    typeof tweetUrl !== "string" ||
-    typeof poolId !== "string" ||
-    typeof playerAddress !== "string"
-  ) {
+  const { tweetUrl, poolId } = bodyParseTrial.data;
+  if (typeof tweetUrl !== "string" || typeof poolId !== "string") {
     logger.error("Missing required fields in request body", {
       tweetUrl,
       poolId,
-      playerAddress,
     });
     return buildBadRequestError("Missing required fields in request body");
   }
-  logger.info("Parsed request body", { tweetUrl, poolId, playerAddress });
+  logger.info("Parsed request body", { tweetUrl, poolId });
 
   const tweetIdParseTrial = tryIt(() => parseTweetIdFromUrl(tweetUrl));
   if (!tweetIdParseTrial.success) {
@@ -68,12 +63,20 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     return buildBadRequestError("Invalid pool ID");
   }
 
-  const player = await PlayersService.getPlayerByAddress(playerAddress);
-  if (!player) {
-    logger.error("Invalid player address", { playerAddress });
-    return buildBadRequestError("Invalid player address");
+  const tweetData = await findTweetById(tweetId);
+  if (tweetData === null) {
+    logger.error("Tweet not found", { tweetId });
+    return buildBadRequestError("Tweet not found");
   }
-  logger.info("Player found", { playerAddress });
+
+  const player = await PlayersService.getPlayerByTwitterId(tweetData.authorId);
+  if (!player) {
+    logger.error("Player not found for Twitter ID", {
+      twitterId: tweetData.authorId,
+    });
+    return buildBadRequestError("Player not found for the given tweet");
+  }
+  logger.info("Player found", { playerAddress: player.address });
 
   const tweetWithSameIdInDb =
     await PoolSharingTweetsService.findByTweetId(tweetId);
@@ -82,17 +85,11 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     return buildBadRequestError("Tweet already verified");
   }
 
-  const tweetContent = await findTweetContentById(tweetId);
-  if (tweetContent === null) {
-    logger.error("Tweet not found", { tweetId });
-    return buildBadRequestError("Tweet not found");
-  }
-
   const poolPageUrl = getPoolPageUrlFromPoolId(poolId);
-  if (!tweetContent.includes(poolPageUrl)) {
+  if (!tweetData.content.includes(poolPageUrl)) {
     logger.error("Tweet content doesn't contain pool page URL", {
       poolPageUrl,
-      tweetContent,
+      tweetContent: tweetData.content,
     });
     return buildBadRequestError("Tweet content doesn't contain pool page URL");
   }
@@ -101,16 +98,16 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     tweetId,
   });
 
-  await PlayersService.changePoints(playerAddress, POINTS_AWARDED_FOR_SHARE);
+  await PlayersService.changePoints(player.address, POINTS_AWARDED_FOR_SHARE);
   logger.info("Awarded points to player", {
-    playerAddress,
+    playerAddress: player.address,
     points: POINTS_AWARDED_FOR_SHARE,
   });
 
   await PoolSharingTweetsService.insertNew({
     tweetId,
     pool: poolId,
-    player: playerAddress,
+    player: player.address,
   });
   logger.info("Inserted new pool sharing tweet record", {
     tweetId,

@@ -5,9 +5,9 @@ import { program } from "./constants";
 import { LinkedAction } from "@solana/actions-spec";
 import BN from "bn.js";
 import PoolsService from "../pools/service";
-import { PoolEntity } from "../pools/schema";
-import { PoolOptionEntity } from "../poolOptions/schema";
 import PoolOptionsService from "../poolOptions/service";
+import { PoolEntity } from "../pools/types";
+import { PoolOptionEntity } from "../poolOptions/types";
 
 const logger: Logger = new Logger({ serviceName: "GetPoolService" });
 

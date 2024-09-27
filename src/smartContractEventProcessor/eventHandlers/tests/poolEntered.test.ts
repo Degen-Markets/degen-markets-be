@@ -1,4 +1,4 @@
-import { poolEnteredEventHandler } from "../poolEntered";
+import poolEnteredEventHandler from "../poolEntered";
 import PoolEntriesService from "../../../poolEntries/service";
 import PlayersService from "../../../players/service";
 import { calculatePointsEarned } from "../utils";

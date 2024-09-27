@@ -27,5 +27,3 @@ export const poolsTable = pgTable(
     };
   },
 );
-
-export type PoolEntity = typeof poolsTable.$inferSelect;

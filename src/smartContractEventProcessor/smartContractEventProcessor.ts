@@ -3,9 +3,11 @@ import { injectLambdaContext } from "@aws-lambda-powertools/logger/middleware";
 import middy from "@middy/core";
 import { SQSEvent } from "aws-lambda";
 import { buildOkResponse } from "../utils/httpResponses";
-import { poolEnteredEventHandler } from "./eventHandlers/poolEntered";
+import poolEnteredEventHandler from "./eventHandlers/poolEntered";
 import { tryIt } from "../utils/tryIt";
 import { SmartContractEvent } from "./types";
+import poolCreatedEventHandler from "./eventHandlers/poolCreated";
+import optionCreatedEventHandler from "./eventHandlers/optionCreated";
 
 const logger = new Logger({ serviceName: "smartContractEventProcessor" });
 
@@ -43,8 +45,22 @@ const forwardToEventHandler = async (
       await poolEnteredEventHandler(smartContractEvent.data);
       break;
 
+    case "poolCreated":
+      logger.info("Processing `poolCreated` event", {
+        event: smartContractEvent,
+      });
+      await poolCreatedEventHandler(smartContractEvent.data);
+      break;
+
+    case "optionCreated":
+      logger.info("Processing `optionCreated` event", {
+        event: smartContractEvent,
+      });
+      await optionCreatedEventHandler(smartContractEvent.data);
+      break;
+
     default:
-      logger.warn(`${smartContractEvent.eventName} events are not handled`, {
+      logger.warn(`Event not handled`, {
         event: smartContractEvent,
       });
   }

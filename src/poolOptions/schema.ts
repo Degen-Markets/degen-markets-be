@@ -1,4 +1,4 @@
-import { index, numeric, pgTable, varchar, boolean } from "drizzle-orm/pg-core";
+import { boolean, index, numeric, pgTable, varchar } from "drizzle-orm/pg-core";
 import { poolsTable } from "../pools/schema";
 
 export const poolOptionsTable = pgTable(
@@ -21,5 +21,3 @@ export const poolOptionsTable = pgTable(
     };
   },
 );
-
-export type PoolOptionEntity = typeof poolOptionsTable.$inferSelect;

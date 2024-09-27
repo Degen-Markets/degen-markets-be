@@ -106,7 +106,29 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
           value: parseTrial?.data.data.value.toString(),
           entrant: parseTrial?.data.data.entrant.toString(),
         },
-      } as SmartContractEvent;
+      };
+
+    case "poolCreated":
+      return {
+        eventName: parseTrial.data.name,
+        data: {
+          poolAccount: parseTrial.data.data.poolAccount.toString(),
+          title: parseTrial.data.data.title,
+          imageUrl: parseTrial.data.data.imageUrl,
+          description: parseTrial.data.data.description,
+        },
+      };
+
+    case "optionCreated":
+      return {
+        eventName: parseTrial.data.name,
+        data: {
+          poolAccount: parseTrial.data.data.poolAccount.toString(),
+          option: parseTrial.data.data.option.toString(),
+          title: parseTrial.data.data.title,
+        },
+      };
+
     default:
       return null;
   }

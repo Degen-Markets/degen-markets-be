@@ -13,6 +13,8 @@ import { SmartContractEvent } from "../../smartContractEventProcessor/types";
 
 const VALID_EVENTS = [
   "poolEntered",
+  "poolCreated",
+  "optionCreated",
 ] satisfies (typeof program.idl.events)[number]["name"][];
 
 const logger = new Logger({

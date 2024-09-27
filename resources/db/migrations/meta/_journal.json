@@ -29,6 +29,13 @@
       "when": 1727260064707,
       "tag": "0003_jittery_skrulls",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1727446267594,
+      "tag": "0004_square_speed_demon",
+      "breakpoints": true
     }
   ]
 }

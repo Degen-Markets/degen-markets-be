@@ -4,62 +4,11 @@ import * as Utils from "../utils";
 import PlayersService from "../../../players/service";
 import { buildBadRequestError } from "../../../utils/httpResponses";
 import * as TwitterUtils from "../../../utils/twitter";
-import PoolsJson from "../../../solanaActions/pools.json";
 import PoolSharingTweetsService from "../../../poolSharingTweets/service";
 import PoolsService from "../../../pools/service";
 
-const spiedParseTweetIdFromUrl = jest.spyOn(Utils, "parseTweetIdFromUrl");
-const spiedGetPoolPageUrlFromPoolId = jest.spyOn(
-  Utils,
-  "getPoolPageUrlFromPoolId",
-);
-
-const mockPlayer = {
-  address: "player123",
-  points: 0,
-  twitterUsername: null,
-  twitterPfpUrl: null,
-  twitterId: "twitterId123",
-};
-const spiedGetPlayerByTwitterId = jest
-  .spyOn(PlayersService, "getPlayerByTwitterId")
-  .mockResolvedValue(mockPlayer);
-const spiedChangePoints = jest
-  .spyOn(PlayersService, "changePoints")
-  .mockImplementation();
-
-jest.spyOn(PoolsService, "getPoolByAddress").mockResolvedValue({
-  address: "",
-  description: "",
-  image: "",
-  title: "",
-  isPaused: false,
-  value: "0",
-  createdAt: new Date(),
-});
-
-const mockPoolId = Object.keys(PoolsJson)[0];
-if (!mockPoolId) {
-  throw new Error("No pool ID found");
-}
-
-const spiedFindTweetById = jest
-  .spyOn(TwitterUtils, "findTweetById")
-  .mockResolvedValue({
-    content: `Check out this pool\n${Utils.getPoolPageUrlFromPoolId(mockPoolId)}`,
-    authorId: mockPlayer.twitterId,
-  });
-
-const spiedFindByTweetId = jest
-  .spyOn(PoolSharingTweetsService, "findByTweetId")
-  .mockResolvedValue(null);
-const spiedInsertNew = jest
-  .spyOn(PoolSharingTweetsService, "insertNew")
-  .mockImplementation();
-
 const mockEventBody = {
   tweetUrl: "https://twitter.com/user/status/123456789",
-  poolId: mockPoolId,
 };
 const mockEvent = {
   body: JSON.stringify(mockEventBody),
@@ -67,6 +16,59 @@ const mockEvent = {
 const tweetIdInMockEventBody = Utils.parseTweetIdFromUrl(
   mockEventBody.tweetUrl,
 );
+
+const spiedParseTweetIdFromUrl = jest.spyOn(Utils, "parseTweetIdFromUrl");
+
+const mockTweet = {
+  content: `Check out this pool\ndegenmarkets.com/pools/pool123`,
+  authorId: "mockTwitterId",
+};
+const spiedFindTweetById = jest
+  .spyOn(TwitterUtils, "findTweetById")
+  .mockResolvedValue(mockTweet);
+
+const spiedExtractPoolIdFromTweetContent = jest.spyOn(
+  Utils,
+  "extractPoolIdFromTweetContent",
+);
+
+const spiedGetPoolByAddress = jest
+  .spyOn(PoolsService, "getPoolByAddress")
+  .mockResolvedValue({
+    // pool value is never used by the handler. Pool just needs to exist
+    address: "",
+    description: "",
+    image: "",
+    title: "",
+    isPaused: false,
+    value: "0",
+    createdAt: new Date(),
+  });
+
+const mockPoolId = Utils.extractPoolIdFromTweetContent(mockTweet.content);
+
+const mockPlayer = {
+  address: "player123",
+  points: 0,
+  twitterUsername: null,
+  twitterPfpUrl: null,
+  twitterId: mockTweet.authorId,
+};
+const spiedGetPlayerByTwitterId = jest
+  .spyOn(PlayersService, "getPlayerByTwitterId")
+  .mockResolvedValue(mockPlayer);
+
+const spiedFindClaimedTweetByTweetId = jest
+  .spyOn(PoolSharingTweetsService, "findByTweetId")
+  .mockResolvedValue(null);
+
+const spiedChangePoints = jest
+  .spyOn(PlayersService, "changePoints")
+  .mockImplementation();
+
+const spiedInsertNew = jest
+  .spyOn(PoolSharingTweetsService, "insertNew")
+  .mockImplementation();
 
 describe("claimPoolTweetPointsHandler", () => {
   beforeEach(() => {
@@ -85,7 +87,7 @@ describe("claimPoolTweetPointsHandler", () => {
   });
 
   it("returns a bad request when required fields in body are missing or invalid", async () => {
-    const requiredFields = ["tweetUrl", "poolId"];
+    const requiredFields = ["tweetUrl"];
     const perfectBody = Object.fromEntries(
       requiredFields.map((field) => [field, ""]),
     );
@@ -110,14 +112,14 @@ describe("claimPoolTweetPointsHandler", () => {
       const response = await claimPoolTweetPointsHandler(event);
 
       expect(response).toEqual(
-        buildBadRequestError("Missing required fields in request body"),
+        buildBadRequestError("Missing required field in request body"),
       );
     });
   });
 
   it("returns a bad request for invalid tweet URL", async () => {
     spiedParseTweetIdFromUrl.mockImplementationOnce(() => {
-      throw new Error("Invalid tweet URL");
+      throw new Error();
     });
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
@@ -127,92 +129,78 @@ describe("claimPoolTweetPointsHandler", () => {
     expect(response).toEqual(buildBadRequestError("Invalid tweet URL"));
   });
 
-  it("returns a bad request for invalid pool ID", async () => {
-    jest
-      .spyOn(PoolsService, "getPoolByAddress")
-      .mockRejectedValueOnce(new Error("Pool not found!"));
-    const invalidEvent = {
-      body: JSON.stringify({
-        ...mockEventBody,
-        poolId: "invalidPoolId",
-      }),
-    } as APIGatewayProxyEventV2;
-    const response = await claimPoolTweetPointsHandler(invalidEvent);
+  it("returns a bad request when tweet has already been claimed", async () => {
+    spiedFindClaimedTweetByTweetId.mockResolvedValueOnce({
+      // we just need a non null value to be returned
+      tweetId: "",
+      pool: "",
+      player: "",
+    });
 
-    expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
-      mockEventBody.tweetUrl,
-    );
-    expect(response).toEqual(buildBadRequestError("Invalid pool ID"));
-  });
-
-  it("returns a bad request when player is not found for the given tweet", async () => {
-    spiedGetPlayerByTwitterId.mockResolvedValueOnce(null);
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
-    expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
-      mockEventBody.tweetUrl,
+    expect(spiedFindClaimedTweetByTweetId).toHaveBeenCalledWith(
+      tweetIdInMockEventBody,
     );
-    expect(spiedFindTweetById).toHaveBeenCalledWith(tweetIdInMockEventBody);
-    expect(spiedGetPlayerByTwitterId).toHaveBeenCalledWith(
-      mockPlayer.twitterId,
-    );
-    expect(response).toEqual(
-      buildBadRequestError("Player not found for the given tweet"),
-    );
+    expect(response).toEqual(buildBadRequestError("Tweet already claimed"));
   });
 
   it("returns a bad request when tweet is not found", async () => {
     spiedFindTweetById.mockResolvedValueOnce(null);
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
-    expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
-      mockEventBody.tweetUrl,
-    );
     expect(spiedFindTweetById).toHaveBeenCalledWith(tweetIdInMockEventBody);
     expect(response).toEqual(buildBadRequestError("Tweet not found"));
   });
 
-  it("returns failure when tweet doesn't contain pool URL", async () => {
-    spiedFindTweetById.mockResolvedValueOnce({
-      content: "A tweet without pool URL",
-      authorId: mockPlayer.twitterId,
+  it("returns a bad request when pool ID cannot be extracted from tweet content", async () => {
+    spiedExtractPoolIdFromTweetContent.mockImplementationOnce(() => {
+      throw new Error();
     });
+
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
-    expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
-      mockEventBody.tweetUrl,
+    expect(spiedExtractPoolIdFromTweetContent).toHaveBeenCalledWith(
+      mockTweet.content,
     );
-    expect(spiedFindTweetById).toHaveBeenCalledWith(tweetIdInMockEventBody);
-    expect(spiedGetPlayerByTwitterId).toHaveBeenCalledWith(
-      mockPlayer.twitterId,
-    );
-    expect(spiedGetPoolPageUrlFromPoolId).toHaveBeenCalledWith(mockPoolId);
     expect(response).toEqual(
-      buildBadRequestError("Tweet content doesn't contain pool page URL"),
+      buildBadRequestError("Tweet content doesn't satisfy requirement"),
     );
   });
 
-  it("returns success when tweet contains pool URL", async () => {
+  it("returns a bad request when extracted pool ID is not found in DB", async () => {
+    spiedGetPoolByAddress.mockResolvedValueOnce(null);
+
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
-    expect(spiedParseTweetIdFromUrl).toHaveBeenCalledWith(
-      mockEventBody.tweetUrl,
+    expect(spiedGetPoolByAddress).toHaveBeenCalledWith(mockPoolId);
+    expect(response).toEqual(buildBadRequestError("Invalid pool ID in tweet"));
+  });
+
+  it("returns a bad request when author for the given tweet is not found in players DB", async () => {
+    spiedGetPlayerByTwitterId.mockResolvedValueOnce(null);
+
+    const response = await claimPoolTweetPointsHandler(mockEvent);
+
+    expect(spiedGetPlayerByTwitterId).toHaveBeenCalledWith(mockTweet.authorId);
+    expect(response).toEqual(
+      buildBadRequestError("Tweet author isn't a registered player"),
     );
-    expect(spiedFindTweetById).toHaveBeenCalledWith(tweetIdInMockEventBody);
-    expect(spiedGetPlayerByTwitterId).toHaveBeenCalledWith(
-      mockPlayer.twitterId,
-    );
-    expect(spiedFindByTweetId).toHaveBeenCalledWith(tweetIdInMockEventBody);
-    expect(spiedGetPoolPageUrlFromPoolId).toHaveBeenCalledWith(mockPoolId);
+  });
+
+  it("returns success when tweet contains valid pool URL", async () => {
+    const response = await claimPoolTweetPointsHandler(mockEvent);
+
     expect(spiedChangePoints).toHaveBeenCalledWith(
       mockPlayer.address,
       expect.any(Number),
     );
     expect(spiedInsertNew).toHaveBeenCalledWith({
       tweetId: tweetIdInMockEventBody,
-      pool: mockEventBody.poolId,
+      pool: mockPoolId,
       player: mockPlayer.address,
     });
+
     if (typeof response !== "object") {
       expect(typeof response).toBe("object");
       return;

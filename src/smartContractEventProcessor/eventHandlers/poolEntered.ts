@@ -18,10 +18,8 @@ const logger = new Logger({
   serviceName: "PoolEnteredEventHandler",
 });
 
-export const poolEnteredEventHandler = async (
-  eventData: PoolEnteredEventData,
-) => {
-  logger.info("Processing event", { eventData });
+const poolEnteredEventHandler = async (eventData: PoolEnteredEventData) => {
+  logger.info("Processing PoolEntered event", { eventData });
 
   const { entrant, option, pool, value: valueStr, entry } = eventData;
   const pointsEarned = calculatePointsEarned(
@@ -43,5 +41,7 @@ export const poolEnteredEventHandler = async (
     PoolOptionsService.incrementValue(option, valueStr),
   ]);
 
-  logger.info("Completed processing event", { eventData });
+  logger.info("Completed processing PoolEntered event", { eventData });
 };
+
+export default poolEnteredEventHandler;

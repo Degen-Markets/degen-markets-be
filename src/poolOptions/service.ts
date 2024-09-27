@@ -2,8 +2,8 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { DatabaseClient } from "../clients/DatabaseClient";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { eq, sql } from "drizzle-orm";
-import { PoolOptionEntity, poolOptionsTable } from "./schema";
-import { poolsTable } from "../pools/schema";
+import { poolOptionsTable } from "./schema";
+import { CreateOptionInput, PoolOptionEntity } from "./types";
 
 export default class PoolOptionsService {
   private static readonly logger = new Logger({
@@ -48,6 +48,27 @@ export default class PoolOptionsService {
       }
 
       return updatedOption;
+    });
+  };
+
+  static createNewOption = async (input: CreateOptionInput) => {
+    this.logger.info(`Creating new Option: ${input.address}`);
+    return this.databaseClient.withDb(async (db: NodePgDatabase) => {
+      const result = await db
+        .insert(poolOptionsTable)
+        .values({
+          ...input,
+          value: "0",
+          isWinningOption: false,
+        })
+        .returning();
+      const option = result[0];
+      if (!option) {
+        this.logger.error(`Failed to insert Option ${input.address}`);
+        throw new Error("Failed to insert Option");
+      }
+      this.logger.info(`Inserted option`, { option });
+      return option;
     });
   };
 }

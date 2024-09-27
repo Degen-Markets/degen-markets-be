@@ -1,0 +1,1 @@
+ALTER TABLE "pools" ALTER COLUMN "image" SET DATA TYPE varchar(200);

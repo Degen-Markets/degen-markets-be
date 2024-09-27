@@ -10,7 +10,8 @@ import PlayersService from "../../players/service";
 import PoolSharingTweetsService from "../../poolSharingTweets/service";
 import { Logger } from "@aws-lambda-powertools/logger";
 import PoolsService from "../../pools/service";
-import { PoolEntity } from "../../pools/schema";
+
+import { PoolEntity } from "../../pools/types";
 
 const POINTS_AWARDED_FOR_SHARE = 10;
 

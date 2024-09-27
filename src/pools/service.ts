@@ -2,7 +2,8 @@ import { eq, sql } from "drizzle-orm";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { DatabaseClient } from "../clients/DatabaseClient";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { PoolEntity, poolsTable } from "./schema";
+import { poolsTable } from "./schema";
+import { CreatePoolInput, PoolEntity } from "./types";
 
 export default class PoolsService {
   private static readonly logger = new Logger({
@@ -53,6 +54,27 @@ export default class PoolsService {
       }
 
       return updatedPool;
+    });
+  };
+
+  static createNewPool = async (input: CreatePoolInput) => {
+    this.logger.info(`Creating new Pool: ${input.address}`);
+    return this.databaseClient.withDb(async (db: NodePgDatabase) => {
+      const result = await db
+        .insert(poolsTable)
+        .values({
+          ...input,
+          value: "0",
+          isPaused: false,
+        })
+        .returning();
+      const pool = result[0];
+      if (!pool) {
+        this.logger.error(`Failed to insert Pool ${input.address}`);
+        throw new Error("Failed to insert Pool");
+      }
+      this.logger.info(`Inserted Pool`, { pool });
+      return pool;
     });
   };
 }

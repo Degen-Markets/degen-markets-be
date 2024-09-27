@@ -6,7 +6,8 @@ import {
   buildOkResponse,
 } from "../../utils/httpResponses";
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { PoolEntity } from "../../pools/schema";
+
+import { PoolEntity } from "../../pools/types";
 
 const logger = new Logger({ serviceName: "clientApi" });
 

@@ -33,12 +33,17 @@ export const findConnectedUser = async (): Promise<
   });
 };
 
-export const findTweetContentById = async (
+export const findTweetById = async (
   tweetId: string,
-): Promise<string | null> => {
+): Promise<{ content: string; authorId: string } | null> => {
   logger.info("Requesting tweet by ID", { tweetId });
   const client = new Client(twitterBearerToken);
   const response = await client.tweets.findTweetById(tweetId);
   logger.info("Received response for `findTweetById`", { response });
-  return response.data?.text || null;
+  const content = response.data?.text;
+  const authorId = response.data?.author_id;
+  if (!content || !authorId) {
+    return null;
+  }
+  return { content, authorId };
 };

@@ -24,11 +24,10 @@ export const parseTweetIdFromUrl = (url: string): string => {
   return match[1];
 };
 
-/**
- * Gets the pool page url from the pool id
- * @param poolId The pool id
- * @returns The pool page url
- */
-export const getPoolPageUrlFromPoolId = (poolId: string): string => {
-  return `degenmarkets.com/pools/${poolId}`;
-};
+export function extractPoolIdFromTweetContent(content: string): string {
+  const match = content.match(/degenmarkets\.com\/pools\/([a-zA-Z0-9]+)/);
+  if (!match?.[1]) {
+    throw new Error("Match not found");
+  }
+  return match[1];
+}

@@ -1,9 +1,7 @@
 import { adminAccount, program } from "./utils/constants";
 import { PublicKey } from "@solana/web3.js";
-import pools from "../src/solanaActions/pools.json";
-import fs from "fs";
 
-const pausePool = async (poolId: keyof typeof pools) => {
+const pausePool = async (poolId: string) => {
   const poolAccountKey = new PublicKey(poolId);
   await program.methods
     .setIsPaused(true)
@@ -13,17 +11,7 @@ const pausePool = async (poolId: keyof typeof pools) => {
     })
     .signers([adminAccount])
     .rpc();
-  const newPools = {
-    ...pools,
-    [poolId]: {
-      ...pools[poolId],
-      isPaused: true,
-    },
-  };
-  fs.writeFileSync(
-    `${process.cwd()}/src/solanaActions/pools.json`,
-    JSON.stringify(newPools, null, 2),
-  );
+  console.log(`pool paused ${poolId}`);
 };
 
-pausePool("5XbddrrdxrLh2W8WG1srdtgoVAcVKLukoCZYJBGt71Sa");
+pausePool("7QTZY2trftoGQrn4hGYXPB7AHFHFzJHB9tXMZgnyKpe8");

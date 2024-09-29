@@ -1,12 +1,7 @@
-import pools from "../src/solanaActions/pools.json";
 import { adminAccount, program } from "./utils/constants";
 import { PublicKey } from "@solana/web3.js";
-import fs from "fs";
 
-const setWinningOption = async (
-  poolId: keyof typeof pools,
-  optionId: string,
-) => {
+const setWinningOption = async (poolId: string, optionId: string) => {
   const optionAccountKey = new PublicKey(optionId);
   const poolAccountKey = new PublicKey(poolId);
   await program.methods
@@ -17,20 +12,10 @@ const setWinningOption = async (
     })
     .signers([adminAccount])
     .rpc();
-  const newPools = {
-    ...pools,
-    [poolId]: {
-      ...pools[poolId],
-      winningOption: optionId,
-    },
-  };
-  fs.writeFileSync(
-    `${process.cwd()}/src/solanaActions/pools.json`,
-    JSON.stringify(newPools, null, 2),
-  );
+  console.log(`Winner for pool ${poolId} set to option ${optionId}`);
 };
 
 setWinningOption(
-  "3aCgJR22eBMmnBj2hYHHaossPZCmSMCZ5QNbCmsjDixF",
-  "EZNfgQWAcGdEoSkrmBAnkWUVNfUHnF2ZbPCXRFFmEYjX",
+  "7QTZY2trftoGQrn4hGYXPB7AHFHFzJHB9tXMZgnyKpe8",
+  "9cyUUwRi2zmYBwKLcRkscpZEV3BCNHmQUUnGfvdoMWdc",
 );

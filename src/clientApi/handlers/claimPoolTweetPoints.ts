@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { parseTweetIdFromUrl, extractPoolIdFromTweetContent } from "./utils";
+import { parseTweetIdFromUrl, getPoolIdFromLinksArr } from "./utils";
 import {
   buildBadRequestError,
   buildOkResponse,
@@ -59,18 +59,14 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     return buildBadRequestError("Tweet not found");
   }
 
-  const poolIdExtractTrial = tryIt(() =>
-    extractPoolIdFromTweetContent(tweetData.content),
-  );
-  if (!poolIdExtractTrial.success) {
-    logger.error("Failed to extract pool ID from tweet content", {
-      tweetContent: tweetData.content,
-      error: poolIdExtractTrial.err,
+  const poolId = getPoolIdFromLinksArr(tweetData.links);
+  if (!poolId) {
+    logger.error("Failed to extract pool ID from tweet links", {
+      links: tweetData.links,
     });
     return buildBadRequestError("Tweet content doesn't satisfy requirement");
   }
-  const poolId = poolIdExtractTrial.data;
-  logger.info("Extracted pool ID from tweet content", { poolId });
+  logger.info("Extracted pool ID from tweet link", { poolId });
 
   const pool = await PoolsService.getPoolByAddress(poolId);
   if (!pool) {
@@ -106,6 +102,7 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
   return buildOkResponse({
     message: "Pool tweet points claimed successfully",
     pointsAwarded: POINTS_AWARDED_FOR_SHARE,
+    authorUsername: player.twitterUsername,
   });
 };
 

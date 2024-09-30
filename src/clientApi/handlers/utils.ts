@@ -1,3 +1,5 @@
+import { tryIt } from "../../utils/tryIt";
+
 /**
  * Gets the high res version of twitter pfp
  * @param twitterImageUrl The original (low res) pfp url
@@ -24,10 +26,30 @@ export const parseTweetIdFromUrl = (url: string): string => {
   return match[1];
 };
 
-export function extractPoolIdFromTweetContent(content: string): string {
-  const match = content.match(/degenmarkets\.com\/pools\/([a-zA-Z0-9]+)/);
+export function extractPoolIdFromUrl(url: string): string {
+  const match = url.match(
+    /^https:\/\/www\.degenmarkets\.com\/pools\/([a-zA-Z0-9]+)/,
+  );
   if (!match?.[1]) {
-    throw new Error("Match not found");
+    throw new Error("Valid pool ID not found in URL");
   }
   return match[1];
+}
+
+/**
+ * Finds the first valid pool ID from the links array
+ */
+export function getPoolIdFromLinksArr(
+  links: string[],
+  extractFn: typeof extractPoolIdFromUrl = extractPoolIdFromUrl, // solely for dependency injection testing
+): string | null {
+  let poolId: string | null = null;
+  for (const link of links) {
+    const poolIdExtractTrial = tryIt(() => extractFn(link));
+    if (poolIdExtractTrial.success) {
+      poolId = poolIdExtractTrial.data;
+      break;
+    }
+  }
+  return poolId;
 }

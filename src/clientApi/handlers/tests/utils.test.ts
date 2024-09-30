@@ -1,4 +1,8 @@
-import { parseTweetIdFromUrl, extractPoolIdFromTweetContent } from "../utils";
+import {
+  parseTweetIdFromUrl,
+  getPoolIdFromLinksArr,
+  extractPoolIdFromUrl,
+} from "../utils";
 
 describe("parseTweetIdFromUrl", () => {
   it("should parse the tweet ID correctly", () => {
@@ -39,32 +43,64 @@ describe("parseTweetIdFromUrl", () => {
   });
 });
 
-describe("extractPoolIdFromTweetContent", () => {
+describe("extractPoolIdFromUrl", () => {
   it("should extract the pool ID correctly from a valid URL", () => {
     const poolId = "abc123";
-    const content = `Check out this pool: degenmarkets.com/pools/${poolId}`;
-    expect(extractPoolIdFromTweetContent(content)).toBe(poolId);
-  });
-
-  it("should extract the first pool ID when multiple valid URLs are present", () => {
-    const firstPoolId = "abc123";
-    const secondPoolId = "xyz789";
-    const content = `First pool: degenmarkets.com/pools/${firstPoolId}\nSecond pool: degenmarkets.com/pools/${secondPoolId}`;
-    expect(extractPoolIdFromTweetContent(content)).toBe(firstPoolId);
+    const url = `https://www.degenmarkets.com/pools/${poolId}`;
+    expect(extractPoolIdFromUrl(url)).toBe(poolId);
   });
 
   it("should throw an error for invalid URLs", () => {
-    const invalidContents = [
-      "Check out this pool: dgenmarkets.com/pools/abc123", // Typo in domain
-      "Check out this pool: degenmarkets.com/pool/abc123", // Missing 's' in 'pools'
-      "Check out this pool: degenmarkets.com/pools/", // Missing pool ID
-      "Check out this pool: degenmarkets.com/pools/$sdf", // Invalid pool ID
+    const invalidUrls = [
+      "degenmarkets.com/pools/abc123", // missing https://www
+      "https://www.dgenmarkets.com/pools/abc123", // Typo in domain
+      "https://degenmarkets.com/pool/abc123", // Invalid path
+      "https://degenmarkets.com/pools/", // Missing pool ID
+      "https://degenmarkets.com/pools/$sdf", // Invalid pool ID
     ];
 
-    invalidContents.forEach((content) => {
-      expect(() => extractPoolIdFromTweetContent(content)).toThrow(
-        "Match not found",
+    invalidUrls.forEach((content) => {
+      expect(() => extractPoolIdFromUrl(content)).toThrow(
+        "Valid pool ID not found in URL",
       );
     });
+  });
+});
+
+describe("getPoolIdFromLinksArr", () => {
+  it("should extract the first valid pool ID from an array of links", () => {
+    const firstValidPoolId = "poolId1";
+    const mockExtractFn = jest
+      .fn()
+      .mockImplementationOnce(() => {
+        throw new Error();
+      })
+      .mockImplementationOnce(() => firstValidPoolId)
+      .mockImplementationOnce(() => "poolId2");
+
+    const links = ["link1", "link2", "link3"];
+    expect(getPoolIdFromLinksArr(links, mockExtractFn)).toBe(firstValidPoolId);
+    expect(mockExtractFn).toHaveBeenCalledTimes(2);
+  });
+
+  it("should return null if no valid pool ID is found", () => {
+    const mockExtractFn = jest.fn().mockImplementation(() => {
+      throw new Error();
+    });
+    const links = ["link1", "link2", "link3"];
+    expect(getPoolIdFromLinksArr(links, mockExtractFn)).toBeNull();
+    expect(mockExtractFn).toHaveBeenCalledTimes(3);
+  });
+
+  it("should handle an empty array", () => {
+    const mockExtractFn = jest.fn();
+    expect(getPoolIdFromLinksArr([], mockExtractFn)).toBeNull();
+    expect(mockExtractFn).not.toHaveBeenCalled();
+  });
+
+  it("should use the default extractPoolIdFromUrl function when no custom function is provided", () => {
+    const validUrl = "https://www.degenmarkets.com/pools/abc123";
+    const links = ["invalid1", validUrl, "invalid2"];
+    expect(getPoolIdFromLinksArr(links)).toBe(extractPoolIdFromUrl(validUrl));
   });
 });

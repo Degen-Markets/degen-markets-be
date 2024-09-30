@@ -1,3 +1,5 @@
+import { tryIt } from "../../utils/tryIt";
+
 /**
  * Gets the high res version of twitter pfp
  * @param twitterImageUrl The original (low res) pfp url
@@ -23,14 +25,6 @@ export const parseTweetIdFromUrl = (url: string): string => {
   }
   return match[1];
 };
-
-export function extractPoolIdFromTweetContent(content: string): string {
-  const match = content.match(/degenmarkets\.com\/pools\/([a-zA-Z0-9]+)/);
-  if (!match?.[1]) {
-    throw new Error("Match not found");
-  }
-  return match[1];
-}
 
 export function extractPoolIdFromUrl(url: string): string {
   const match = url.match(

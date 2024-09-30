@@ -208,5 +208,6 @@ describe("claimPoolTweetPointsHandler", () => {
     );
     expect(parsedBody.pointsAwarded).toEqual(expect.any(Number));
     expect(parsedBody.pointsAwarded).toBeGreaterThan(0);
+    expect(parsedBody.authorUsername).toEqual(mockPlayer.twitterUsername);
   });
 });

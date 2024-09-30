@@ -102,6 +102,7 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
   return buildOkResponse({
     message: "Pool tweet points claimed successfully",
     pointsAwarded: POINTS_AWARDED_FOR_SHARE,
+    authorUsername: player.twitterUsername,
   });
 };
 

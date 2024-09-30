@@ -1,4 +1,8 @@
-import { parseTweetIdFromUrl, extractPoolIdFromUrl } from "../utils";
+import {
+  parseTweetIdFromUrl,
+  extractPoolIdFromLinksArr,
+  extractPoolIdFromUrl,
+} from "../utils";
 
 describe("parseTweetIdFromUrl", () => {
   it("should parse the tweet ID correctly", () => {
@@ -60,5 +64,47 @@ describe("extractPoolIdFromUrl", () => {
         "Valid pool ID not found in URL",
       );
     });
+  });
+});
+
+describe("extractPoolIdFromLinksArr", () => {
+  it("should extract the first valid pool ID from an array of links", () => {
+    const firstValidPoolId = "poolId1";
+    const mockExtractFn = jest
+      .fn()
+      .mockImplementationOnce(() => {
+        throw new Error();
+      })
+      .mockImplementationOnce(() => firstValidPoolId)
+      .mockImplementationOnce(() => "poolId2");
+
+    const links = ["link1", "link2", "link3"];
+    expect(extractPoolIdFromLinksArr(links, mockExtractFn)).toBe(
+      firstValidPoolId,
+    );
+    expect(mockExtractFn).toHaveBeenCalledTimes(2);
+  });
+
+  it("should return null if no valid pool ID is found", () => {
+    const mockExtractFn = jest.fn().mockImplementation(() => {
+      throw new Error();
+    });
+    const links = ["link1", "link2", "link3"];
+    expect(extractPoolIdFromLinksArr(links, mockExtractFn)).toBeNull();
+    expect(mockExtractFn).toHaveBeenCalledTimes(3);
+  });
+
+  it("should handle an empty array", () => {
+    const mockExtractFn = jest.fn();
+    expect(extractPoolIdFromLinksArr([], mockExtractFn)).toBeNull();
+    expect(mockExtractFn).not.toHaveBeenCalled();
+  });
+
+  it("should use the default extractPoolIdFromUrl function when no custom function is provided", () => {
+    const validUrl = "https://www.degenmarkets.com/pools/abc123";
+    const links = ["invalid1", validUrl, "invalid2"];
+    expect(extractPoolIdFromLinksArr(links)).toBe(
+      extractPoolIdFromUrl(validUrl),
+    );
   });
 });

@@ -35,3 +35,21 @@ export function extractPoolIdFromUrl(url: string): string {
   }
   return match[1];
 }
+
+/**
+ * Extracts the first valid pool ID from the links array
+ */
+export function extractPoolIdFromLinksArr(
+  links: string[],
+  extractFn: typeof extractPoolIdFromUrl = extractPoolIdFromUrl, // solely for dependency injection testing
+): string | null {
+  let poolId: string | null = null;
+  for (const link of links) {
+    const poolIdExtractTrial = tryIt(() => extractFn(link));
+    if (poolIdExtractTrial.success) {
+      poolId = poolIdExtractTrial.data;
+      break;
+    }
+  }
+  return poolId;
+}

@@ -20,17 +20,19 @@ const tweetIdInMockEventBody = Utils.parseTweetIdFromUrl(
 const spiedParseTweetIdFromUrl = jest.spyOn(Utils, "parseTweetIdFromUrl");
 
 const mockTweet = {
-  content: `Check out this pool\ndegenmarkets.com/pools/pool123`,
+  content: "Mock tweet content",
   authorId: "mockTwitterId",
+  links: ["link1", "link2"],
 };
+
 const spiedFindTweetById = jest
   .spyOn(TwitterUtils, "findTweetById")
   .mockResolvedValue(mockTweet);
 
-const spiedExtractPoolIdFromTweetContent = jest.spyOn(
-  Utils,
-  "extractPoolIdFromTweetContent",
-);
+const mockPoolId = "mockPoolId";
+const spiedGetPoolIdFromLinksArr = jest
+  .spyOn(Utils, "getPoolIdFromLinksArr")
+  .mockReturnValue(mockPoolId);
 
 const spiedGetPoolByAddress = jest
   .spyOn(PoolsService, "getPoolByAddress")
@@ -44,8 +46,6 @@ const spiedGetPoolByAddress = jest
     value: "0",
     createdAt: new Date(),
   });
-
-const mockPoolId = Utils.extractPoolIdFromTweetContent(mockTweet.content);
 
 const mockPlayer = {
   address: "player123",
@@ -153,16 +153,12 @@ describe("claimPoolTweetPointsHandler", () => {
     expect(response).toEqual(buildBadRequestError("Tweet not found"));
   });
 
-  it("returns a bad request when pool ID cannot be extracted from tweet content", async () => {
-    spiedExtractPoolIdFromTweetContent.mockImplementationOnce(() => {
-      throw new Error();
-    });
+  it("returns a bad request when pool ID cannot be extracted from tweet links array", async () => {
+    spiedGetPoolIdFromLinksArr.mockReturnValueOnce(null);
 
     const response = await claimPoolTweetPointsHandler(mockEvent);
 
-    expect(spiedExtractPoolIdFromTweetContent).toHaveBeenCalledWith(
-      mockTweet.content,
-    );
+    expect(spiedGetPoolIdFromLinksArr).toHaveBeenCalledWith(mockTweet.links);
     expect(response).toEqual(
       buildBadRequestError("Tweet content doesn't satisfy requirement"),
     );

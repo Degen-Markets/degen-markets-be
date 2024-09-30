@@ -1,6 +1,6 @@
 import {
   parseTweetIdFromUrl,
-  extractPoolIdFromLinksArr,
+  getPoolIdFromLinksArr,
   extractPoolIdFromUrl,
 } from "../utils";
 
@@ -67,7 +67,7 @@ describe("extractPoolIdFromUrl", () => {
   });
 });
 
-describe("extractPoolIdFromLinksArr", () => {
+describe("getPoolIdFromLinksArr", () => {
   it("should extract the first valid pool ID from an array of links", () => {
     const firstValidPoolId = "poolId1";
     const mockExtractFn = jest
@@ -79,9 +79,7 @@ describe("extractPoolIdFromLinksArr", () => {
       .mockImplementationOnce(() => "poolId2");
 
     const links = ["link1", "link2", "link3"];
-    expect(extractPoolIdFromLinksArr(links, mockExtractFn)).toBe(
-      firstValidPoolId,
-    );
+    expect(getPoolIdFromLinksArr(links, mockExtractFn)).toBe(firstValidPoolId);
     expect(mockExtractFn).toHaveBeenCalledTimes(2);
   });
 
@@ -90,21 +88,19 @@ describe("extractPoolIdFromLinksArr", () => {
       throw new Error();
     });
     const links = ["link1", "link2", "link3"];
-    expect(extractPoolIdFromLinksArr(links, mockExtractFn)).toBeNull();
+    expect(getPoolIdFromLinksArr(links, mockExtractFn)).toBeNull();
     expect(mockExtractFn).toHaveBeenCalledTimes(3);
   });
 
   it("should handle an empty array", () => {
     const mockExtractFn = jest.fn();
-    expect(extractPoolIdFromLinksArr([], mockExtractFn)).toBeNull();
+    expect(getPoolIdFromLinksArr([], mockExtractFn)).toBeNull();
     expect(mockExtractFn).not.toHaveBeenCalled();
   });
 
   it("should use the default extractPoolIdFromUrl function when no custom function is provided", () => {
     const validUrl = "https://www.degenmarkets.com/pools/abc123";
     const links = ["invalid1", validUrl, "invalid2"];
-    expect(extractPoolIdFromLinksArr(links)).toBe(
-      extractPoolIdFromUrl(validUrl),
-    );
+    expect(getPoolIdFromLinksArr(links)).toBe(extractPoolIdFromUrl(validUrl));
   });
 });

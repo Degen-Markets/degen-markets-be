@@ -37,9 +37,9 @@ export function extractPoolIdFromUrl(url: string): string {
 }
 
 /**
- * Extracts the first valid pool ID from the links array
+ * Finds the first valid pool ID from the links array
  */
-export function extractPoolIdFromLinksArr(
+export function getPoolIdFromLinksArr(
   links: string[],
   extractFn: typeof extractPoolIdFromUrl = extractPoolIdFromUrl, // solely for dependency injection testing
 ): string | null {

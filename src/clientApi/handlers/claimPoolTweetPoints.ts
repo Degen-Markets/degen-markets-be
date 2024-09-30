@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { parseTweetIdFromUrl, extractPoolIdFromLinksArr } from "./utils";
+import { parseTweetIdFromUrl, getPoolIdFromLinksArr } from "./utils";
 import {
   buildBadRequestError,
   buildOkResponse,
@@ -59,7 +59,7 @@ const claimPoolTweetPointsHandler = async (event: APIGatewayProxyEventV2) => {
     return buildBadRequestError("Tweet not found");
   }
 
-  const poolId = extractPoolIdFromLinksArr(tweetData.links);
+  const poolId = getPoolIdFromLinksArr(tweetData.links);
   if (!poolId) {
     logger.error("Failed to extract pool ID from tweet links", {
       links: tweetData.links,

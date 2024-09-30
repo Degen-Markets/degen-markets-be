@@ -31,3 +31,13 @@ export function extractPoolIdFromTweetContent(content: string): string {
   }
   return match[1];
 }
+
+export function extractPoolIdFromUrl(url: string): string {
+  const match = url.match(
+    /^https:\/\/www\.degenmarkets\.com\/pools\/([a-zA-Z0-9]+)/,
+  );
+  if (!match?.[1]) {
+    throw new Error("Valid pool ID not found in URL");
+  }
+  return match[1];
+}

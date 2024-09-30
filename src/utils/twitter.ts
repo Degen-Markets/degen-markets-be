@@ -35,15 +35,23 @@ export const findConnectedUser = async (): Promise<
 
 export const findTweetById = async (
   tweetId: string,
-): Promise<{ content: string; authorId: string } | null> => {
+): Promise<{ content: string; authorId: string; links: string[] } | null> => {
   logger.info("Requesting tweet by ID", { tweetId });
   const client = new Client(twitterBearerToken);
-  const response = await client.tweets.findTweetById(tweetId);
-  logger.info("Received response for `findTweetById`", { response });
-  const content = response.data?.text;
-  const authorId = response.data?.author_id;
+  const response = await client.tweets.findTweetById(tweetId, {
+    "tweet.fields": ["text", "author_id", "entities"], // you'll only get back the fields if you ask for them
+  });
+  if (response.errors) {
+    logger.error("Received error response for `findTweetById`", {
+      error: response.errors,
+    });
+    return null;
+  }
+  logger.info("Received response for `findTweetById`", { data: response.data });
+  const { text: content, author_id: authorId, entities } = response.data || {};
+  const links = entities?.urls?.map((url) => url.unwound_url || "") || [];
   if (!content || !authorId) {
     return null;
   }
-  return { content, authorId };
+  return { content, authorId, links };
 };

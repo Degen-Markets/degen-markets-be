@@ -87,6 +87,7 @@ export const generateEnterPoolTx = async (event: APIGatewayProxyEventV2) => {
 
   const payload: ActionPostResponse = await createPostResponse({
     fields: {
+      type: "transaction",
       transaction,
     },
   });

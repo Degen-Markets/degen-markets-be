@@ -2,7 +2,7 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { program } from "./constants";
-import { LinkedAction } from "@solana/actions-spec";
+import { LinkedAction, PostResponse } from "@solana/actions-spec";
 import BN from "bn.js";
 import PoolsService from "../pools/service";
 import PoolOptionsService from "../poolOptions/service";
@@ -71,6 +71,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       metadata.description = `If you picked "${winningOption.title}", you can claim your win below:`;
       metadata.links.actions = [
         {
+          type: "transaction",
           label: `Claim Win`,
           href: `/pools/${poolAddress}/options/${winningOption.address}/claim-win`,
         },
@@ -124,6 +125,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
     metadata.links.actions = poolOptionsWithPercOfTotalPoolValArr
       .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
       .map((option) => ({
+        type: "transaction",
         label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
         href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
         parameters: [

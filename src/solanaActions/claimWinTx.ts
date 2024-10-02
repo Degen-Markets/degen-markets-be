@@ -75,7 +75,7 @@ export const claimWinTx = async (
   transaction.feePayer = winnerAccountKey;
   transaction.recentBlockhash = block.blockhash;
   const payload: ActionPostResponse = await createPostResponse({
-    fields: { transaction },
+    fields: { type: "transaction", transaction },
   });
   logger.info(JSON.stringify(payload));
   return {

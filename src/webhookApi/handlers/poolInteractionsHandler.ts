@@ -5,7 +5,7 @@ import {
   buildOkResponse,
 } from "../../utils/httpResponses";
 import { tryIt, tryItAsync } from "../../utils/tryIt";
-import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { typedIncludes } from "../../utils/typedStdLib";
@@ -22,7 +22,7 @@ const logger = new Logger({
 });
 
 export const poolInteractionsHandler = async (
-  event: APIGatewayEvent,
+  event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
   logger.info("Received event", { event: event.body });
   const parseTrial = tryIt(() => JSON.parse(String(event.body)));

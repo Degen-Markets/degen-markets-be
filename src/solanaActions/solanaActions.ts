@@ -16,7 +16,7 @@ import { buildBadRequestError } from "../utils/httpResponses";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
 
-const routes: Route<APIGatewayProxyEventV2>[] = [
+const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   {
     method: "OPTIONS",
     path: "/{proxy+}",

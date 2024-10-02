@@ -2,7 +2,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import httpRouterHandler, { Route } from "@middy/http-router";
 import middy from "@middy/core";
 import cors from "@middy/http-cors";
-import { APIGatewayProxyEventV2 } from "aws-lambda";
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import httpErrorHandler from "@middy/http-error-handler";
 import httpHeaderNormalizer from "@middy/http-header-normalizer";
 import httpSecurityHeaders from "@middy/http-security-headers";
@@ -17,7 +17,7 @@ import claimPoolTweetPointsHandler from "./handlers/claimPoolTweetPoints";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 
-const routes: Route<APIGatewayProxyEventV2>[] = [
+const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   {
     method: "OPTIONS",
     path: "/{proxy+}",

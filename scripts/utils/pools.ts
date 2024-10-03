@@ -1,22 +1,15 @@
 import { program } from "./constants";
-import { getBytesFromHashedStr, getTitleHash } from "./cryptography";
 import * as anchor from "@coral-xyz/anchor";
+import { derivePoolAccountKey } from "../../src/pools/utils";
+import { getTitleHash } from "../../src/utils/cryptography";
 
-export const derivePoolAccountKey = async (title: string) => {
-  const [pda] = anchor.web3.PublicKey.findProgramAddressSync(
-    [getBytesFromHashedStr(title)],
-    program.programId,
-  );
-  console.log(`Derived pool account is ${pda}`);
-  return pda;
-};
 export const createPool = async (
   title: string,
   keypair: anchor.web3.Keypair,
   imageUrl: string,
   description: string,
 ) => {
-  const poolAccountKey = await derivePoolAccountKey(title);
+  const poolAccountKey = derivePoolAccountKey(title);
   await program.methods
     .createPool(title, getTitleHash(title), imageUrl, description)
     .accounts({

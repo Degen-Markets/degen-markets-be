@@ -9,6 +9,5 @@ export const deriveEntryAccountKey = (
     [optionAccountKey.toBuffer(), entrant.toBuffer()],
     programId,
   );
-  console.log(`Derived entry account is ${pda}`);
   return pda;
 };

@@ -20,3 +20,6 @@ export const program = new anchor.Program(
   idl as unknown as anchor.Idl,
   provider,
 ) as unknown as anchor.Program<DegenPools>;
+
+export const defaultBanner =
+  "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degen-markets-banner.jpeg";

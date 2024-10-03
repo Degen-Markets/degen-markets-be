@@ -15,6 +15,7 @@ import { deriveEntryAccountKey } from "../poolEntries/utils";
 const logger: Logger = new Logger({ serviceName: "enterPoolService" });
 
 export const generateEnterPoolTx = async (event: APIGatewayProxyEventV2) => {
+  logger.info("generating enter pool tx");
   const { account } = JSON.parse(event.body || "{}");
   if (!account) {
     return buildBadRequestError("No account!");

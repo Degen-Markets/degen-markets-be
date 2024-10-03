@@ -1,8 +1,4 @@
-import {
-  APIGatewayEvent,
-  APIGatewayProxyEventV2,
-  APIGatewayProxyResultV2,
-} from "aws-lambda";
+import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
 import {
@@ -12,22 +8,11 @@ import {
 } from "@solana/actions";
 import BN from "bn.js";
 import * as anchor from "@coral-xyz/anchor";
-import { connection, program, programId } from "./constants";
+import { connection, program } from "./constants";
 import { buildBadRequestError } from "../utils/httpResponses";
+import { deriveEntryAccountKey } from "../poolEntries/utils";
 
 const logger: Logger = new Logger({ serviceName: "enterPoolService" });
-
-export const deriveEntryAccountKey = (
-  optionAccountKey: PublicKey,
-  entrant: PublicKey,
-) => {
-  const [pda] = PublicKey.findProgramAddressSync(
-    [optionAccountKey.toBuffer(), entrant.toBuffer()],
-    programId,
-  );
-  console.log(`Derived entry account is ${pda}`);
-  return pda;
-};
 
 export const generateEnterPoolTx = async (event: APIGatewayProxyEventV2) => {
   const { account } = JSON.parse(event.body || "{}");

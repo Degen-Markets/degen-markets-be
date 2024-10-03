@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   PoolEntriesEntity,
   PoolEntriesInsertEntity,
@@ -54,4 +54,17 @@ export default class PoolEntriesService {
     this.databaseClient.withDb(async (db) =>
       this._insertNewOrIncrementValue(db, data),
     );
+
+  static getByAddress = async (
+    address: string,
+  ): Promise<PoolEntriesEntity | null> =>
+    this.databaseClient.withDb(async (db) => {
+      this.logger.info(`Fetching entry with address ${address}`);
+      const result = await db
+        .select()
+        .from(poolEntriesTable)
+        .where(eq(poolEntriesTable.address, address));
+      const entry = result[0];
+      return entry || null;
+    });
 }

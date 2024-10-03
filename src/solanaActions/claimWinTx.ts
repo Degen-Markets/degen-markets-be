@@ -1,18 +1,19 @@
-import { connection, program, provider } from "./constants";
-import { deriveEntryAccountKey } from "./enterPoolTx";
+import { connection, program } from "./constants";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import {
-  ActionError,
   ActionPostResponse,
   ACTIONS_CORS_HEADERS,
   createPostResponse,
 } from "@solana/actions";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { APIGatewayProxyResultV2 } from "aws-lambda";
+import { deriveEntryAccountKey } from "../poolEntries/utils";
+import PoolEntriesService from "../poolEntries/service";
 
 const logger = new Logger({ serviceName: "ClaimWinTx" });
 
 const alreadyClaimedErrorMessage = "You have already claimed this bet!";
+const didNotWinMessage = "You did not win this bet!";
 
 export const claimWinTx = async (
   poolAccountKeyString: string,
@@ -34,50 +35,53 @@ export const claimWinTx = async (
     logger.info(
       `Checking if the user's entry exists with key: ${optionAccountKeyString}`,
     );
+    const entry = await PoolEntriesService.getByAddress(
+      entryAccountKey.toString(),
+    );
+    if (!entry) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: didNotWinMessage }),
+        headers: ACTIONS_CORS_HEADERS as Record<string, string>,
+      };
+    }
     const entryAccount = await program.account.entry.fetch(entryAccountKey); // fetching an
-    logger.info(`Found entry Account`, {
-      ...entryAccount,
-      value: Number(entryAccount.value),
+    logger.info(`Found entry`, {
+      entry,
     });
     if (entryAccount.isClaimed) {
       logger.info("Entry already claimed");
-      throw new Error(alreadyClaimedErrorMessage);
-    } else {
-      transaction = await program.methods
-        .claimWin()
-        .accountsPartial({
-          poolAccount: poolAccountKey,
-          optionAccount: optionAccountKey,
-          entryAccount: entryAccountKey,
-          winner: winnerAccountKey,
-        })
-        .transaction();
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: alreadyClaimedErrorMessage }),
+        headers: ACTIONS_CORS_HEADERS as Record<string, string>,
+      };
     }
+    transaction = await program.methods
+      .claimWin()
+      .accountsPartial({
+        poolAccount: poolAccountKey,
+        optionAccount: optionAccountKey,
+        entryAccount: entryAccountKey,
+        winner: winnerAccountKey,
+      })
+      .transaction();
   } catch (e) {
-    const errMsg = (e as Error).message;
-    let errMsgForUsr = "Something went wrong. Try again";
-    if (errMsg.includes("Account does not exist or has no data")) {
-      logger.info(`User entry not found`);
-      errMsgForUsr = "You did not win this bet!";
-    }
-    if (errMsg === alreadyClaimedErrorMessage) {
-      logger.info(`Entry already claimed by user ${winnerAccountKeyString}`);
-      errMsgForUsr = alreadyClaimedErrorMessage;
-    }
-    const actionErr: ActionError = { message: errMsgForUsr };
     return {
       statusCode: 400,
-      body: JSON.stringify(actionErr),
+      body: JSON.stringify({ message: didNotWinMessage }),
       headers: ACTIONS_CORS_HEADERS as Record<string, string>,
     };
   }
+
+  // serializing transaction
   const block = await connection.getLatestBlockhash();
   transaction.feePayer = winnerAccountKey;
   transaction.recentBlockhash = block.blockhash;
   const payload: ActionPostResponse = await createPostResponse({
     fields: { type: "transaction", transaction },
   });
-  logger.info(JSON.stringify(payload));
+  logger.info(`Built claim transaction:`, JSON.stringify(payload));
   return {
     statusCode: 200,
     body: JSON.stringify(payload),

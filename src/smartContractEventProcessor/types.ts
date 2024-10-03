@@ -37,3 +37,9 @@ export const decodeEventBase64Data = (
   const decodedEvent = program.coder.events.decode(base64Data);
   return decodedEvent as DecodedSmartContractEvent | null;
 };
+
+// Gives an easy way to access the data type for a particular event
+export type SmartContractEventData<T extends EventName> = Extract<
+  SmartContractEvent,
+  { eventName: T }
+>["data"];

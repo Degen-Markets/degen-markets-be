@@ -1,5 +1,6 @@
 import PoolOptionsService from "../../../poolOptions/service";
 import winnerSetEventHandler from "../winnerSet";
+import { SmartContractEventData } from "../../../smartContractEventProcessor/types";
 
 describe("winnerSetEventHandler", () => {
   it("sets the winning option on PoolOptionsService", async () => {
@@ -7,7 +8,7 @@ describe("winnerSetEventHandler", () => {
       .spyOn(PoolOptionsService, "setWinner")
       .mockResolvedValue(undefined as any); // the return value is unused
 
-    const mockEventData = {
+    const mockEventData: SmartContractEventData<"winnerSet"> = {
       pool: "mockPool",
       option: "mockOption",
     };

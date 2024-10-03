@@ -1,4 +1,4 @@
-import { SmartContractEvent } from "../types";
+import { SmartContractEventData } from "../types";
 import PoolEntriesService from "../../poolEntries/service";
 import { Logger } from "@aws-lambda-powertools/logger";
 import PlayersService from "../../players/service";
@@ -7,18 +7,15 @@ import BN from "bn.js";
 import PoolOptionsService from "../../poolOptions/service";
 import PoolsService from "../../pools/service";
 
-type PoolEnteredEventData = Extract<
-  SmartContractEvent,
-  { eventName: "poolEntered" }
->["data"];
-
 const POINTS_EARNED_PER_SOL = 100;
 
 const logger = new Logger({
   serviceName: "PoolEnteredEventHandler",
 });
 
-const poolEnteredEventHandler = async (eventData: PoolEnteredEventData) => {
+const poolEnteredEventHandler = async (
+  eventData: SmartContractEventData<"poolEntered">,
+) => {
   logger.info("Processing PoolEntered event", { eventData });
 
   const { entrant, option, pool, value: valueStr, entry } = eventData;

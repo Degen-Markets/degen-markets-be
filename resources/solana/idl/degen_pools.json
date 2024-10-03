@@ -237,6 +237,10 @@
     {
       "name": "PoolEntered",
       "discriminator": [224, 196, 156, 64, 200, 219, 71, 199]
+    },
+    {
+      "name": "WinnerSet",
+      "discriminator": [126, 40, 173, 69, 22, 114, 226, 237]
     }
   ],
   "errors": [
@@ -273,7 +277,7 @@
     {
       "code": 6006,
       "name": "ImageUrlTooLong",
-      "msg": "The image URL is too long. Maximum length is 100 characters."
+      "msg": "The image URL is too long. Maximum length is 200 characters."
     },
     {
       "code": 6007,
@@ -406,6 +410,22 @@
           {
             "name": "value",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WinnerSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "option",
+            "type": "pubkey"
           }
         ]
       }

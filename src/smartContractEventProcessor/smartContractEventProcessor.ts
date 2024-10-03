@@ -8,6 +8,7 @@ import { tryIt } from "../utils/tryIt";
 import { SmartContractEvent } from "./types";
 import poolCreatedEventHandler from "./eventHandlers/poolCreated";
 import optionCreatedEventHandler from "./eventHandlers/optionCreated";
+import winnerSetEventHandler from "./eventHandlers/winnerSet";
 
 const logger = new Logger({ serviceName: "smartContractEventProcessor" });
 
@@ -57,6 +58,13 @@ const forwardToEventHandler = async (
         event: smartContractEvent,
       });
       await optionCreatedEventHandler(smartContractEvent.data);
+      break;
+
+    case "winnerSet":
+      logger.info("Processing `winnerSet` event", {
+        event: smartContractEvent,
+      });
+      await winnerSetEventHandler(smartContractEvent.data);
       break;
 
     default:

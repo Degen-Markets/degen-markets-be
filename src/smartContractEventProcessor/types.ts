@@ -15,10 +15,25 @@ type RecursivelyConvertPubkeyAndBnToString<T> =
       }
     : ConvertPubkeyAndBnToString<T>;
 
-// this is basically the stringified version of the anchor event
+// this is for our standardized use
 export type SmartContractEvent = {
   [K in EventName]: {
     eventName: K;
     data: RecursivelyConvertPubkeyAndBnToString<EventsRecord[K]>;
   };
 }[EventName];
+
+// this is what anchor gives us
+type DecodedSmartContractEvent = {
+  [K in EventName]: {
+    name: K;
+    data: EventsRecord[K];
+  };
+}[EventName];
+
+export const decodeEventBase64Data = (
+  base64Data: string,
+): DecodedSmartContractEvent | null => {
+  const decodedEvent = program.coder.events.decode(base64Data);
+  return decodedEvent as DecodedSmartContractEvent | null;
+};

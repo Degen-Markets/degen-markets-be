@@ -9,7 +9,10 @@ import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { typedIncludes } from "../../utils/typedStdLib";
-import { SmartContractEvent } from "../../smartContractEventProcessor/types";
+import {
+  decodeEventBase64Data,
+  SmartContractEvent,
+} from "../../smartContractEventProcessor/types";
 
 const VALID_EVENTS = [
   "poolEntered",
@@ -90,44 +93,45 @@ export const poolInteractionsHandler = async (
 function mapLogToEventOrNull(log: string): SmartContractEvent | null {
   const base64Data = log.replace("Program data: ", "");
 
-  const parseTrial = tryIt(() => program.coder.events.decode(base64Data));
+  const parseTrial = tryIt(() => decodeEventBase64Data(base64Data));
   if (!parseTrial.success || !parseTrial.data) {
     logger.error("Failed to decode event", { base64Data });
     return null;
   }
   logger.info("Decoded event: ", { decodedEvent: parseTrial });
 
-  switch (parseTrial.data.name) {
+  const event = parseTrial.data;
+  switch (event.name) {
     case "poolEntered":
       return {
-        eventName: parseTrial.data.name,
+        eventName: event.name,
         data: {
-          pool: parseTrial.data.data.pool.toString(),
-          option: parseTrial.data.data.option.toString(),
-          entry: parseTrial.data.data.entry.toString(),
-          value: parseTrial?.data.data.value.toString(),
-          entrant: parseTrial?.data.data.entrant.toString(),
+          pool: event.data.pool.toString(),
+          option: event.data.option.toString(),
+          entry: event.data.entry.toString(),
+          value: event.data.value.toString(),
+          entrant: event.data.entrant.toString(),
         },
       };
 
     case "poolCreated":
       return {
-        eventName: parseTrial.data.name,
+        eventName: event.name,
         data: {
-          poolAccount: parseTrial.data.data.poolAccount.toString(),
-          title: parseTrial.data.data.title,
-          imageUrl: parseTrial.data.data.imageUrl,
-          description: parseTrial.data.data.description,
+          poolAccount: event.data.poolAccount.toString(),
+          title: event.data.title,
+          imageUrl: event.data.imageUrl,
+          description: event.data.description,
         },
       };
 
     case "optionCreated":
       return {
-        eventName: parseTrial.data.name,
+        eventName: event.name,
         data: {
-          poolAccount: parseTrial.data.data.poolAccount.toString(),
-          option: parseTrial.data.data.option.toString(),
-          title: parseTrial.data.data.title,
+          poolAccount: event.data.poolAccount.toString(),
+          option: event.data.option.toString(),
+          title: event.data.title,
         },
       };
 

@@ -1,5 +1,6 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SmartContractEvent } from "../types";
+import PoolOptionsService from "../../poolOptions/service";
 
 type WinnerSetEventData = Extract<
   SmartContractEvent,
@@ -11,7 +12,12 @@ const logger = new Logger({
 });
 
 const winnerSetEventHandler = async (eventData: WinnerSetEventData) => {
-  logger.info("Processing WinnerSet event", { eventData });
+  logger.info("Received WinnerSet event", { eventData });
+
+  const { pool, option } = eventData;
+  await PoolOptionsService.setWinner(option);
+
+  logger.info("Completed processing WinnerSet event", { eventData });
 };
 
 export default winnerSetEventHandler;

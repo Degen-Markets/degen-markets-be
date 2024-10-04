@@ -1,5 +1,4 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { program } from "../../solanaActions/constants";
 import {
   buildBadRequestError,
   buildOkResponse,
@@ -8,14 +7,8 @@ import { tryIt, tryItAsync } from "../../utils/tryIt";
 import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
-import { typedIncludes } from "../../utils/typedStdLib";
 import { SmartContractEvent } from "../../smartContractEventProcessor/types";
-
-const VALID_EVENTS = [
-  "poolEntered",
-  "poolCreated",
-  "optionCreated",
-] satisfies (typeof program.idl.events)[number]["name"][];
+import { decodeEventBase64Data } from "../../smartContractEventProcessor/utils";
 
 const logger = new Logger({
   serviceName: "PoolInteractionsHandler",
@@ -58,8 +51,6 @@ export const poolInteractionsHandler = async (
   const messageGroupId = getMandatoryEnvVariable("MESSAGE_GROUP_ID");
 
   const sendMessagePromises = smartContractEvents.map(async (event) => {
-    if (!typedIncludes(VALID_EVENTS, event.eventName)) return;
-
     const result = await tryItAsync(async () => {
       logger.info("Sending SQS Event", { event });
       const messageBody = JSON.stringify(event);
@@ -90,48 +81,62 @@ export const poolInteractionsHandler = async (
 function mapLogToEventOrNull(log: string): SmartContractEvent | null {
   const base64Data = log.replace("Program data: ", "");
 
-  const parseTrial = tryIt(() => program.coder.events.decode(base64Data));
+  const parseTrial = tryIt(() => decodeEventBase64Data(base64Data));
   if (!parseTrial.success || !parseTrial.data) {
-    logger.error("Failed to decode event", { base64Data });
+    logger.error("Failed to decode event", {
+      base64Data,
+      ...(!parseTrial.success ? { err: parseTrial.err } : {}),
+    });
     return null;
   }
-  logger.info("Decoded event: ", { decodedEvent: parseTrial });
+  logger.info("Decoded event: ", { decodedEvent: parseTrial.data });
 
-  switch (parseTrial.data.name) {
+  const event = parseTrial.data;
+  switch (event.name) {
     case "poolEntered":
       return {
-        eventName: parseTrial.data.name,
+        eventName: event.name,
         data: {
-          pool: parseTrial.data.data.pool.toString(),
-          option: parseTrial.data.data.option.toString(),
-          entry: parseTrial.data.data.entry.toString(),
-          value: parseTrial?.data.data.value.toString(),
-          entrant: parseTrial?.data.data.entrant.toString(),
+          pool: event.data.pool.toString(),
+          option: event.data.option.toString(),
+          entry: event.data.entry.toString(),
+          value: event.data.value.toString(),
+          entrant: event.data.entrant.toString(),
         },
       };
 
     case "poolCreated":
       return {
-        eventName: parseTrial.data.name,
+        eventName: event.name,
         data: {
-          poolAccount: parseTrial.data.data.poolAccount.toString(),
-          title: parseTrial.data.data.title,
-          imageUrl: parseTrial.data.data.imageUrl,
-          description: parseTrial.data.data.description,
+          poolAccount: event.data.poolAccount.toString(),
+          title: event.data.title,
+          imageUrl: event.data.imageUrl,
+          description: event.data.description,
         },
       };
 
     case "optionCreated":
       return {
-        eventName: parseTrial.data.name,
+        eventName: event.name,
         data: {
-          poolAccount: parseTrial.data.data.poolAccount.toString(),
-          option: parseTrial.data.data.option.toString(),
-          title: parseTrial.data.data.title,
+          poolAccount: event.data.poolAccount.toString(),
+          option: event.data.option.toString(),
+          title: event.data.title,
+        },
+      };
+
+    case "winnerSet":
+      return {
+        eventName: event.name,
+        data: {
+          pool: event.data.pool.toString(),
+          option: event.data.option.toString(),
         },
       };
 
     default:
+      // null means event isn't recognized, or we don't care about this event in backend webhook flow
       return null;
   }
 }

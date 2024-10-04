@@ -15,7 +15,7 @@ describe("poolCreated", () => {
       .spyOn(PoolsService, "createNewPool")
       .mockImplementation(mockedCreateFn);
     await poolCreatedEventHandler(dummyEvent);
-    expect(mockedCreateFn).toBeCalledWith({
+    expect(mockedCreateFn).toHaveBeenCalledWith({
       address: dummyEvent.poolAccount,
       title: dummyEvent.title,
       image: dummyEvent.imageUrl,

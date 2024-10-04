@@ -28,6 +28,6 @@ describe("saveImage", () => {
     jest.spyOn(S3Client.prototype, "send").mockImplementation(s3SendSpy);
 
     await saveImage(event);
-    expect(s3SendSpy).toBeCalledTimes(1);
+    expect(s3SendSpy).toHaveBeenCalledTimes(1);
   });
 });

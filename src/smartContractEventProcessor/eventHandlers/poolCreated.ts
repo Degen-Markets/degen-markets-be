@@ -1,17 +1,14 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { SmartContractEvent } from "../types";
+import { SmartContractEventData } from "../types";
 import PoolsService from "../../pools/service";
-
-type PoolCreatedEventData = Extract<
-  SmartContractEvent,
-  { eventName: "poolCreated" }
->["data"];
 
 const logger = new Logger({
   serviceName: "PoolCreatedEventHandler",
 });
 
-const poolCreatedEventHandler = async (eventData: PoolCreatedEventData) => {
+const poolCreatedEventHandler = async (
+  eventData: SmartContractEventData<"poolCreated">,
+) => {
   logger.info(`Received PoolCreated event`, { eventData });
   await PoolsService.createNewPool({
     address: eventData.poolAccount,

@@ -13,7 +13,7 @@ describe("optionCreated", () => {
       .spyOn(PoolOptionsService, "createNewOption")
       .mockImplementation(mockCreateFn);
     await optionCreatedEventHandler(dummyEvent);
-    expect(mockCreateFn).toBeCalledWith({
+    expect(mockCreateFn).toHaveBeenCalledWith({
       address: dummyEvent.option,
       pool: dummyEvent.poolAccount,
       title: dummyEvent.title,

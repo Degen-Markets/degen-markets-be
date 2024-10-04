@@ -244,6 +244,10 @@ export type DegenPools = {
       name: "poolEntered";
       discriminator: [224, 196, 156, 64, 200, 219, 71, 199];
     },
+    {
+      name: "winnerSet";
+      discriminator: [126, 40, 173, 69, 22, 114, 226, 237];
+    },
   ];
   errors: [
     {
@@ -279,7 +283,7 @@ export type DegenPools = {
     {
       code: 6006;
       name: "imageUrlTooLong";
-      msg: "The image URL is too long. Maximum length is 100 characters.";
+      msg: "The image URL is too long. Maximum length is 200 characters.";
     },
     {
       code: 6007;
@@ -412,6 +416,22 @@ export type DegenPools = {
           {
             name: "value";
             type: "u64";
+          },
+        ];
+      };
+    },
+    {
+      name: "winnerSet";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "pool";
+            type: "pubkey";
+          },
+          {
+            name: "option";
+            type: "pubkey";
           },
         ];
       };

@@ -245,6 +245,10 @@ export type DegenPools = {
       discriminator: [224, 196, 156, 64, 200, 219, 71, 199];
     },
     {
+      name: "poolStatusUpdated";
+      discriminator: [54, 220, 85, 46, 3, 37, 43, 233];
+    },
+    {
       name: "winnerSet";
       discriminator: [126, 40, 173, 69, 22, 114, 226, 237];
     },
@@ -416,6 +420,22 @@ export type DegenPools = {
           {
             name: "value";
             type: "u64";
+          },
+        ];
+      };
+    },
+    {
+      name: "poolStatusUpdated";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "isPaused";
+            type: "bool";
+          },
+          {
+            name: "pool";
+            type: "pubkey";
           },
         ];
       };

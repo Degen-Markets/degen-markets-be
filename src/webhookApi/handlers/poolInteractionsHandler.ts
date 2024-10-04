@@ -135,6 +135,15 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
         },
       };
 
+    case "poolStatusUpdated":
+      return {
+        eventName: event.name,
+        data: {
+          isPaused: event.data.isPaused,
+          pool: event.data.pool.toString(),
+        },
+      };
+
     default:
       // null means event isn't recognized, or we don't care about this event in backend webhook flow
       return null;

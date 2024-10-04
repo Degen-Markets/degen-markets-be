@@ -77,4 +77,24 @@ export default class PoolsService {
       return pool;
     });
   };
+
+  static pausePool = async (isPaused: boolean, poolAddress: string) => {
+    this.logger.info(`Pausing Pool ${poolAddress}: ${isPaused}`);
+    return this.databaseClient.withDb(async (db: NodePgDatabase) => {
+      const result = await db
+        .update(poolsTable)
+        .set({ isPaused })
+        .where(eq(poolsTable.address, poolAddress))
+        .returning();
+
+      const poolResult = result[0];
+      if (!poolResult) {
+        this.logger.error(`Failed to pause Pool ${poolAddress}`);
+        throw new Error("Failed to pause Pool");
+      }
+      this.logger.info(`Paused pool ${poolAddress}`);
+
+      return poolResult;
+    });
+  };
 }

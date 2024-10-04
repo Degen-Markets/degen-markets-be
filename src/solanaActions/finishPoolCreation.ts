@@ -7,6 +7,8 @@ import {
 } from "@solana/actions";
 import { defaultBanner } from "./constants";
 
+import { sendBotTweet } from "../utils/twitterBot";
+
 const logger = new Logger({ serviceName: "finishPoolCreation" });
 
 const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
@@ -24,7 +26,19 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
     };
   }
 
-  const poolUrl = `https://degenmarkets.com/${pool}`;
+  try {
+    const poolUrl = `https://degenmarkets.com/pools/${pool}`;
+    await sendBotTweet(`New bet created: ${poolUrl}`);
+  } catch (e) {
+    logger.error((e as Error).message, e as Error);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Something went wrong, please try again",
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  }
 
   const payload: ActionPostResponse = {
     type: "post",

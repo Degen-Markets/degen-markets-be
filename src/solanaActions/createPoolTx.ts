@@ -99,7 +99,7 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        message: "Something went wrong, please try again!",
+        message: "Something went wrong, please try again",
       }),
       headers: ACTIONS_CORS_HEADERS,
     };

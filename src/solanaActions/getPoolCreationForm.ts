@@ -5,7 +5,7 @@ const getPoolCreationForm = async () => {
   const formData: ActionGetResponse = {
     description: "Enter the details for your bet",
     icon: defaultBanner,
-    title: "New Bet",
+    title: "Create your own Bet!",
     label: "Create bet",
     links: {
       actions: [

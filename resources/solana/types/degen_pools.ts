@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/degen_pools.json`.
  */
 export type DegenPools = {
-  address: "A9TsBsK9R3FHJBKL7eqnbeKUbd9FspNHA7fHqWAmK35f";
+  address: "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ";
   metadata: {
     name: "degenPools";
     version: "0.1.0";
@@ -61,7 +61,6 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
-          address: "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ";
         },
         {
           name: "systemProgram";
@@ -101,7 +100,6 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
-          address: "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ";
         },
         {
           name: "systemProgram";
@@ -186,6 +184,7 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
+          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
         },
       ];
       args: [
@@ -207,6 +206,7 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
+          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
         },
       ];
       args: [

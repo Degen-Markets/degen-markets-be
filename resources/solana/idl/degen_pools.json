@@ -1,5 +1,5 @@
 {
-  "address": "A9TsBsK9R3FHJBKL7eqnbeKUbd9FspNHA7fHqWAmK35f",
+  "address": "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ",
   "metadata": {
     "name": "degen_pools",
     "version": "0.1.0",
@@ -54,8 +54,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "address": "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ"
+          "signer": true
         },
         {
           "name": "system_program",
@@ -94,8 +93,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "address": "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ"
+          "signer": true
         },
         {
           "name": "system_program",
@@ -179,7 +177,8 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
         }
       ],
       "args": [
@@ -200,7 +199,8 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
         }
       ],
       "args": [

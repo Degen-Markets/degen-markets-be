@@ -13,7 +13,7 @@ import { poolInteractionsHandler } from "./handlers/poolInteractionsHandler";
 
 const logger: Logger = new Logger({ serviceName: "webhookApi" });
 
-const routes: Route<APIGatewayProxyEventV2>[] = [
+const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   {
     method: "OPTIONS",
     path: "/{proxy+}",

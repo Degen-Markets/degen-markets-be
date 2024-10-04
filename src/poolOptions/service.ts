@@ -71,4 +71,27 @@ export default class PoolOptionsService {
       return option;
     });
   };
+
+  static setWinner = async (
+    optionAddress: string,
+  ): Promise<PoolOptionEntity> => {
+    this.logger.info(`Setting option: ${optionAddress} as winner`);
+    return this.databaseClient.withDb(async (db) => {
+      const result = await db
+        .update(poolOptionsTable)
+        .set({ isWinningOption: true })
+        .where(eq(poolOptionsTable.address, optionAddress))
+        .returning();
+
+      const updatedOption = result[0];
+
+      if (!updatedOption) {
+        this.logger.error(`Failed to set option: ${optionAddress} as winner`);
+        throw new Error("Failed to set option as winner");
+      }
+
+      this.logger.info(`Successfully set option as winner`, { updatedOption });
+      return updatedOption;
+    });
+  };
 }

@@ -15,13 +15,27 @@ type RecursivelyConvertPubkeyAndBnToString<T> =
       }
     : ConvertPubkeyAndBnToString<T>;
 
-// this is basically the stringified version of the anchor event
+// this is for our standardized use
 export type SmartContractEvent = {
   [K in EventName]: {
     eventName: K;
     data: RecursivelyConvertPubkeyAndBnToString<EventsRecord[K]>;
   };
 }[EventName];
+
+// this is what anchor gives us
+export type DecodedSmartContractEvent = {
+  [K in EventName]: {
+    name: K;
+    data: EventsRecord[K];
+  };
+}[EventName];
+
+// Gives an easy way to access the data type for a particular event
+export type SmartContractEventData<T extends EventName> = Extract<
+  SmartContractEvent,
+  { eventName: T }
+>["data"];
 
 export type PoolPausedEventData = Extract<
   SmartContractEvent,

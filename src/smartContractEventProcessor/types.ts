@@ -36,8 +36,3 @@ export type SmartContractEventData<T extends EventName> = Extract<
   SmartContractEvent,
   { eventName: T }
 >["data"];
-
-export type PoolPausedEventData = Extract<
-  SmartContractEvent,
-  { eventName: "poolStatusUpdated" }
->["data"];

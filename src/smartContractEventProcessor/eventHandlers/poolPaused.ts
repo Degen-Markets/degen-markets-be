@@ -1,5 +1,5 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { PoolPausedEventData, SmartContractEvent } from "../types";
+import { SmartContractEventData } from "../types";
 import PoolsService from "../../pools/service";
 
 const logger = new Logger({
@@ -7,7 +7,7 @@ const logger = new Logger({
 });
 
 const poolPausedEventHandler = async (
-  poolPausedEventData: PoolPausedEventData,
+  poolPausedEventData: SmartContractEventData<"poolStatusUpdated">,
 ) => {
   logger.info(`Processing: ${poolPausedEventData}`);
   const { isPaused, pool } = poolPausedEventData;

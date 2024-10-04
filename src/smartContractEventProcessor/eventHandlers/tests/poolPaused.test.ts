@@ -1,9 +1,9 @@
 import poolPausedEventHandler from "../poolPaused";
 import PoolsService from "../../../pools/service";
-import { PoolPausedEventData } from "../../../smartContractEventProcessor/types";
+import { SmartContractEventData } from "../../../smartContractEventProcessor/types";
 
 describe("poolPaused", () => {
-  let mockedPoolPausedEventData: PoolPausedEventData;
+  let mockedPoolPausedEventData: SmartContractEventData<"poolStatusUpdated">;
   let spiedPausePool: jest.SpyInstance;
 
   beforeEach(() => {

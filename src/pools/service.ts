@@ -78,7 +78,7 @@ export default class PoolsService {
     });
   };
 
-  static pausePool = async (isPaused: boolean, poolAddress: string) => {
+  static setIsPausedPool = async (isPaused: boolean, poolAddress: string) => {
     this.logger.info(`Pausing Pool ${poolAddress}: ${isPaused}`);
     return this.databaseClient.withDb(async (db: NodePgDatabase) => {
       const result = await db

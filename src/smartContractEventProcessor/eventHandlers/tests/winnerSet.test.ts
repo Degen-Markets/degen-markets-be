@@ -15,9 +15,6 @@ describe("winnerSetEventHandler", () => {
 
     await winnerSetEventHandler(mockEventData);
 
-    expect(spiedSetWinner).toHaveBeenCalledWith({
-      poolAddress: mockEventData.pool,
-      winningOptionAddress: mockEventData.option,
-    });
+    expect(spiedSetWinner).toHaveBeenCalledWith(mockEventData.option);
   });
 });

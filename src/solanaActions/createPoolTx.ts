@@ -14,18 +14,18 @@ import { Logger } from "@aws-lambda-powertools/logger";
 const logger: Logger = new Logger({ serviceName: "generateCreatePoolTx" });
 
 const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
-  const title = event.queryStringParameters?.title;
+  const poolTItle = event.queryStringParameters?.title;
   const image = event.queryStringParameters?.image;
   const imageUrl = image || defaultBanner;
   const description = event.queryStringParameters?.description || "";
   const { account } = JSON.parse(event.body || "{}");
   logger.info("Serializing a pool creation tx", {
-    title,
+    title: poolTItle,
     imageUrl,
     description,
     account,
   });
-  if (!title || !account) {
+  if (!poolTItle || !account) {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Bad request!" }),
@@ -33,11 +33,11 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
     };
   }
   // TODO: test Pool with that title does not exist
-  const poolAccountKey = derivePoolAccountKey(title).toString();
+  const poolAccountKey = derivePoolAccountKey(poolTItle).toString();
 
   try {
     const transaction = await program.methods
-      .createPool(title, getTitleHash(title), imageUrl, description)
+      .createPool(poolTItle, getTitleHash(poolTItle), imageUrl, description)
       .accounts({
         poolAccount: poolAccountKey,
         admin: account,
@@ -69,11 +69,11 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
                 actions: [
                   {
                     type: "transaction",
-                    label: "Create Option for your bet",
-                    href: `/pools/${poolAccountKey}/create-option?count=2&title={optionTitle}&image=${image}`,
+                    label: "Create the first option for your bet",
+                    href: `/pools/${poolAccountKey}/create-option?count=2&image=${image}&poolTitle=${poolTItle}&options={title}`,
                     parameters: [
                       {
-                        name: "optionTitle",
+                        name: "title",
                         label: "Option text",
                         type: "text",
                       },

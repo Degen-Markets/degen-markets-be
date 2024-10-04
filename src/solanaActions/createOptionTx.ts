@@ -17,19 +17,23 @@ const logger: Logger = new Logger({ serviceName: "generateCreateOptionTx" });
 const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
   logger.info("generating create option tx");
   const pool = event.pathParameters?.poolAddress;
+  const poolTitle = event.queryStringParameters?.poolTitle;
   const count = Number(event.queryStringParameters?.count);
-  const title = event.queryStringParameters?.title;
   const imageUrl = event.queryStringParameters?.image || defaultBanner;
+  const existingOptionsString = event.queryStringParameters?.options || "";
+  const existingOptions = existingOptionsString.split(", ");
+  const title = existingOptions[existingOptions.length - 1];
   const { account } = JSON.parse(event.body || "{}");
 
   logger.info("Serializing a create option tx", {
+    existingOptionsString,
     title,
     count,
     account,
     pool,
   });
 
-  if (!title || !pool || isNaN(count) || !account) {
+  if (!existingOptionsString || !title || !pool || isNaN(count) || !account) {
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Bad request!" }),
@@ -39,6 +43,7 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
 
   // TODO: check option doesn't exist
   // TODO: see old options
+  // TODO: test non image urls
   const poolAccountKey = new PublicKey(pool);
 
   const optionAccountKey = await deriveOptionAccountKey(title, poolAccountKey);
@@ -68,16 +73,18 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
         ? [
             {
               type: "post",
-              href: `/pools/finish?pool=${poolAccountKey}`,
+              href: `/pools/finish?pool=${poolAccountKey}&image=${imageUrl}`,
               label: "Finish",
             },
           ]
         : [];
 
+    const baseDescription = `Create option #${count} for your bet below. Current options are: ${existingOptionsString}.`;
+
     const description =
       count > 2
-        ? `Option #${count} for your bet. Click on "Finish" if you don't wish to create any more options.`
-        : `Option #${count} for your bet`;
+        ? `${baseDescription} Click on "Finish" if you don't wish to create any more options.`
+        : baseDescription;
 
     const payload: ActionPostResponse = await createPostResponse({
       fields: {
@@ -89,7 +96,7 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
             type: "inline",
             action: {
               icon: imageUrl,
-              title: "Create Bet Option",
+              title: poolTitle,
               label: "Create Option",
               description,
               links: {
@@ -97,7 +104,7 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
                   {
                     type: "transaction",
                     label: "Create another option for your bet",
-                    href: `/pools/${poolAccountKey}/create-option?count=${count + 1}&title={optionTitle}&image=${imageUrl}`,
+                    href: `/pools/${poolAccountKey}/create-option?count=${count + 1}&image=${imageUrl}&poolTitle=${poolTitle}&options=${existingOptionsString}, {optionTitle}`,
                     parameters: [
                       {
                         name: "optionTitle",

@@ -15,6 +15,7 @@ const VALID_EVENTS = [
   "poolEntered",
   "poolCreated",
   "optionCreated",
+  "poolStatusUpdated",
 ] satisfies (typeof program.idl.events)[number]["name"][];
 
 const logger = new Logger({
@@ -128,6 +129,14 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
           poolAccount: parseTrial.data.data.poolAccount.toString(),
           option: parseTrial.data.data.option.toString(),
           title: parseTrial.data.data.title,
+        },
+      };
+    case "poolStatusUpdated":
+      return {
+        eventName: parseTrial.data.name,
+        data: {
+          isPaused: parseTrial.data.data.isPaused,
+          pool: parseTrial.data.data.pool,
         },
       };
 

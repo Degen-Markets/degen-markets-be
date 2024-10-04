@@ -1,5 +1,5 @@
 {
-  "address": "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ",
+  "address": "A9TsBsK9R3FHJBKL7eqnbeKUbd9FspNHA7fHqWAmK35f",
   "metadata": {
     "name": "degen_pools",
     "version": "0.1.0",
@@ -55,7 +55,7 @@
           "name": "admin",
           "writable": true,
           "signer": true,
-          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+          "address": "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ"
         },
         {
           "name": "system_program",
@@ -95,7 +95,7 @@
           "name": "admin",
           "writable": true,
           "signer": true,
-          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+          "address": "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ"
         },
         {
           "name": "system_program",
@@ -237,6 +237,14 @@
     {
       "name": "PoolEntered",
       "discriminator": [224, 196, 156, 64, 200, 219, 71, 199]
+    },
+    {
+      "name": "PoolStatusUpdated",
+      "discriminator": [54, 220, 85, 46, 3, 37, 43, 233]
+    },
+    {
+      "name": "WinnerSet",
+      "discriminator": [126, 40, 173, 69, 22, 114, 226, 237]
     }
   ],
   "errors": [
@@ -273,7 +281,7 @@
     {
       "code": 6006,
       "name": "ImageUrlTooLong",
-      "msg": "The image URL is too long. Maximum length is 100 characters."
+      "msg": "The image URL is too long. Maximum length is 200 characters."
     },
     {
       "code": 6007,
@@ -406,6 +414,38 @@
           {
             "name": "value",
             "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PoolStatusUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "is_paused",
+            "type": "bool"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WinnerSet",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pool",
+            "type": "pubkey"
+          },
+          {
+            "name": "option",
+            "type": "pubkey"
           }
         ]
       }

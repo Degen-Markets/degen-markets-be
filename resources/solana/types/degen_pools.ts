@@ -2,10 +2,10 @@
  * Program IDL in camelCase format in order to be used in JS/TS.
  *
  * Note that this is only a type helper and is not the actual IDL. The original
- * IDL can be found at `solana/idl/degen_pools.json`.
+ * IDL can be found at `target/idl/degen_pools.json`.
  */
 export type DegenPools = {
-  address: "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ";
+  address: "A9TsBsK9R3FHJBKL7eqnbeKUbd9FspNHA7fHqWAmK35f";
   metadata: {
     name: "degenPools";
     version: "0.1.0";
@@ -61,7 +61,7 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
-          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
+          address: "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ";
         },
         {
           name: "systemProgram";
@@ -101,7 +101,7 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
-          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
+          address: "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ";
         },
         {
           name: "systemProgram";
@@ -244,6 +244,14 @@ export type DegenPools = {
       name: "poolEntered";
       discriminator: [224, 196, 156, 64, 200, 219, 71, 199];
     },
+    {
+      name: "poolStatusUpdated";
+      discriminator: [54, 220, 85, 46, 3, 37, 43, 233];
+    },
+    {
+      name: "winnerSet";
+      discriminator: [126, 40, 173, 69, 22, 114, 226, 237];
+    },
   ];
   errors: [
     {
@@ -279,7 +287,7 @@ export type DegenPools = {
     {
       code: 6006;
       name: "imageUrlTooLong";
-      msg: "The image URL is too long. Maximum length is 100 characters.";
+      msg: "The image URL is too long. Maximum length is 200 characters.";
     },
     {
       code: 6007;
@@ -412,6 +420,38 @@ export type DegenPools = {
           {
             name: "value";
             type: "u64";
+          },
+        ];
+      };
+    },
+    {
+      name: "poolStatusUpdated";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "isPaused";
+            type: "bool";
+          },
+          {
+            name: "pool";
+            type: "pubkey";
+          },
+        ];
+      };
+    },
+    {
+      name: "winnerSet";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "pool";
+            type: "pubkey";
+          },
+          {
+            name: "option";
+            type: "pubkey";
           },
         ];
       };

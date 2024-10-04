@@ -22,3 +22,8 @@ export type SmartContractEvent = {
     data: RecursivelyConvertPubkeyAndBnToString<EventsRecord[K]>;
   };
 }[EventName];
+
+export type PoolPausedEventData = Extract<
+  SmartContractEvent,
+  { eventName: "poolStatusUpdated" }
+>["data"];

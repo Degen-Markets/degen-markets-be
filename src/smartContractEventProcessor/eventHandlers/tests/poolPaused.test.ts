@@ -30,7 +30,6 @@ describe("poolPaused", () => {
   it("should pause the pool", async () => {
     await poolPausedEventHandler(mockedPoolPausedEventData);
 
-    // Check that both the pool address and isPaused were passed
     expect(spiedPausePool).toHaveBeenCalledWith(
       mockedPoolPausedEventData.isPaused,
       mockedPoolPausedEventData.pool,
@@ -42,7 +41,6 @@ describe("poolPaused", () => {
 
     await poolPausedEventHandler(mockedPoolPausedEventData);
 
-    // Check that both the pool address and isPaused were passed
     expect(spiedPausePool).toHaveBeenCalledWith(
       mockedPoolPausedEventData.isPaused,
       mockedPoolPausedEventData.pool,

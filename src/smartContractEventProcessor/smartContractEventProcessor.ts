@@ -9,7 +9,7 @@ import { SmartContractEvent } from "./types";
 import poolCreatedEventHandler from "./eventHandlers/poolCreated";
 import optionCreatedEventHandler from "./eventHandlers/optionCreated";
 import winnerSetEventHandler from "./eventHandlers/winnerSet";
-import poolStatusUpdatedEventHandler from "./eventHandlers/poolStatueUpdate";
+import poolStatusUpdatedEventHandler from "./eventHandlers/poolStatusUpdate";
 
 const logger = new Logger({ serviceName: "smartContractEventProcessor" });
 

@@ -1,13 +1,13 @@
-import poolStatusUpdatedEventHandler from "../poolStatueUpdate";
+import poolStatusUpdatedEventHandler from "../poolStatusUpdate";
 import PoolsService from "../../../pools/service";
 import { SmartContractEventData } from "../../types";
 
 describe("poolStatusUpdate", () => {
-  let mockedPoolStatueUpdateEventData: SmartContractEventData<"poolStatusUpdated">;
+  let mockedPoolStatusUpdateEventData: SmartContractEventData<"poolStatusUpdated">;
   let spiedSetIsPausePool: jest.SpyInstance;
 
   beforeEach(() => {
-    mockedPoolStatueUpdateEventData = {
+    mockedPoolStatusUpdateEventData = {
       pool: "14RTAiwGjWYsMUZqmFvpsyvKEiW22FmbJrvBqmF98i7y",
       isPaused: true,
     };
@@ -15,8 +15,8 @@ describe("poolStatusUpdate", () => {
     spiedSetIsPausePool = jest
       .spyOn(PoolsService, "setIsPausedPool")
       .mockResolvedValue({
-        address: mockedPoolStatueUpdateEventData.pool,
-        isPaused: mockedPoolStatueUpdateEventData.isPaused,
+        address: mockedPoolStatusUpdateEventData.pool,
+        isPaused: mockedPoolStatusUpdateEventData.isPaused,
         value: "",
         title: "",
         description: "",
@@ -30,11 +30,11 @@ describe("poolStatusUpdate", () => {
   });
 
   it("should pause the pool", async () => {
-    await poolStatusUpdatedEventHandler(mockedPoolStatueUpdateEventData);
+    await poolStatusUpdatedEventHandler(mockedPoolStatusUpdateEventData);
 
     expect(spiedSetIsPausePool).toHaveBeenCalledWith(
-      mockedPoolStatueUpdateEventData.isPaused,
-      mockedPoolStatueUpdateEventData.pool,
+      mockedPoolStatusUpdateEventData.isPaused,
+      mockedPoolStatusUpdateEventData.pool,
     );
   });
 });

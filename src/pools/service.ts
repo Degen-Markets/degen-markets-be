@@ -83,7 +83,7 @@ export default class PoolsService {
     return this.databaseClient.withDb(async (db: NodePgDatabase) => {
       const result = await db
         .update(poolsTable)
-        .set({ isPaused: isPaused })
+        .set({ isPaused })
         .where(eq(poolsTable.address, poolAddress))
         .returning();
 

@@ -24,19 +24,12 @@ export type SmartContractEvent = {
 }[EventName];
 
 // this is what anchor gives us
-type DecodedSmartContractEvent = {
+export type DecodedSmartContractEvent = {
   [K in EventName]: {
     name: K;
     data: EventsRecord[K];
   };
 }[EventName];
-
-export const decodeEventBase64Data = (
-  base64Data: string,
-): DecodedSmartContractEvent | null => {
-  const decodedEvent = program.coder.events.decode(base64Data);
-  return decodedEvent as DecodedSmartContractEvent | null;
-};
 
 // Gives an easy way to access the data type for a particular event
 export type SmartContractEventData<T extends EventName> = Extract<

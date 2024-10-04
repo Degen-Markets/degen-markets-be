@@ -7,10 +7,8 @@ import { tryIt, tryItAsync } from "../../utils/tryIt";
 import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
-import {
-  decodeEventBase64Data,
-  SmartContractEvent,
-} from "../../smartContractEventProcessor/types";
+import { SmartContractEvent } from "../../smartContractEventProcessor/types";
+import { decodeEventBase64Data } from "../../smartContractEventProcessor/utils";
 
 const logger = new Logger({
   serviceName: "PoolInteractionsHandler",

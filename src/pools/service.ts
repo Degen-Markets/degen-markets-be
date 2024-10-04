@@ -92,7 +92,7 @@ export default class PoolsService {
         this.logger.error(`Failed to pause Pool ${poolAddress}`);
         throw new Error("Failed to pause Pool");
       }
-      this.logger.info(`Paused pool${poolAddress}`);
+      this.logger.info(`Paused pool ${poolAddress}`);
 
       return poolResult;
     });

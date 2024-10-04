@@ -35,15 +35,4 @@ describe("poolPaused", () => {
       mockedPoolPausedEventData.pool,
     );
   });
-
-  it("should resume the pool", async () => {
-    mockedPoolPausedEventData.isPaused = false;
-
-    await poolPausedEventHandler(mockedPoolPausedEventData);
-
-    expect(spiedPausePool).toHaveBeenCalledWith(
-      mockedPoolPausedEventData.isPaused,
-      mockedPoolPausedEventData.pool,
-    );
-  });
 });

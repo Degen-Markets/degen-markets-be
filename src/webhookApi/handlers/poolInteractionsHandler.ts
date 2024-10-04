@@ -1,5 +1,4 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { program } from "../../solanaActions/constants";
 import {
   buildBadRequestError,
   buildOkResponse,
@@ -8,18 +7,10 @@ import { tryIt, tryItAsync } from "../../utils/tryIt";
 import { APIGatewayEvent, APIGatewayProxyResultV2 } from "aws-lambda";
 import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
-import { typedIncludes } from "../../utils/typedStdLib";
 import {
   decodeEventBase64Data,
   SmartContractEvent,
 } from "../../smartContractEventProcessor/types";
-
-const VALID_EVENTS = [
-  "poolEntered",
-  "poolCreated",
-  "optionCreated",
-  "winnerSet",
-] satisfies (typeof program.idl.events)[number]["name"][];
 
 const logger = new Logger({
   serviceName: "PoolInteractionsHandler",
@@ -62,8 +53,6 @@ export const poolInteractionsHandler = async (
   const messageGroupId = getMandatoryEnvVariable("MESSAGE_GROUP_ID");
 
   const sendMessagePromises = smartContractEvents.map(async (event) => {
-    if (!typedIncludes(VALID_EVENTS, event.eventName)) return;
-
     const result = await tryItAsync(async () => {
       logger.info("Sending SQS Event", { event });
       const messageBody = JSON.stringify(event);
@@ -96,10 +85,13 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
 
   const parseTrial = tryIt(() => decodeEventBase64Data(base64Data));
   if (!parseTrial.success || !parseTrial.data) {
-    logger.error("Failed to decode event", { base64Data });
+    logger.error("Failed to decode event", {
+      base64Data,
+      ...(!parseTrial.success ? { err: parseTrial.err } : {}),
+    });
     return null;
   }
-  logger.info("Decoded event: ", { decodedEvent: parseTrial });
+  logger.info("Decoded event: ", { decodedEvent: parseTrial.data });
 
   const event = parseTrial.data;
   switch (event.name) {
@@ -146,6 +138,7 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
       };
 
     default:
+      // null means event isn't recognized, or we don't care about this event in backend webhook flow
       return null;
   }
 }

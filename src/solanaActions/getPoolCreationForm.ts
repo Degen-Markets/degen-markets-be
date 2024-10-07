@@ -3,7 +3,8 @@ import { defaultBanner } from "./constants";
 
 const getPoolCreationForm = async () => {
   const formData: ActionGetResponse = {
-    description: "Enter the details for your bet",
+    description:
+      "Enter the details for your bet. After finishing, your bet will appear on @DegenMarketsBot.",
     icon: defaultBanner,
     title: "Create your own Bet!",
     label: "Create bet",

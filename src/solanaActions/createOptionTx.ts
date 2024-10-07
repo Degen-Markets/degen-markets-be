@@ -83,7 +83,7 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
 
     const description =
       count > 2
-        ? `${baseDescription} Click on "Finish" if you don't wish to create any more options.`
+        ? `${baseDescription} Click on "Finish" if you don't wish to create any more options. After clicking on "Finish", your bet will appear on @DegenMarketsBot`
         : baseDescription;
 
     const payload: ActionPostResponse = await createPostResponse({

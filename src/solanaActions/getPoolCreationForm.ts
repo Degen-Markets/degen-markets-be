@@ -24,7 +24,7 @@ const getPoolCreationForm = async () => {
             {
               name: "image",
               type: "url",
-              label: "URL to your Image (leave for blank)",
+              label: "URL to your Image (leave empty for default)",
               required: false,
             },
             {

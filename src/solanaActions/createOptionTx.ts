@@ -25,6 +25,14 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
   const title = existingOptions[existingOptions.length - 1];
   const { account } = JSON.parse(event.body || "{}");
 
+  if (!poolTitle || !existingOptionsString) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: "Bad request " }),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  }
+
   logger.info("Serializing a create option tx", {
     existingOptionsString,
     title,
@@ -95,6 +103,8 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
             // @ts-ignore-next-line
             type: "inline",
             action: {
+              type: "action",
+              label: "",
               icon: imageUrl,
               title: poolTitle,
               description,

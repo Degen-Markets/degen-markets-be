@@ -61,6 +61,8 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
             // @ts-ignore-next-line
             type: "inline",
             action: {
+              label: "",
+              type: "action",
               icon: imageUrl,
               title: "Create Bet Option",
               description: "Option #1 for your bet",

@@ -57,6 +57,9 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
       },
     },
   };
+
+  logger.info(`Pool creation finished successfully for ${pool}`, { payload });
+
   return {
     statusCode: 200,
     body: JSON.stringify(payload),

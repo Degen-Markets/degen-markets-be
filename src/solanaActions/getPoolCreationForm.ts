@@ -7,7 +7,6 @@ const getPoolCreationForm = async () => {
       "Enter the details for your bet. After finishing, your bet will appear on @DegenMarketsBot.",
     icon: defaultBanner,
     title: "Create your own Bet!",
-    label: "Create bet",
     links: {
       actions: [
         {

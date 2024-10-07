@@ -2,7 +2,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { getBytesFromHashedStr } from "../utils/cryptography";
 import { program } from "../solanaActions/constants";
 
-export const deriveOptionAccountKey = async (
+export const deriveOptionAccountKey = (
   title: string,
   poolAccountKey: anchor.web3.PublicKey,
 ) => {

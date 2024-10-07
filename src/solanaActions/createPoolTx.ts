@@ -63,7 +63,6 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
             action: {
               icon: imageUrl,
               title: "Create Bet Option",
-              label: "Create Option",
               description: "Option #1 for your bet",
               links: {
                 actions: [

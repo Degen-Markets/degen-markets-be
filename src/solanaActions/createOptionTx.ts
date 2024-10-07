@@ -97,7 +97,6 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
             action: {
               icon: imageUrl,
               title: poolTitle,
-              label: "Create Option",
               description,
               links: {
                 actions: [

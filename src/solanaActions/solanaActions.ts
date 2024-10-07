@@ -13,6 +13,11 @@ import { getPool } from "./getPool";
 import { claimWinTx } from "./claimWinTx";
 
 import { buildBadRequestError } from "../utils/httpResponses";
+import getPoolCreationForm from "./getPoolCreationForm";
+import generateCreatePoolTx from "./createPoolTx";
+import createPoolTx from "./createPoolTx";
+import generateCreateOptionTx from "./createOptionTx";
+import finishPoolCreation from "./finishPoolCreation";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
 
@@ -52,6 +57,26 @@ const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
         return claimWinTx(poolId, optionId, account);
       },
     ),
+  },
+  {
+    method: "GET",
+    path: "/pools/create",
+    handler: middy().handler(getPoolCreationForm),
+  },
+  {
+    method: "POST",
+    path: "/pools/create",
+    handler: middy().handler(generateCreatePoolTx),
+  },
+  {
+    method: "POST",
+    path: "/pools/{poolAddress}/create-option",
+    handler: middy().handler(generateCreateOptionTx),
+  },
+  {
+    method: "POST",
+    path: "/pools/finish",
+    handler: middy().handler(finishPoolCreation),
   },
 ];
 

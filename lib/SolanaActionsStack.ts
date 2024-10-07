@@ -6,6 +6,7 @@ import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { LambdaApi } from "./constructs/LambdaApi";
 import { Fn, StackProps } from "aws-cdk-lib";
 import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
+import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 
 export interface SolanaActionsStackProps extends StackProps {
   certificate: Certificate;
@@ -34,6 +35,16 @@ export class SolanaActionsStack extends TaggedStack {
           DATABASE_DATABASE_NAME: "degenmarkets",
           DATABASE_HOST: database.instanceEndpoint.hostname,
           DATABASE_PORT: database.instanceEndpoint.port.toString(),
+          TWITTER_BOT_APP_KEY: getMandatoryEnvVariable("TWITTER_BOT_APP_KEY"),
+          TWITTER_BOT_APP_SECRET: getMandatoryEnvVariable(
+            "TWITTER_BOT_APP_SECRET",
+          ),
+          TWITTER_BOT_ACCESS_TOKEN: getMandatoryEnvVariable(
+            "TWITTER_BOT_ACCESS_TOKEN",
+          ),
+          TWITTER_BOT_ACCESS_TOKEN_SECRET: getMandatoryEnvVariable(
+            "TWITTER_BOT_ACCESS_TOKEN_SECRET",
+          ),
         },
         vpc,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },

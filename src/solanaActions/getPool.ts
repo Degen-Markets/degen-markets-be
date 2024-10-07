@@ -1,7 +1,7 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
-import { program } from "./constants";
+import { defaultBanner, program } from "./constants";
 import { LinkedAction, PostResponse } from "@solana/actions-spec";
 import BN from "bn.js";
 import PoolsService from "../pools/service";
@@ -21,7 +21,7 @@ const invalidPoolBlinkResponse = {
   statusCode: 200,
   body: JSON.stringify({
     description: "Visit degenmarkets.com to see all pools",
-    icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/degen-markets-banner.jpeg",
+    icon: defaultBanner,
     title: "No such pool exists",
     disabled: true,
     label: "",

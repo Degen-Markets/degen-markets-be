@@ -51,7 +51,7 @@
     "@middy/http-security-headers": "^5.5.0",
     "@middy/validator": "^5.5.0",
     "@middy/warmup": "^5.5.0",
-    "@solana/actions": "^1.6.4",
+    "@solana/actions": "^1.6.5",
     "@solana/web3.js": "^1.95.1",
     "@types/pg": "^8.11.5",
     "aws-cdk-lib": "^2.161.0",
@@ -67,6 +67,7 @@
     "pg": "^8.11.5",
     "source-map-support": "^0.5.21",
     "tweetnacl": "^1.0.3",
-    "twitter-api-sdk": "^1.2.1"
+    "twitter-api-sdk": "^1.2.1",
+    "twitter-api-v2": "^1.17.2"
   }
 }

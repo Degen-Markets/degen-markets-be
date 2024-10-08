@@ -20,12 +20,14 @@ const getPoolCreationForm = async () => {
               type: "text",
               label: "Bet Title",
               required: true,
+              max: 100,
             },
             {
               name: "image",
               type: "url",
               label: "URL to your Image (leave empty for default)",
               required: false,
+              max: 200,
             },
             {
               name: "description",

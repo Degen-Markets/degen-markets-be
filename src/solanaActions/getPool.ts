@@ -30,116 +30,123 @@ const invalidPoolBlinkResponse = {
 };
 
 export const getPool = async (event: APIGatewayProxyEventV2) => {
-  const poolAddress = event.pathParameters?.address;
-  if (!poolAddress) {
-    return invalidPoolBlinkResponse;
-  }
-
-  let pool: PoolEntity | null;
-  let options: PoolOptionEntity[];
-  logger.info(`loading pool and options for pool address: ${poolAddress}`);
   try {
-    [pool, options] = await Promise.all([
-      PoolsService.getPoolByAddress(poolAddress),
-      PoolOptionsService.getAllInPool(poolAddress),
-    ]);
-  } catch (e) {
-    logger.error("Error interacting with db", e as Error);
-    return invalidPoolBlinkResponse;
-  }
-
-  if (!pool) {
-    logger.error("Pool not found!");
-    return invalidPoolBlinkResponse;
-  }
-
-  const metadata: PoolResponse = {
-    icon: pool.image,
-    label: pool.title,
-    title: pool.title,
-    description: pool.description,
-    links: {
-      actions: [],
-    },
-  };
-
-  if (pool.isPaused) {
-    logger.info(`Pool concluded`);
-    const winningOption = options.find((option) => option.isWinningOption);
-    if (winningOption) {
-      logger.info(`Winning option found: ${JSON.stringify(winningOption)}`);
-      metadata.description = `If you picked "${winningOption.title}", you can claim your win below:`;
-      metadata.links.actions = [
-        {
-          type: "transaction",
-          label: `Claim Win`,
-          href: `/pools/${poolAddress}/options/${winningOption.address}/claim-win`,
-        },
-      ];
-    } else {
-      metadata.description = `Pool paused, calculating the winning option!`;
-      metadata.links.actions = [];
+    const poolAddress = event.pathParameters?.address;
+    if (!poolAddress) {
+      return invalidPoolBlinkResponse;
     }
-  } else {
-    const poolTotalVal = pool.value;
-    let poolOptionsWithPercOfTotalPoolValArr: {
-      address: string;
-      title: string;
-      percOfTotalPoolVal: number;
-    }[];
-    if (poolTotalVal.toString() === "0") {
-      poolOptionsWithPercOfTotalPoolValArr = options.map((option) => ({
-        title: option.title,
-        address: option.address,
-        percOfTotalPoolVal: 100 / options.length,
-      }));
-    } else {
-      const poolOptionsWithVal = await Promise.all(
-        options.map(async (option) => {
-          const { value } = await program.account.poolOption.fetch(
-            option.address,
-          );
-          return { ...option, value };
-        }),
-      );
-      poolOptionsWithPercOfTotalPoolValArr = poolOptionsWithVal.map(
-        (option) => {
-          const REQUIRED_BASIS_POINT_PRECISION = 2;
-          const PRECISION_FOR_PERCENT = 2;
-          const percOfTotalPoolVal =
-            option.value
-              .muln(
-                10 ** (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION),
-              )
-              .div(new BN(poolTotalVal))
-              .toNumber() /
-            10 ** REQUIRED_BASIS_POINT_PRECISION;
-          return {
-            address: option.address,
-            title: option.title,
-            percOfTotalPoolVal,
-          };
-        },
-      );
+
+    let pool: PoolEntity | null;
+    let options: PoolOptionEntity[];
+    logger.info(`loading pool and options for pool address: ${poolAddress}`);
+    try {
+      [pool, options] = await Promise.all([
+        PoolsService.getPoolByAddress(poolAddress),
+        PoolOptionsService.getAllInPool(poolAddress),
+      ]);
+    } catch (e) {
+      logger.error("Error interacting with db", e as Error);
+      return invalidPoolBlinkResponse;
     }
-    metadata.links.actions = poolOptionsWithPercOfTotalPoolValArr
-      .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
-      .map((option) => ({
-        type: "transaction",
-        label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
-        href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
-        parameters: [
+
+    if (!pool) {
+      logger.error("Pool not found!");
+      return invalidPoolBlinkResponse;
+    }
+
+    const metadata: PoolResponse = {
+      icon: pool.image,
+      label: pool.title,
+      title: pool.title,
+      description: pool.description,
+      links: {
+        actions: [],
+      },
+    };
+
+    if (pool.isPaused) {
+      logger.info(`Pool concluded`);
+      const winningOption = options.find((option) => option.isWinningOption);
+      if (winningOption) {
+        logger.info(`Winning option found: ${JSON.stringify(winningOption)}`);
+        metadata.description = `If you picked "${winningOption.title}", you can claim your win below:`;
+        metadata.links.actions = [
           {
-            name: "amount",
-            label: "Enter a SOL amount",
+            type: "transaction",
+            label: `Claim Win`,
+            href: `/pools/${poolAddress}/options/${winningOption.address}/claim-win`,
           },
-        ],
-      }));
+        ];
+      } else {
+        metadata.description = `Pool paused, calculating the winning option!`;
+        metadata.links.actions = [];
+      }
+    } else {
+      const poolTotalVal = pool.value;
+      let poolOptionsWithPercOfTotalPoolValArr: {
+        address: string;
+        title: string;
+        percOfTotalPoolVal: number;
+      }[];
+      if (poolTotalVal.toString() === "0") {
+        poolOptionsWithPercOfTotalPoolValArr = options.map((option) => ({
+          title: option.title,
+          address: option.address,
+          percOfTotalPoolVal: 100 / options.length,
+        }));
+      } else {
+        const poolOptionsWithVal = await Promise.all(
+          options.map(async (option) => {
+            const { value } = await program.account.poolOption.fetch(
+              option.address,
+            );
+            return { ...option, value };
+          }),
+        );
+        poolOptionsWithPercOfTotalPoolValArr = poolOptionsWithVal.map(
+          (option) => {
+            const REQUIRED_BASIS_POINT_PRECISION = 2;
+            const PRECISION_FOR_PERCENT = 2;
+            const percOfTotalPoolVal =
+              option.value
+                .muln(
+                  10 **
+                    (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION),
+                )
+                .div(new BN(poolTotalVal))
+                .toNumber() /
+              10 ** REQUIRED_BASIS_POINT_PRECISION;
+            return {
+              address: option.address,
+              title: option.title,
+              percOfTotalPoolVal,
+            };
+          },
+        );
+      }
+      metadata.links.actions = poolOptionsWithPercOfTotalPoolValArr
+        .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
+        .map((option) => ({
+          type: "transaction",
+          label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
+          href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
+          parameters: [
+            {
+              name: "amount",
+              label: "Enter a SOL amount",
+            },
+          ],
+        }));
+    }
+    return {
+      statusCode: 200,
+      body: JSON.stringify(metadata),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  } catch (e) {
+    logger.error((e as Error).message, { error: e });
+    return {
+      statusCode: 400,
+    };
   }
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(metadata),
-    headers: ACTIONS_CORS_HEADERS,
-  };
 };

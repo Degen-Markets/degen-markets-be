@@ -4,7 +4,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { DegenPools } from "../../resources/solana/types/degen_pools";
 
 export const connection = new Connection(
-  clusterApiUrl("mainnet-beta"),
+  "https://mainnet.helius-rpc.com/?api-key=da7e8928-8eba-45ae-9e4d-a07b87565a80",
   "confirmed",
 );
 

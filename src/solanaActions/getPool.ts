@@ -122,19 +122,48 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
         },
       );
     }
-    metadata.links.actions = poolOptionsWithPercOfTotalPoolValArr
-      .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
-      .map((option) => ({
-        type: "transaction",
-        label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
-        href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
-        parameters: [
-          {
-            name: "amount",
-            label: "Enter a SOL amount",
-          },
-        ],
-      }));
+    if (poolOptionsWithPercOfTotalPoolValArr.length < 4) {
+      metadata.links.actions = poolOptionsWithPercOfTotalPoolValArr
+        .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
+        .map((option) => ({
+          type: "transaction",
+          label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
+          href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
+          parameters: [
+            {
+              name: "amount",
+              label: "Enter a SOL amount",
+              type: "number",
+            },
+          ],
+        }));
+    } else {
+      metadata.links.actions = [
+        {
+          type: "transaction",
+          label: "Place bet",
+          href: `/pools/${poolAddress}/options/{option}?value={amount}`,
+          parameters: [
+            {
+              name: "amount",
+              label: "Enter a SOL amount",
+              type: "number",
+            },
+            {
+              name: "option",
+              type: "select",
+              label: "",
+              options: poolOptionsWithPercOfTotalPoolValArr
+                .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
+                .map((option) => ({
+                  label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
+                  value: option.address,
+                })),
+            },
+          ],
+        },
+      ];
+    }
   }
 
   return {

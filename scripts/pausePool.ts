@@ -1,5 +1,6 @@
 import { adminAccount, program } from "./utils/constants";
 import { PublicKey } from "@solana/web3.js";
+import { deriveOptionAccountKey } from "../src/poolOptions/utils";
 
 const pausePool = async (poolId: string) => {
   const poolAccountKey = new PublicKey(poolId);
@@ -14,4 +15,4 @@ const pausePool = async (poolId: string) => {
   console.log(`pool paused ${poolId}`);
 };
 
-pausePool("7QTZY2trftoGQrn4hGYXPB7AHFHFzJHB9tXMZgnyKpe8");
+pausePool("HjGGCqYyp8ED2ipRLpFkZvwNcoRtSuySi7vpNeYeeKNz");

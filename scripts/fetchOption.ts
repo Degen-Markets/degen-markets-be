@@ -1,7 +1,8 @@
 import { program } from "./utils/constants";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { deriveOptionAccountKey } from "../src/poolOptions/utils";
 
-const fetchPool = async (optionAddress: string) => {
+const fetchOption = async (optionAddress: string) => {
   const optionAccountKey = new PublicKey(optionAddress);
   const optionAccount =
     await program.account.poolOption.fetch(optionAccountKey);
@@ -11,4 +12,4 @@ const fetchPool = async (optionAddress: string) => {
   });
 };
 
-fetchPool("4dZyo12HZbEhfo3g5JyLxqUvGEGVsDHieB2VeyEqSTcV");
+fetchOption("FfBcXG9qwjXW2Fzmo99sAw6VH6d8AvBvCgXZWhVQETZq");

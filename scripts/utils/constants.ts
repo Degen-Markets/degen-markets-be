@@ -3,11 +3,7 @@ import { DegenPools } from "../../resources/solana/types/degen_pools";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import idl from "../../resources/solana/idl/degen_pools.json";
 import { getLocalAccount } from "./keypairs";
-
-export const connection = new Connection(
-  "https://mainnet.helius-rpc.com/?api-key=da7e8928-8eba-45ae-9e4d-a07b87565a80",
-  "confirmed",
-);
+import { connection } from "../../src/solanaActions/constants";
 
 export const programId = new PublicKey(idl.address);
 

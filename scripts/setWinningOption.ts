@@ -16,6 +16,6 @@ const setWinningOption = async (poolId: string, optionId: string) => {
 };
 
 setWinningOption(
-  "7QTZY2trftoGQrn4hGYXPB7AHFHFzJHB9tXMZgnyKpe8",
-  "9cyUUwRi2zmYBwKLcRkscpZEV3BCNHmQUUnGfvdoMWdc",
+  "HjGGCqYyp8ED2ipRLpFkZvwNcoRtSuySi7vpNeYeeKNz",
+  "FfBcXG9qwjXW2Fzmo99sAw6VH6d8AvBvCgXZWhVQETZq",
 );

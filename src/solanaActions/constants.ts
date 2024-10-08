@@ -1,4 +1,4 @@
-import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import idl from "../../resources/solana/idl/degen_pools.json";
 import * as anchor from "@coral-xyz/anchor";
 import { DegenPools } from "../../resources/solana/types/degen_pools";

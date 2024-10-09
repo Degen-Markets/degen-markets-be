@@ -1,8 +1,8 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
-import { defaultBanner, program } from "./constants";
-import { LinkedAction, PostResponse } from "@solana/actions-spec";
+import { defaultBanner } from "./constants";
+import { LinkedAction } from "@solana/actions-spec";
 import BN from "bn.js";
 import PoolsService from "../pools/service";
 import PoolOptionsService from "../poolOptions/service";
@@ -83,52 +83,51 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       }
     } else {
       const poolTotalVal = pool.value;
-      let poolOptionsWithPercOfTotalPoolValArr: {
+      let poolOptionsWithPercentages: {
         address: string;
         title: string;
         percOfTotalPoolVal: number;
       }[];
       if (poolTotalVal.toString() === "0") {
-        poolOptionsWithPercOfTotalPoolValArr = options.map((option) => ({
+        poolOptionsWithPercentages = options.map((option) => ({
           title: option.title,
           address: option.address,
           percOfTotalPoolVal: 100 / options.length,
         }));
       } else {
-        const poolOptionsWithVal = await Promise.all(
-          options.map(async (option) => {
-            const { value } = await program.account.poolOption.fetch(
-              option.address,
-            );
-            return { ...option, value };
-          }),
-        );
-        poolOptionsWithPercOfTotalPoolValArr = poolOptionsWithVal.map(
-          (option) => {
-            const REQUIRED_BASIS_POINT_PRECISION = 2;
-            const PRECISION_FOR_PERCENT = 2;
-            const percOfTotalPoolVal =
-              option.value
-                .muln(
-                  10 **
-                    (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION),
-                )
-                .div(new BN(poolTotalVal))
-                .toNumber() /
-              10 ** REQUIRED_BASIS_POINT_PRECISION;
-            return {
-              address: option.address,
-              title: option.title,
-              percOfTotalPoolVal,
-            };
-          },
-        );
+        const optionsWithBNVal = options.map((option) => {
+          return { ...option, value: new BN(option.value) };
+        });
+        let totalPercent = 0;
+        poolOptionsWithPercentages = optionsWithBNVal.map((option, index) => {
+          const REQUIRED_BASIS_POINT_PRECISION = 2;
+          const PRECISION_FOR_PERCENT = 2;
+          const isLastOption = index === optionsWithBNVal.length - 1;
+          const percOfTotalPoolVal = isLastOption
+            ? 100 - totalPercent // to ensure we don't reach 99% or 100% because of rounding
+            : Math.round(
+                option.value
+                  .muln(
+                    10 **
+                      (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION),
+                  )
+                  .div(new BN(poolTotalVal))
+                  .toNumber() /
+                  10 ** REQUIRED_BASIS_POINT_PRECISION,
+              );
+          totalPercent += percOfTotalPoolVal;
+          return {
+            address: option.address,
+            title: option.title,
+            percOfTotalPoolVal,
+          };
+        });
       }
-      metadata.links.actions = poolOptionsWithPercOfTotalPoolValArr
+      metadata.links.actions = poolOptionsWithPercentages
         .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
         .map((option) => ({
           type: "transaction",
-          label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
+          label: `${option.title} (${option.percOfTotalPoolVal}%)`,
           href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
           parameters: [
             {
@@ -146,7 +145,10 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
   } catch (e) {
     logger.error((e as Error).message, { error: e });
     return {
-      statusCode: 400,
+      statusCode: 500,
+      body: JSON.stringify({
+        message: "Something went wrong, please try again",
+      }),
     };
   }
 };

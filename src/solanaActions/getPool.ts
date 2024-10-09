@@ -1,8 +1,8 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
-import { defaultBanner, program } from "./constants";
-import { LinkedAction, PostResponse } from "@solana/actions-spec";
+import { defaultBanner } from "./constants";
+import { LinkedAction } from "@solana/actions-spec";
 import BN from "bn.js";
 import PoolsService from "../pools/service";
 import PoolOptionsService from "../poolOptions/service";
@@ -95,15 +95,10 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
           percOfTotalPoolVal: 100 / options.length,
         }));
       } else {
-        const poolOptionsWithVal = await Promise.all(
-          options.map(async (option) => {
-            const { value } = await program.account.poolOption.fetch(
-              option.address,
-            );
-            return { ...option, value };
-          }),
-        );
-        poolOptionsWithPercOfTotalPoolValArr = poolOptionsWithVal.map(
+        const optionsWithBNVal = options.map((option) => {
+          return { ...option, value: new BN(option.value) };
+        });
+        poolOptionsWithPercOfTotalPoolValArr = optionsWithBNVal.map(
           (option) => {
             const REQUIRED_BASIS_POINT_PRECISION = 2;
             const PRECISION_FOR_PERCENT = 2;
@@ -146,7 +141,10 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
   } catch (e) {
     logger.error((e as Error).message, { error: e });
     return {
-      statusCode: 400,
+      statusCode: 500,
+      body: JSON.stringify({
+        message: "Something went wrong, please try again",
+      }),
     };
   }
 };

@@ -63,7 +63,7 @@ describe("getOptionsHandler", () => {
   });
 
   it("returns not found error if pool is not found", async () => {
-    spiedGetPoolByAddress.mockResolvedValue(null);
+    spiedGetPoolByAddress.mockResolvedValueOnce(null);
     const response = await getOptionsHandler(mockEvent);
 
     expect(spiedGetPoolByAddress).toHaveBeenCalledWith(
@@ -77,8 +77,6 @@ describe("getOptionsHandler", () => {
   });
 
   it("returns ok response if pool is found", async () => {
-    spiedGetPoolByAddress.mockResolvedValue(mockPool);
-    spiedGetAllInPool.mockResolvedValue(mockOptions);
     const response = await getOptionsHandler(mockEvent);
 
     expect(spiedGetAllInPool).toHaveBeenCalledWith(

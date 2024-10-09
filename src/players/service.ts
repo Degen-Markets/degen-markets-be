@@ -7,6 +7,9 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { eq, sql, SQL } from "drizzle-orm";
 import { DatabaseClient } from "../clients/DatabaseClient";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { poolEntriesTable } from "../poolEntries/schema";
+import { poolsTable } from "../pools/schema";
+import { poolOptionsTable } from "../poolOptions/schema";
 
 export default class PlayersService {
   private static readonly logger = new Logger({
@@ -263,4 +266,59 @@ export default class PlayersService {
     this.databaseClient.withDb(async (db) =>
       this._changePoints(db, address, pointsDelta),
     );
+
+  static getStats = async (
+    playerId: string,
+  ): Promise<{
+    poolEntries: {
+      address: string;
+      value: string;
+      pool: {
+        address: string;
+        title: string;
+        totalValue: string;
+      };
+      option: {
+        address: string;
+        title: string;
+        totalValue: string;
+      };
+    }[];
+  }> => {
+    this.logger.info("Fetching player stats", { playerId });
+    return this.databaseClient.withDb(async (db) => {
+      const poolEntries = await db
+        .select({
+          address: poolEntriesTable.address,
+          value: poolEntriesTable.value,
+          pool: {
+            address: poolsTable.address,
+            title: poolsTable.title,
+            totalValue: poolsTable.value,
+          },
+          option: {
+            address: poolOptionsTable.address,
+            title: poolOptionsTable.title,
+            totalValue: poolOptionsTable.value,
+          },
+        })
+        .from(poolEntriesTable)
+        .innerJoin(poolsTable, eq(poolEntriesTable.pool, poolsTable.address))
+        .innerJoin(
+          poolOptionsTable,
+          eq(poolEntriesTable.option, poolOptionsTable.address),
+        )
+        .where(eq(poolEntriesTable.entrant, playerId));
+
+      const stats = {
+        poolEntries,
+      };
+
+      this.logger.info("Successfully fetched player stats", {
+        stats,
+      });
+
+      return stats;
+    });
+  };
 }

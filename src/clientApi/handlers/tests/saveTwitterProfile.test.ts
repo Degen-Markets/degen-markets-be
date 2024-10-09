@@ -106,7 +106,7 @@ describe("saveTwitterProfile", () => {
   it("returns an error if the twitter id was already used for a different player", async () => {
     jest
       .spyOn(PlayersService, "getPlayerByTwitterId")
-      .mockResolvedValue(mockedPlayer);
+      .mockResolvedValueOnce(mockedPlayer);
 
     const response = await saveTwitterProfile(mockEvent);
     expect(response).toEqual(
@@ -118,8 +118,12 @@ describe("saveTwitterProfile", () => {
 
   it("adds a new user (with twitter points) if user doesn't exist in db yet", async () => {
     const mockInsert = jest.fn().mockResolvedValue(mockedPlayer);
-    jest.spyOn(PlayersService, "getPlayerByTwitterId").mockResolvedValue(null);
-    jest.spyOn(PlayersService, "getPlayerByAddress").mockResolvedValue(null);
+    jest
+      .spyOn(PlayersService, "getPlayerByTwitterId")
+      .mockResolvedValueOnce(null);
+    jest
+      .spyOn(PlayersService, "getPlayerByAddress")
+      .mockResolvedValueOnce(null);
     jest.spyOn(PlayersService, "insertNew").mockImplementation(mockInsert);
 
     const response = await saveTwitterProfile(mockEvent);
@@ -147,8 +151,10 @@ describe("saveTwitterProfile", () => {
     };
     jest
       .spyOn(PlayersService, "getPlayerByAddress")
-      .mockResolvedValue(existingPlayer);
-    jest.spyOn(PlayersService, "getPlayerByTwitterId").mockResolvedValue(null);
+      .mockResolvedValueOnce(existingPlayer);
+    jest
+      .spyOn(PlayersService, "getPlayerByTwitterId")
+      .mockResolvedValueOnce(null);
     const mockedChangePoints = jest.fn();
     jest
       .spyOn(PlayersService, "changePoints")
@@ -187,10 +193,12 @@ describe("saveTwitterProfile", () => {
       twitterPfpUrl: null,
       twitterId: null,
     };
-    jest.spyOn(PlayersService, "getPlayerByTwitterId").mockResolvedValue(null);
+    jest
+      .spyOn(PlayersService, "getPlayerByTwitterId")
+      .mockResolvedValueOnce(null);
     jest
       .spyOn(PlayersService, "getPlayerByAddress")
-      .mockResolvedValue(existingPlayer);
+      .mockResolvedValueOnce(existingPlayer);
     const mockedChangePoints = jest.fn();
     jest
       .spyOn(PlayersService, "changePoints")

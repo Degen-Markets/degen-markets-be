@@ -15,7 +15,7 @@ import { getPlayerByIdHandler, getPlayersHandler } from "./handlers/players";
 import { saveImage } from "./handlers/saveImage";
 import claimPoolTweetPointsHandler from "./handlers/claimPoolTweetPoints";
 import getOptionsHandler from "./handlers/getOptions";
-import { getPlayerStatsHandler } from "./handlers/getPlayerStats";
+import getPlayerStatsHandler from "./handlers/getPlayerStats";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 

@@ -15,6 +15,7 @@ import { getPlayerByIdHandler, getPlayersHandler } from "./handlers/players";
 import { saveImage } from "./handlers/saveImage";
 import claimPoolTweetPointsHandler from "./handlers/claimPoolTweetPoints";
 import getOptionsHandler from "./handlers/getOptions";
+import { getPlayerStatsHandler } from "./handlers/getPlayerStats";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 
@@ -66,6 +67,11 @@ const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
     method: "GET",
     path: "/players/{id}",
     handler: middy().handler(getPlayerByIdHandler),
+  },
+  {
+    method: "GET",
+    path: "/players/{id}/stats",
+    handler: middy().handler(getPlayerStatsHandler),
   },
   {
     method: "POST",

@@ -9,14 +9,14 @@ import PlayersService from "../../players/service";
 
 const logger = new Logger({ serviceName: "getPlayerStats" });
 
-export const getPlayerStatsHandler = async (
+const getPlayerStatsHandler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
   logger.info("Received request for player stats", { event });
 
   const playerAddress = event.pathParameters?.id;
   if (!playerAddress) {
-    return buildBadRequestError("ID URL path parameter is required");
+    return buildBadRequestError(":id URL path parameter is required");
   }
 
   const player = await PlayersService.getPlayerByAddress(playerAddress);
@@ -32,3 +32,5 @@ export const getPlayerStatsHandler = async (
   logger.info("Successfully retrieved player stats", { playerStats });
   return buildOkResponse(playerStats);
 };
+
+export default getPlayerStatsHandler;

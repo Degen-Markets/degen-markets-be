@@ -67,7 +67,6 @@ describe("getPool", () => {
       (acc: number, curr: number) => acc + curr,
       0,
     );
-    expect(sum).toBeGreaterThanOrEqual(99);
-    expect(sum).toBeLessThanOrEqual(101);
+    expect(sum).toEqual(100);
   });
 });

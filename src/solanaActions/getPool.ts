@@ -98,19 +98,26 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
         const optionsWithBNVal = options.map((option) => {
           return { ...option, value: new BN(option.value) };
         });
+        let totalPercent = 0;
         poolOptionsWithPercOfTotalPoolValArr = optionsWithBNVal.map(
-          (option) => {
+          (option, index) => {
             const REQUIRED_BASIS_POINT_PRECISION = 2;
             const PRECISION_FOR_PERCENT = 2;
-            const percOfTotalPoolVal =
-              option.value
-                .muln(
-                  10 **
-                    (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION),
-                )
-                .div(new BN(poolTotalVal))
-                .toNumber() /
-              10 ** REQUIRED_BASIS_POINT_PRECISION;
+            const isLastOption = index === optionsWithBNVal.length - 1;
+            const percOfTotalPoolVal = isLastOption
+              ? 100 - totalPercent
+              : Math.round(
+                  option.value
+                    .muln(
+                      10 **
+                        (PRECISION_FOR_PERCENT +
+                          REQUIRED_BASIS_POINT_PRECISION),
+                    )
+                    .div(new BN(poolTotalVal))
+                    .toNumber() /
+                    10 ** REQUIRED_BASIS_POINT_PRECISION,
+                );
+            totalPercent += percOfTotalPoolVal;
             return {
               address: option.address,
               title: option.title,
@@ -123,7 +130,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
         .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
         .map((option) => ({
           type: "transaction",
-          label: `${option.title} (${Math.round(option.percOfTotalPoolVal)}%)`,
+          label: `${option.title} (${option.percOfTotalPoolVal}%)`,
           href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
           parameters: [
             {

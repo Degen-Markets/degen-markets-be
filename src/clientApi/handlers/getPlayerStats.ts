@@ -27,6 +27,7 @@ const getPlayerStatsHandler = async (
 
   logger.info("Player found, fetching stats", { playerAddress });
 
+  // TODO: this could potentially be made even more lean, based on what frontend requires
   const playerStats = await PlayersService.getStats(playerAddress);
 
   logger.info("Successfully retrieved player stats", { playerStats });

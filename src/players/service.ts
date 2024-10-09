@@ -281,6 +281,7 @@ export default class PlayersService {
       option: {
         address: string;
         title: string;
+        totalValue: string;
       };
     }[];
   }> => {
@@ -298,6 +299,7 @@ export default class PlayersService {
           option: {
             address: poolOptionsTable.address,
             title: poolOptionsTable.title,
+            totalValue: poolOptionsTable.value,
           },
         })
         .from(poolEntriesTable)

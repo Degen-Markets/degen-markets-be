@@ -104,7 +104,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
           const PRECISION_FOR_PERCENT = 2;
           const isLastOption = index === optionsWithBNVal.length - 1;
           const percOfTotalPoolVal = isLastOption
-            ? 100 - totalPercent
+            ? 100 - totalPercent // to ensure we don't reach 99% or 100% because of rounding
             : Math.round(
                 option.value
                   .muln(

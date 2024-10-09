@@ -83,13 +83,13 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       }
     } else {
       const poolTotalVal = pool.value;
-      let poolOptionsWithPercOfTotalPoolValArr: {
+      let poolOptionsWithPercentages: {
         address: string;
         title: string;
         percOfTotalPoolVal: number;
       }[];
       if (poolTotalVal.toString() === "0") {
-        poolOptionsWithPercOfTotalPoolValArr = options.map((option) => ({
+        poolOptionsWithPercentages = options.map((option) => ({
           title: option.title,
           address: option.address,
           percOfTotalPoolVal: 100 / options.length,
@@ -99,34 +99,31 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
           return { ...option, value: new BN(option.value) };
         });
         let totalPercent = 0;
-        poolOptionsWithPercOfTotalPoolValArr = optionsWithBNVal.map(
-          (option, index) => {
-            const REQUIRED_BASIS_POINT_PRECISION = 2;
-            const PRECISION_FOR_PERCENT = 2;
-            const isLastOption = index === optionsWithBNVal.length - 1;
-            const percOfTotalPoolVal = isLastOption
-              ? 100 - totalPercent
-              : Math.round(
-                  option.value
-                    .muln(
-                      10 **
-                        (PRECISION_FOR_PERCENT +
-                          REQUIRED_BASIS_POINT_PRECISION),
-                    )
-                    .div(new BN(poolTotalVal))
-                    .toNumber() /
-                    10 ** REQUIRED_BASIS_POINT_PRECISION,
-                );
-            totalPercent += percOfTotalPoolVal;
-            return {
-              address: option.address,
-              title: option.title,
-              percOfTotalPoolVal,
-            };
-          },
-        );
+        poolOptionsWithPercentages = optionsWithBNVal.map((option, index) => {
+          const REQUIRED_BASIS_POINT_PRECISION = 2;
+          const PRECISION_FOR_PERCENT = 2;
+          const isLastOption = index === optionsWithBNVal.length - 1;
+          const percOfTotalPoolVal = isLastOption
+            ? 100 - totalPercent
+            : Math.round(
+                option.value
+                  .muln(
+                    10 **
+                      (PRECISION_FOR_PERCENT + REQUIRED_BASIS_POINT_PRECISION),
+                  )
+                  .div(new BN(poolTotalVal))
+                  .toNumber() /
+                  10 ** REQUIRED_BASIS_POINT_PRECISION,
+              );
+          totalPercent += percOfTotalPoolVal;
+          return {
+            address: option.address,
+            title: option.title,
+            percOfTotalPoolVal,
+          };
+        });
       }
-      metadata.links.actions = poolOptionsWithPercOfTotalPoolValArr
+      metadata.links.actions = poolOptionsWithPercentages
         .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
         .map((option) => ({
           type: "transaction",

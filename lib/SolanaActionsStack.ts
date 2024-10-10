@@ -45,6 +45,8 @@ export class SolanaActionsStack extends TaggedStack {
           TWITTER_BOT_ACCESS_TOKEN_SECRET: getMandatoryEnvVariable(
             "TWITTER_BOT_ACCESS_TOKEN_SECRET",
           ),
+          TELEGRAM_BOT_KEY: getMandatoryEnvVariable("TELEGRAM_BOT_KEY"),
+          TELEGRAM_CHAT_ID: getMandatoryEnvVariable("TELEGRAM_CHAT_ID"),
         },
         vpc,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },

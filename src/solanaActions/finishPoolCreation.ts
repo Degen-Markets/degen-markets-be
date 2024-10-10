@@ -8,6 +8,7 @@ import {
 import { defaultBanner } from "./constants";
 
 import { sendBotTweet } from "../utils/twitterBot";
+import { sendTelegramBotMessage } from "../utils/telegram";
 
 const logger = new Logger({ serviceName: "finishPoolCreation" });
 
@@ -28,7 +29,9 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
 
   try {
     const poolUrl = `https://degenmarkets.com/pools/${pool}`;
-    await sendBotTweet(`New bet created: ${poolUrl}`);
+    const tweetId = await sendBotTweet(`New bet created: ${poolUrl}`);
+    const telegramMessage = `New Bet, time to raid: ${tweetId}`;
+    await sendTelegramBotMessage(telegramMessage);
   } catch (e) {
     logger.error((e as Error).message, e as Error);
     return {

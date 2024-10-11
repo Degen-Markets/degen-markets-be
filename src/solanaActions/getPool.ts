@@ -65,7 +65,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
     };
 
     if (pool.isPaused) {
-      logger.info(`Pool concluded`);
+      logger.info(`Pool concluded for address ${poolAddress}`);
       const winningOption = options.find((option) => option.isWinningOption);
       if (winningOption) {
         logger.info(`Winning option found: ${JSON.stringify(winningOption)}`);
@@ -83,11 +83,13 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
       }
     } else {
       const poolTotalVal = pool.value;
+
       let poolOptionsWithPercentages: {
         address: string;
         title: string;
         percOfTotalPoolVal: number;
       }[];
+
       if (poolTotalVal.toString() === "0") {
         poolOptionsWithPercentages = options.map((option) => ({
           title: option.title,
@@ -98,6 +100,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
         const optionsWithBNVal = options.map((option) => {
           return { ...option, value: new BN(option.value) };
         });
+
         let totalPercent = 0;
         poolOptionsWithPercentages = optionsWithBNVal.map((option, index) => {
           const REQUIRED_BASIS_POINT_PRECISION = 2;
@@ -123,20 +126,55 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
           };
         });
       }
-      metadata.links.actions = poolOptionsWithPercentages
-        .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
-        .map((option) => ({
-          type: "transaction",
-          label: `${option.title} (${option.percOfTotalPoolVal}%)`,
-          href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
-          parameters: [
-            {
-              name: "amount",
-              label: "Enter a SOL amount",
-            },
-          ],
-        }));
+      const hasMoreThanThreeOptions = options.length > 3;
+
+      if (hasMoreThanThreeOptions) {
+        metadata.links.actions = [
+          {
+            type: "transaction",
+            label: "Place bet",
+            href: `/pools/${poolAddress}/options/{optionAddress}?value={amount}`,
+            parameters: [
+              {
+                type: "select",
+                name: "optionAddress",
+                label: "Choose an Option",
+                options: poolOptionsWithPercentages
+                  .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
+                  .map((option) => {
+                    return {
+                      label: `${option.title} (${option.percOfTotalPoolVal}%)`,
+                      value: option.address,
+                    };
+                  }),
+                required: true,
+              },
+              {
+                type: "number",
+                name: "amount",
+                label: "Enter SOL amount",
+                required: true,
+              },
+            ],
+          },
+        ];
+      } else {
+        metadata.links.actions = poolOptionsWithPercentages
+          .sort((a, b) => b.percOfTotalPoolVal - a.percOfTotalPoolVal)
+          .map((option) => ({
+            type: "transaction",
+            label: `${option.title} (${option.percOfTotalPoolVal}%)`,
+            href: `/pools/${poolAddress}/options/${option.address}?value={amount}`,
+            parameters: [
+              {
+                name: "amount",
+                label: "Enter a SOL amount",
+              },
+            ],
+          }));
+      }
     }
+
     return {
       statusCode: 200,
       body: JSON.stringify(metadata),

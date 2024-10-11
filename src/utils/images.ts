@@ -11,7 +11,6 @@ export async function getRemoteImageContentType(
   imageUrl: string,
 ): Promise<string | null> {
   logger.info(`Getting image extension type for image URL ${imageUrl}`);
-  if (!imageUrl) throw new Error("imageUrl cannot be empty");
 
   const getTrial = await tryItAsync(() => axios.get(imageUrl));
   if (!getTrial.success) {
@@ -25,12 +24,13 @@ export async function getRemoteImageContentType(
   logger.info("Obtained response", { response });
 
   const headers = response.headers;
-  const fileType: string = headers["Content-Type"] || headers["content-type"];
-  if (!fileType) {
+  const contentType: string =
+    headers["Content-Type"] || headers["content-type"];
+  if (!contentType) {
     logger.error("Failed to get content type from headers");
     return null;
   }
 
-  logger.info("Obtained File type", { fileType });
-  return fileType;
+  logger.info("Obtained content type", { contentType });
+  return contentType;
 }

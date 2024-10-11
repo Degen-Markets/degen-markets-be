@@ -3,25 +3,40 @@ import { connection, defaultBanner, program } from "./constants";
 import { derivePoolAccountKey } from "../pools/utils";
 import { getTitleHash } from "../utils/cryptography";
 import * as anchor from "@coral-xyz/anchor";
-import {
-  ActionPostResponse,
-  ACTIONS_CORS_HEADERS,
-  createPostResponse,
-} from "@solana/actions";
+import { ACTIONS_CORS_HEADERS, createPostResponse } from "@solana/actions";
 import { PublicKey } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
+import { getRemoteImageContentType } from "../utils/images";
+import { typedIncludes } from "../utils/typedStdLib";
 
 const logger: Logger = new Logger({ serviceName: "generateCreatePoolTx" });
+
+/**
+ * Refer https://docs.dialect.to/documentation/actions/specification/get#get-response-body
+ * for list of supported image extension types
+ * > `icon` - Must be an absolute HTTP or HTTPS URL of an image describing the action. Supported
+ * > image formats are SVG, PNG, or WebP image. If none of the above, the client must reject
+ * > it as malformed.
+ *
+ * In practice we have seen that gif, jpeg and jpg images are also accepted
+ */
+const VALID_IMAGE_EXTENSIONS = [
+  "image/svg",
+  "image/png",
+  "image/webp",
+  "image/jpeg",
+  "image/jpg",
+  "image/gif",
+] as const;
 
 const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
   const poolTItle = event.queryStringParameters?.title;
   const image = event.queryStringParameters?.image;
-  const imageUrl = image || defaultBanner;
   const description = event.queryStringParameters?.description || "";
   const { account } = JSON.parse(event.body || "{}");
   logger.info("Serializing a pool creation tx", {
     title: poolTItle,
-    imageUrl,
+    image,
     description,
     account,
   });
@@ -32,6 +47,19 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
       headers: ACTIONS_CORS_HEADERS,
     };
   }
+
+  if (image && !isValidImageUrl(image)) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Invalid image input. Try a valid SVG/PNG/JPG/JPEG/GIF image",
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  }
+
+  const imageUrl = image || defaultBanner; // fallback to default for '' and undefined images
+
   // TODO: test Pool with that title does not exist
   const poolAccountKey = derivePoolAccountKey(poolTItle).toString();
 
@@ -52,7 +80,7 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
     transaction.recentBlockhash = block.blockhash;
 
     // TODO: display pool title
-    const payload: ActionPostResponse = await createPostResponse({
+    const payload = await createPostResponse({
       fields: {
         type: "transaction",
         transaction,
@@ -106,5 +134,18 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
     };
   }
 };
+
+/**
+ *
+ * @param imageUrl Non empty image URL
+ * @throws if the {@linkcode imageUrl} is empty
+ */
+function isValidImageUrl(imageUrl: string): boolean {
+  const extType = getRemoteImageContentType(imageUrl);
+  if (typedIncludes(VALID_IMAGE_EXTENSIONS, extType)) {
+    return true;
+  }
+  return false;
+}
 
 export default generateCreatePoolTx;

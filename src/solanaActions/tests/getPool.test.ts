@@ -6,56 +6,51 @@ import { PoolOptionEntity } from "../../poolOptions/types";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 
 describe("getPool", () => {
-  let dummyPool: PoolEntity;
-  let dummyOptions: PoolOptionEntity[];
+  const dummyOptions: PoolOptionEntity[] = [
+    {
+      address: "option0",
+      title: "option0",
+      value: "400000000",
+      pool: "pool",
+      isWinningOption: false,
+    },
+    {
+      address: "option1",
+      title: "option1",
+      value: "300000000",
+      pool: "pool",
+      isWinningOption: false,
+    },
+    {
+      address: "option2",
+      title: "option2",
+      value: "300000000",
+      pool: "pool",
+      isWinningOption: false,
+    },
+    {
+      address: "option3",
+      title: "option3",
+      value: "100000000",
+      pool: "pool",
+      isWinningOption: false,
+    },
+  ];
 
-  beforeAll(() => {
-    dummyOptions = [
-      {
-        address: "option0",
-        title: "option0",
-        value: "400000000",
-        pool: "pool",
-        isWinningOption: false,
-      },
-      {
-        address: "option1",
-        title: "option1",
-        value: "300000000",
-        pool: "pool",
-        isWinningOption: false,
-      },
-      {
-        address: "option2",
-        title: "option2",
-        value: "300000000",
-        pool: "pool",
-        isWinningOption: false,
-      },
-      {
-        address: "option3",
-        title: "option3",
-        value: "100000000",
-        pool: "pool",
-        isWinningOption: false,
-      },
-    ];
+  // calculate the total value of the pool based on option values
+  const totalPoolValue = dummyOptions
+    .reduce((sum, option) => sum + parseInt(option.value), 0)
+    .toString();
 
-    // calculate the total value of the pool based on option values
-    const totalPoolValue = dummyOptions
-      .reduce((sum, option) => sum + parseInt(option.value), 0)
-      .toString();
-
-    dummyPool = {
-      address: "pool",
-      title: "dummy pool",
-      value: totalPoolValue,
-      description: "",
-      image: "",
-      isPaused: false,
-      createdAt: new Date(),
-    };
-  });
+  const dummyPool: PoolEntity = {
+    address: "pool",
+    title: "dummy pool",
+    value: totalPoolValue,
+    description: "",
+    image: "",
+    isPaused: false,
+    createdAt: new Date(),
+  };
 
   it("successfully returns a pool with total stats amounting to 100% for three or fewer options", async () => {
     jest

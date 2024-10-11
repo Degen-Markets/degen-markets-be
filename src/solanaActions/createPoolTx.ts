@@ -48,15 +48,15 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
     };
   }
 
-  if (image && !isValidImageUrl(image)) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        message: "Invalid image input. Try a valid SVG/PNG/JPG/JPEG/GIF image",
-      }),
-      headers: ACTIONS_CORS_HEADERS,
-    };
-  }
+  // if (image && !isValidImageUrl(image)) {
+  //   return {
+  //     statusCode: 400,
+  //     body: JSON.stringify({
+  //       message: "Invalid image input. Try a valid SVG/PNG/JPG/JPEG/GIF image",
+  //     }),
+  //     headers: ACTIONS_CORS_HEADERS,
+  //   };
+  // }
 
   const imageUrl = image || defaultBanner; // fallback to default for '' and undefined images
 

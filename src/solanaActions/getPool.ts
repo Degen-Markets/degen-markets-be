@@ -92,7 +92,7 @@ export const getPool = async (event: APIGatewayProxyEventV2) => {
         poolOptionsWithPercentages = options.map((option) => ({
           title: option.title,
           address: option.address,
-          percOfTotalPoolVal: 100 / options.length,
+          percOfTotalPoolVal: Math.round(100 / options.length),
         }));
       } else {
         const optionsWithBNVal = options.map((option) => {

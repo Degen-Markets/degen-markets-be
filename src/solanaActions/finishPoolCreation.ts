@@ -30,7 +30,7 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
   try {
     const poolUrl = `https://degenmarkets.com/pools/${pool}`;
     const tweetId = await sendBotTweet(`New bet created: ${poolUrl}`);
-    const telegramMessage = `New Bet, time to raid: ${tweetId}`;
+    const telegramMessage = `New Bet, time to raid: https://x.com/DegenMarketsBot/status/${tweetId}`;
     await sendTelegramBotMessage(telegramMessage);
   } catch (e) {
     logger.error((e as Error).message, e as Error);

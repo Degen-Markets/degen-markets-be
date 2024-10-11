@@ -8,6 +8,7 @@ const userClient = new TwitterApi({
   accessSecret: getMandatoryEnvVariable("TWITTER_BOT_ACCESS_TOKEN_SECRET"),
 });
 
-export const sendBotTweet = async (text: string) => {
-  await userClient.v2.tweet(text);
+export const sendBotTweet = async (text: string): Promise<string> => {
+  const tweet = await userClient.v2.tweet(text);
+  return tweet.data.id;
 };

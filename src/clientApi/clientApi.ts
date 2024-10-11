@@ -75,7 +75,7 @@ const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   },
   {
     method: "POST",
-    path: "/upload-image",
+    path: "/admin/upload-image",
     handler: middy().handler(saveImage),
   },
   {

@@ -21,7 +21,7 @@ const logger: Logger = new Logger({ serviceName: "saveImage" });
 export const saveImage = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
-  logger.info("handling /upload-image");
+  logger.info("Starting processing", { event });
   const body = JSON.parse(event.body || "{}");
   const imageBase64String: string | undefined = body.image;
   if (!imageBase64String) {

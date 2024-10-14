@@ -16,6 +16,7 @@ import { saveImage } from "./handlers/saveImage";
 import claimPoolTweetPointsHandler from "./handlers/claimPoolTweetPoints";
 import getOptionsHandler from "./handlers/getOptions";
 import getPlayerStatsHandler from "./handlers/getPlayerStats";
+import deletePoolHandler from "./handlers/deletePool";
 
 const logger: Logger = new Logger({ serviceName: "clientApi" });
 
@@ -75,8 +76,13 @@ const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   },
   {
     method: "POST",
-    path: "/upload-image",
+    path: "/admin/upload-image",
     handler: middy().handler(saveImage),
+  },
+  {
+    method: "POST",
+    path: "/admin/delete-pool",
+    handler: middy().handler(deletePoolHandler),
   },
   {
     method: "ANY",

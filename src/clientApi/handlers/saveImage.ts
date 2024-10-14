@@ -5,23 +5,18 @@ import {
   buildOkResponse,
   buildUnauthorizedError,
 } from "../../utils/httpResponses";
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { verifySignature } from "../../utils/cryptography";
 import { Logger } from "@aws-lambda-powertools/logger";
-
-const adminPubKey = "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
+import { ADMIN_PUBKEY } from "../constants";
 
 const logger: Logger = new Logger({ serviceName: "saveImage" });
 
 export const saveImage = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
-  logger.info("handling /upload-image");
+  logger.info("Starting processing", { event });
   const body = JSON.parse(event.body || "{}");
   const imageBase64String: string | undefined = body.image;
   if (!imageBase64String) {
@@ -35,7 +30,7 @@ export const saveImage = async (
   if (!signature) {
     return buildBadRequestError("Missing signature");
   }
-  const verified = verifySignature(signature, adminPubKey);
+  const verified = verifySignature(signature, ADMIN_PUBKEY);
   if (!verified) {
     return buildUnauthorizedError("Incorrect Wallet!");
   }

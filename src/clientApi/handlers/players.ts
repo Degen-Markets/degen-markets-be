@@ -10,7 +10,7 @@ import {
 import { asc, desc } from "drizzle-orm";
 import { playersTable } from "../../players/schema";
 
-const logger = new Logger({ serviceName: "clientApi" });
+const logger = new Logger({ serviceName: "playersHandlers" });
 
 export const getPlayersHandler = async (
   event: APIGatewayProxyEventV2,

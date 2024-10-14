@@ -9,7 +9,7 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 
 import { PoolEntity } from "../../pools/types";
 
-const logger = new Logger({ serviceName: "clientApi" });
+const logger = new Logger({ serviceName: "poolsHandlers" });
 
 export const getAllPools = async (): Promise<APIGatewayProxyResultV2> => {
   let pools;

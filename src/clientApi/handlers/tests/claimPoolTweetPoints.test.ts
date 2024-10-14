@@ -6,6 +6,7 @@ import { buildBadRequestError } from "../../../utils/httpResponses";
 import * as TwitterUtils from "../../../utils/twitter";
 import PoolSharingTweetsService from "../../../poolSharingTweets/service";
 import PoolsService from "../../../pools/service";
+import { generateInvalidBodyEvents } from "./_utils";
 
 const mockEventBody = {
   tweetUrl: "https://twitter.com/user/status/123456789",
@@ -87,28 +88,11 @@ describe("claimPoolTweetPointsHandler", () => {
   });
 
   it("returns a bad request when required fields in body are missing or invalid", async () => {
-    const requiredFields = ["tweetUrl"];
-    const perfectBody = Object.fromEntries(
-      requiredFields.map((field) => [field, ""]),
-    );
-    const testBodies = [
-      {},
-      // if one of the fields is missing
-      ...requiredFields.map((field) => ({
-        ...perfectBody,
-        [field]: undefined,
-      })),
-      // if one of the fields is not a string
-      ...requiredFields.map((field) => ({
-        ...perfectBody,
-        [field]: 123,
-      })),
-    ];
+    const testEvents = generateInvalidBodyEvents({
+      tweetUrl: "string",
+    });
 
-    testBodies.forEach(async (body) => {
-      const event = {
-        body: JSON.stringify(body),
-      } as APIGatewayProxyEventV2;
+    testEvents.forEach(async (event) => {
       const response = await claimPoolTweetPointsHandler(event);
 
       expect(response).toEqual(

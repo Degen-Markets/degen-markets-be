@@ -54,7 +54,8 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
         },
         {
           "name": "system_program",
@@ -93,7 +94,8 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
         },
         {
           "name": "system_program",
@@ -177,8 +179,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+          "signer": true
         }
       ],
       "args": [
@@ -199,8 +200,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+          "signer": true
         }
       ],
       "args": [

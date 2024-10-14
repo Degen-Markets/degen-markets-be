@@ -1,0 +1,1 @@
+ALTER TABLE "pool_entries" ADD COLUMN "isClaimed" boolean DEFAULT false NOT NULL;

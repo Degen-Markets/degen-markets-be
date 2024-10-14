@@ -54,8 +54,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+          "signer": true
         },
         {
           "name": "system_program",
@@ -94,8 +93,7 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true,
-          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
+          "signer": true
         },
         {
           "name": "system_program",
@@ -179,7 +177,8 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
         }
       ],
       "args": [
@@ -200,7 +199,8 @@
         {
           "name": "admin",
           "writable": true,
-          "signer": true
+          "signer": true,
+          "address": "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd"
         }
       ],
       "args": [
@@ -241,6 +241,10 @@
     {
       "name": "PoolStatusUpdated",
       "discriminator": [54, 220, 85, 46, 3, 37, 43, 233]
+    },
+    {
+      "name": "WinClaimed",
+      "discriminator": [222, 254, 147, 204, 233, 195, 37, 131]
     },
     {
       "name": "WinnerSet",
@@ -426,6 +430,26 @@
           {
             "name": "is_paused",
             "type": "bool"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WinClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "entry",
+            "type": "pubkey"
+          },
+          {
+            "name": "winner",
+            "type": "pubkey"
           },
           {
             "name": "pool",

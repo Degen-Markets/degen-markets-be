@@ -1,4 +1,4 @@
-import { index, numeric, pgTable, varchar } from "drizzle-orm/pg-core";
+import { boolean, index, numeric, pgTable, varchar } from "drizzle-orm/pg-core";
 import { playersTable } from "../players/schema";
 
 export const poolEntriesTable = pgTable(
@@ -23,6 +23,8 @@ export const poolEntriesTable = pgTable(
       precision: 50, // biggest number in rust is u128, so 50 precision gives us plenty of space
       scale: 0, // 0 scale because we do not want any decimals
     }).notNull(), // Total value in the entry
+
+    isClaimed: boolean("isClaimed").notNull().default(false),
   },
   (table) => {
     return {

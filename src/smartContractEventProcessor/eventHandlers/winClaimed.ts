@@ -10,7 +10,7 @@ const logger = new Logger({
 const winClaimedEventHandler = async (
   eventData: SmartContractEventData<"winClaimed">,
 ) => {
-  logger.info("Received WinnerSet event", { eventData });
+  logger.info("Received WinClaimed event", { eventData });
 
   const { entry } = eventData;
   await PoolEntriesService.winClaimed(entry);

@@ -45,11 +45,8 @@ export const claimWinTx = async (
         headers: ACTIONS_CORS_HEADERS as Record<string, string>,
       };
     }
-    const entryAccount = await program.account.entry.fetch(entryAccountKey); // fetching an
-    logger.info(`Found entry`, {
-      entry,
-    });
-    if (entryAccount.isClaimed) {
+
+    if (entry.isClaimed) {
       logger.info("Entry already claimed");
       return {
         statusCode: 400,

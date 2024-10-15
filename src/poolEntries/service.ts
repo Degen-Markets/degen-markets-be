@@ -67,4 +67,26 @@ export default class PoolEntriesService {
       const entry = result[0];
       return entry || null;
     });
+
+  static claimWin = async (
+    entry: string,
+  ): Promise<PoolEntriesEntity | undefined> =>
+    this.databaseClient.withDb(async (db) => {
+      this.logger.info(`Setting isClaimed to true for entry ${entry}`);
+
+      const result = await db
+        .update(poolEntriesTable)
+        .set({ isClaimed: true })
+        .where(eq(poolEntriesTable.address, entry))
+        .returning();
+
+      if (!result.length) {
+        this.logger.error(`Entry not found or could not update: ${entry}`);
+        throw new Error("Entry not found or could not update");
+      }
+
+      this.logger.info("Successfully updated entry to claimed", { entry });
+
+      return result[0];
+    });
 }

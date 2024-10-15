@@ -10,6 +10,7 @@ import poolCreatedEventHandler from "./eventHandlers/poolCreated";
 import optionCreatedEventHandler from "./eventHandlers/optionCreated";
 import winnerSetEventHandler from "./eventHandlers/winnerSet";
 import poolStatusUpdatedEventHandler from "./eventHandlers/poolStatusUpdate";
+import winClaimedEventHandler from "./eventHandlers/winClaimed";
 
 const logger = new Logger({ serviceName: "smartContractEventProcessor" });
 
@@ -73,6 +74,12 @@ const forwardToEventHandler = async (
         event: smartContractEvent,
       });
       await winnerSetEventHandler(smartContractEvent.data);
+      break;
+    case "winClaimed":
+      logger.info("Processing `winClaimed` event", {
+        event: smartContractEvent,
+      });
+      await winClaimedEventHandler(smartContractEvent.data);
       break;
 
     default:

@@ -1,20 +1,21 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { SmartContractEventData } from "../types";
 import PoolOptionsService from "../../poolOptions/service";
+import PoolEntriesService from "../../poolEntries/service";
 
 const logger = new Logger({
-  serviceName: "WinnerSetEventHandler",
+  serviceName: "WinClaimedEventHandler",
 });
 
-const winnerSetEventHandler = async (
-  eventData: SmartContractEventData<"winnerSet">,
+const winClaimedEventHandler = async (
+  eventData: SmartContractEventData<"winClaimed">,
 ) => {
   logger.info("Received WinClaimed event", { eventData });
 
-  const { option } = eventData;
-  await PoolOptionsService.setWinner(option);
+  const { entry } = eventData;
+  await PoolEntriesService.claimWin(entry);
 
   logger.info("Completed processing WinClaimed event", { eventData });
 };
 
-export default winnerSetEventHandler;
+export default winClaimedEventHandler;

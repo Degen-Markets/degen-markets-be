@@ -243,6 +243,10 @@
       "discriminator": [54, 220, 85, 46, 3, 37, 43, 233]
     },
     {
+      "name": "WinClaimed",
+      "discriminator": [222, 254, 147, 204, 233, 195, 37, 131]
+    },
+    {
       "name": "WinnerSet",
       "discriminator": [126, 40, 173, 69, 22, 114, 226, 237]
     }
@@ -426,6 +430,26 @@
           {
             "name": "is_paused",
             "type": "bool"
+          },
+          {
+            "name": "pool",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WinClaimed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "entry",
+            "type": "pubkey"
+          },
+          {
+            "name": "winner",
+            "type": "pubkey"
           },
           {
             "name": "pool",

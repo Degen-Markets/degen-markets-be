@@ -76,7 +76,7 @@ const forwardToEventHandler = async (
       await winnerSetEventHandler(smartContractEvent.data);
       break;
     case "winClaimed":
-      logger.info("Processing `winnerSet` event", {
+      logger.info("Processing `winClaimed` event", {
         event: smartContractEvent,
       });
       await winClaimedEventHandler(smartContractEvent.data);

@@ -13,7 +13,7 @@ const winClaimedEventHandler = async (
   logger.info("Received WinnerSet event", { eventData });
 
   const { entry } = eventData;
-  await PoolEntriesService.winClaimed(entry);
+  await PoolEntriesService.claimWin(entry);
 
   logger.info("Completed processing WinnerSet event", { eventData });
 };

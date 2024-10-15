@@ -9,12 +9,12 @@ const logger = new Logger({
 const winnerSetEventHandler = async (
   eventData: SmartContractEventData<"winnerSet">,
 ) => {
-  logger.info("Received WinnerSet event", { eventData });
+  logger.info("Received WinClaimed event", { eventData });
 
   const { option } = eventData;
   await PoolOptionsService.setWinner(option);
 
-  logger.info("Completed processing WinnerSet event", { eventData });
+  logger.info("Completed processing WinClaimed event", { eventData });
 };
 
 export default winnerSetEventHandler;

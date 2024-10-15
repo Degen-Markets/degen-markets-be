@@ -68,7 +68,7 @@ export default class PoolEntriesService {
       return entry || null;
     });
 
-  static winClaimed = async (
+  static claimWin = async (
     entry: string,
   ): Promise<PoolEntriesEntity | undefined> =>
     this.databaseClient.withDb(async (db) => {

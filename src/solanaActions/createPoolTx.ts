@@ -37,67 +37,18 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
   let finalImgUrl = defaultBanner;
 
   if (imageUrl) {
-    const getTrial = await tryItAsync(() =>
-      axios.get(imageUrl, { responseType: "arraybuffer" }),
+    const trial = await tryItAsync<string, Error>(async () =>
+      processAndUploadImage(imageUrl),
     );
-    if (!getTrial.success) {
-      logger.error("Couldn't fetch image", { imageUrl });
+    if (!trial.success) {
+      logger.error("Error processing image", { error: trial.err });
       return buildBadRequestError(
-        "Couldn't find an image at that URL",
-        ACTIONS_CORS_HEADERS,
-      );
-    }
-    let imgBuffer = getTrial.data.data;
-    if (!(imgBuffer instanceof Buffer)) {
-      logger.error("Image URL didn't return a buffer", { imageUrl });
-      return buildBadRequestError(
-        "Couldn't find an image at that URL",
+        (trial.err as Error).message,
         ACTIONS_CORS_HEADERS,
       );
     }
 
-    // user provided images could be bogus, so we have to expect an error path here
-    const getTypeTrial = await tryItAsync(() =>
-      ImageService.getType(imgBuffer),
-    );
-    if (!getTypeTrial.success) {
-      logger.error("Error getting image type", { error: getTypeTrial.err });
-      return buildBadRequestError(
-        "Couldn't find an image at that URL",
-        ACTIONS_CORS_HEADERS,
-      );
-    }
-    const imageType = getTypeTrial.data;
-
-    let isImageGif = imageType === "gif";
-    // Non-gif images are converted to png. This ensures compatibility with dialect, and also
-    // eliminates XSS vulnerabilites from svg images
-    if (!isImageGif) {
-      const convertTrial = await tryItAsync(() =>
-        ImageService.convertTo("png", imgBuffer),
-      );
-      if (!convertTrial.success) {
-        logger.error("Error converting image to PNG", {
-          error: convertTrial.err,
-        });
-        return buildBadRequestError(
-          "Bad image. Try another image (maybe with another file type)",
-          ACTIONS_CORS_HEADERS,
-        );
-      }
-
-      logger.info("Converted image to PNG", { imgBuffer });
-      imgBuffer = convertTrial.data;
-    }
-
-    // upload to S3
-    const fileType = isImageGif ? "gif" : "png";
-    const filePath = `${S3Service.publicFolder}/${crypto.randomUUID()}.${fileType}`;
-    const uploadRes = await S3Service.upload(imgBuffer, filePath, {
-      ContentDisposition: "inline",
-      ContentType: `image/${fileType}`,
-    });
-    finalImgUrl = uploadRes.url;
+    finalImgUrl = trial.data;
   }
 
   // TODO: test Pool with that title does not exist
@@ -166,6 +117,58 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
       ACTIONS_CORS_HEADERS,
     );
   }
+};
+
+/**
+ * Process and upload an image to S3
+ * @param imageUrl - The URL of the image to process
+ * @returns The URL of the uploaded image on S3
+ */
+const processAndUploadImage = async (imageUrl: string): Promise<string> => {
+  const getTrial = await tryItAsync(() =>
+    axios.get(imageUrl, { responseType: "arraybuffer" }),
+  );
+  if (!getTrial.success) {
+    logger.error("Couldn't fetch image", { imageUrl });
+    throw new Error("Couldn't find an image at that URL");
+  }
+  let imgBuffer = getTrial.data.data;
+  if (!(imgBuffer instanceof Buffer)) {
+    logger.error("Image URL didn't return a buffer", { imageUrl });
+    throw new Error("Couldn't find an image at that URL");
+  }
+
+  const getTypeTrial = await tryItAsync(() => ImageService.getType(imgBuffer));
+  if (!getTypeTrial.success) {
+    logger.error("Error getting image type", { error: getTypeTrial.err });
+    throw new Error("Couldn't find an image at that URL");
+  }
+  const imageType = getTypeTrial.data;
+
+  let isImageGif = imageType === "gif";
+  if (!isImageGif) {
+    const convertTrial = await tryItAsync(() =>
+      ImageService.convertTo("png", imgBuffer),
+    );
+    if (!convertTrial.success) {
+      logger.error("Error converting image to PNG", {
+        error: convertTrial.err,
+      });
+      throw new Error(
+        "Bad image. Try another image (maybe with another file type)",
+      );
+    }
+    logger.info("Converted image to PNG", { imgBuffer });
+    imgBuffer = convertTrial.data;
+  }
+
+  const fileType = isImageGif ? "gif" : "png";
+  const filePath = `${S3Service.publicFolder}/${crypto.randomUUID()}.${fileType}`;
+  const uploadRes = await S3Service.upload(imgBuffer, filePath, {
+    ContentDisposition: "inline",
+    ContentType: `image/${fileType}`,
+  });
+  return uploadRes.url;
 };
 
 export default generateCreatePoolTx;

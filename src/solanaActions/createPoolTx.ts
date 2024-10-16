@@ -6,66 +6,106 @@ import * as anchor from "@coral-xyz/anchor";
 import { ACTIONS_CORS_HEADERS, createPostResponse } from "@solana/actions";
 import { PublicKey } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
-import { getRemoteImageContentType } from "../utils/images";
-import { typedIncludes } from "../utils/typedStdLib";
+import ImageService from "../utils/ImageService";
+import S3Service from "../utils/S3Service";
+import { tryItAsync } from "../utils/tryIt";
+import axios from "axios";
+import {
+  buildBadRequestError,
+  buildInternalServerError,
+  buildOkResponse,
+} from "../utils/httpResponses";
 
 const logger: Logger = new Logger({ serviceName: "generateCreatePoolTx" });
 
-/**
- * Refer https://docs.dialect.to/documentation/actions/specification/get#get-response-body
- * for list of supported image extension types
- * > `icon` - Must be an absolute HTTP or HTTPS URL of an image describing the action. Supported
- * > image formats are SVG, PNG, or WebP image. If none of the above, the client must reject
- * > it as malformed.
- *
- * In practice we have seen that gif, jpeg and jpg images are also accepted
- */
-const VALID_IMAGE_EXTENSIONS = [
-  "image/svg",
-  "image/png",
-  "image/webp",
-  "image/jpeg",
-  "image/jpg",
-  "image/gif",
-] as const;
-
 const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
-  const poolTItle = event.queryStringParameters?.title;
-  const image = event.queryStringParameters?.image;
+  const poolTitle = event.queryStringParameters?.title;
+  const imageUrl = event.queryStringParameters?.image;
   const description = event.queryStringParameters?.description || "";
   const { account } = JSON.parse(event.body || "{}");
   logger.info("Serializing a pool creation tx", {
-    title: poolTItle,
-    image,
+    title: poolTitle,
+    image: imageUrl,
     description,
     account,
   });
-  if (!poolTItle || !account) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ message: "Bad request!" }),
-      headers: ACTIONS_CORS_HEADERS,
-    };
+  if (!poolTitle || !account) {
+    logger.error("Pool title or account not found", { poolTitle, account });
+    return buildBadRequestError("Bad request!", ACTIONS_CORS_HEADERS);
   }
 
-  if (image && !(await isValidImageUrl(image))) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        message: "Invalid image input. Try a valid SVG/PNG/JPG/JPEG/GIF image",
-      }),
-      headers: ACTIONS_CORS_HEADERS,
-    };
-  }
+  let finalImgUrl = defaultBanner;
 
-  const imageUrl = image || defaultBanner; // fallback to default for '' and undefined images
+  if (imageUrl) {
+    const getTrial = await tryItAsync(() =>
+      axios.get(imageUrl, { responseType: "arraybuffer" }),
+    );
+    if (!getTrial.success) {
+      logger.error("Couldn't fetch image", { imageUrl });
+      return buildBadRequestError(
+        "Couldn't find an image at that URL",
+        ACTIONS_CORS_HEADERS,
+      );
+    }
+    let imgBuffer = getTrial.data.data;
+    if (!(imgBuffer instanceof Buffer)) {
+      logger.error("Image URL didn't return a buffer", { imageUrl });
+      return buildBadRequestError(
+        "Couldn't find an image at that URL",
+        ACTIONS_CORS_HEADERS,
+      );
+    }
+
+    // user provided images could be bogus, so we have to expect an error path here
+    const getTypeTrial = await tryItAsync(() =>
+      ImageService.getType(imgBuffer),
+    );
+    if (!getTypeTrial.success) {
+      logger.error("Error getting image type", { error: getTypeTrial.err });
+      return buildBadRequestError(
+        "Couldn't find an image at that URL",
+        ACTIONS_CORS_HEADERS,
+      );
+    }
+    const imageType = getTypeTrial.data;
+
+    let isImageGif = imageType === "gif";
+    // Non-gif images are converted to png. This ensures compatibility with dialect, and also
+    // eliminates XSS vulnerabilites from svg images
+    if (!isImageGif) {
+      const convertTrial = await tryItAsync(() =>
+        ImageService.convertTo("png", imgBuffer),
+      );
+      if (!convertTrial.success) {
+        logger.error("Error converting image to PNG", {
+          error: convertTrial.err,
+        });
+        return buildBadRequestError(
+          "Bad image. Try another image (maybe with another file type)",
+          ACTIONS_CORS_HEADERS,
+        );
+      }
+
+      logger.info("Converted image to PNG", { imgBuffer });
+      imgBuffer = convertTrial.data;
+    }
+
+    // upload to S3
+    const fileType = isImageGif ? "gif" : "png";
+    const filePath = `${S3Service.publicFolder}/${crypto.randomUUID()}.${fileType}`;
+    const uploadRes = await S3Service.upload(imgBuffer, filePath, {
+      ContentDisposition: "inline",
+      ContentType: `image/${fileType}`,
+    });
+    finalImgUrl = uploadRes.url;
+  }
 
   // TODO: test Pool with that title does not exist
-  const poolAccountKey = derivePoolAccountKey(poolTItle).toString();
+  const poolAccountKey = derivePoolAccountKey(poolTitle).toString();
 
   try {
     const transaction = await program.methods
-      .createPool(poolTItle, getTitleHash(poolTItle), imageUrl, description)
+      .createPool(poolTitle, getTitleHash(poolTitle), finalImgUrl, description)
       .accounts({
         poolAccount: poolAccountKey,
         admin: account,
@@ -91,7 +131,7 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
             action: {
               label: "",
               type: "action",
-              icon: imageUrl,
+              icon: finalImgUrl,
               title: "Create Bet Option",
               description: "Option #1 for your bet",
               links: {
@@ -99,7 +139,7 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
                   {
                     type: "transaction",
                     label: "Create the first option for your bet",
-                    href: `/pools/${poolAccountKey}/create-option?count=2&image=${image}&poolTitle=${poolTItle}&options={title}`,
+                    href: `/pools/${poolAccountKey}/create-option?count=2&image=${imageUrl}&poolTitle=${poolTitle}&options={title}`,
                     parameters: [
                       {
                         name: "title",
@@ -118,34 +158,14 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
 
     logger.info("Pool Creation transaction serialized", { ...payload });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(payload),
-      headers: ACTIONS_CORS_HEADERS,
-    };
+    return buildOkResponse(payload, ACTIONS_CORS_HEADERS);
   } catch (e) {
     logger.error((e as Error).message, { error: e });
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        message: "Something went wrong, please try again",
-      }),
-      headers: ACTIONS_CORS_HEADERS,
-    };
+    return buildInternalServerError(
+      "Something went wrong, please try again",
+      ACTIONS_CORS_HEADERS,
+    );
   }
 };
-
-/**
- *
- * @param imageUrl Non empty image URL
- * @throws if the {@linkcode imageUrl} is empty
- */
-async function isValidImageUrl(imageUrl: string): Promise<boolean> {
-  const extType = await getRemoteImageContentType(imageUrl);
-  if (typedIncludes(VALID_IMAGE_EXTENSIONS, extType)) {
-    return true;
-  }
-  return false;
-}
 
 export default generateCreatePoolTx;

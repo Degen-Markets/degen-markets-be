@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { DatabaseClient } from "../clients/DatabaseClient";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
@@ -14,13 +14,16 @@ export default class PoolsService {
 
   private static readonly databaseClient: DatabaseClient = new DatabaseClient();
 
-  static getAllPools = async () => {
-    this.logger.info("Fetching all pools from database");
-    return this.databaseClient.withDb(async (db: NodePgDatabase) => {
-      const pools = await db.select().from(poolsTable);
+  static getAllPools = async () =>
+    this.databaseClient.withDb(async (db: NodePgDatabase) => {
+      this.logger.info("Fetching all pools from database");
+      const pools = await db
+        .select()
+        .from(poolsTable)
+        .orderBy(desc(poolsTable.createdAt));
+      this.logger.info(`Found ${pools.length} pools`);
       return pools;
     });
-  };
 
   static getPoolByAddress = async (
     poolAddress: string,

@@ -15,8 +15,27 @@ import {
   buildInternalServerError,
   buildOkResponse,
 } from "../utils/httpResponses";
+import { typedIncludes } from "../utils/typedStdLib";
 
 const logger: Logger = new Logger({ serviceName: "generateCreatePoolTx" });
+
+/**
+ * Refer https://docs.dialect.to/documentation/actions/specification/get#get-response-body
+ * for list of supported image extension types
+ * > `icon` - Must be an absolute HTTP or HTTPS URL of an image describing the action. Supported
+ * > image formats are SVG, PNG, or WebP image. If none of the above, the client must reject
+ * > it as malformed.
+ *
+ * In practice we have seen that gif, jpeg and jpg images are also accepted
+ */
+const VALID_IMAGE_EXTENSIONS = [
+  "svg",
+  "png",
+  "webp",
+  "jpeg",
+  "jpg",
+  "gif",
+] as const;
 
 const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
   const poolTitle = event.queryStringParameters?.title;
@@ -132,8 +151,8 @@ const processAndUploadImage = async (imageUrl: string): Promise<string> => {
     logger.error("Couldn't fetch image", { imageUrl });
     throw new Error("Couldn't find an image at that URL");
   }
-  let imgBuffer = getTrial.data.data;
-  if (!(imgBuffer instanceof Buffer)) {
+  const imgBuffer = getTrial.data.data;
+  if (!Buffer.isBuffer(imgBuffer)) {
     logger.error("Image URL didn't return a buffer", { imageUrl });
     throw new Error("Couldn't find an image at that URL");
   }
@@ -145,28 +164,19 @@ const processAndUploadImage = async (imageUrl: string): Promise<string> => {
   }
   const imageType = getTypeTrial.data;
 
-  let isImageGif = imageType === "gif";
-  if (!isImageGif) {
-    const convertTrial = await tryItAsync(() =>
-      ImageService.convertTo("png", imgBuffer),
+  if (!typedIncludes(VALID_IMAGE_EXTENSIONS, imageType)) {
+    logger.error("Invalid image type", { imageType });
+    const uppercasedList = VALID_IMAGE_EXTENSIONS.map((ext) =>
+      ext.toUpperCase(),
     );
-    if (!convertTrial.success) {
-      logger.error("Error converting image to PNG", {
-        error: convertTrial.err,
-      });
-      throw new Error(
-        "Bad image. Try another image (maybe with another file type)",
-      );
-    }
-    logger.info("Converted image to PNG", { imgBuffer });
-    imgBuffer = convertTrial.data;
+    const errMsg = `Invalid image type. Try a valid ${uppercasedList.join("/")} image`;
+    throw new Error(errMsg);
   }
 
-  const fileType = isImageGif ? "gif" : "png";
-  const filePath = `${S3Service.publicFolder}/${crypto.randomUUID()}.${fileType}`;
+  const filePath = `${S3Service.publicFolder}/${crypto.randomUUID()}.${imageType}`;
   const uploadRes = await S3Service.upload(imgBuffer, filePath, {
     ContentDisposition: "inline",
-    ContentType: `image/${fileType}`,
+    ContentType: `image/${imageType}`,
   });
   return uploadRes.url;
 };

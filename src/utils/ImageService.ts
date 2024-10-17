@@ -1,31 +1,32 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import sharp from "sharp";
+import DOMPurify from "dompurify";
+import { fileTypeFromBuffer } from "file-type";
+import isSvg from "is-svg";
 
 class ImageService {
   private static readonly logger = new Logger({ serviceName: "ImageService" });
 
   static async getType(imgBuffer: Buffer) {
     this.logger.info("Getting image type", { imgBuffer });
-    const metadata = await sharp(imgBuffer).metadata();
-    const fileType = metadata.format;
 
+    const fileType = await fileTypeFromBuffer(imgBuffer);
     if (!fileType) {
+      if (isSvg(imgBuffer.toString())) {
+        return "svg";
+      }
+
       this.logger.error("Error getting image type");
       throw new Error("Error getting image type");
     }
 
-    this.logger.info("Got image type", { trial: fileType });
-    return fileType;
+    this.logger.info("Got image type", { fileType });
+    return fileType.ext;
   }
 
-  static async convertTo(
-    desiredFileType: "png",
-    imgBuffer: Buffer,
-  ): Promise<Buffer> {
-    this.logger.info(`Converting image to ${desiredFileType}`, { imgBuffer });
-    const pngBuffer = await sharp(imgBuffer)[desiredFileType]().toBuffer();
-    this.logger.info(`Converted image to ${desiredFileType}`, { pngBuffer });
-    return pngBuffer;
+  static sanitizeSvg(imgBuffer: string) {
+    const svgStr = imgBuffer.toString();
+    const sanitizedSvgStr = DOMPurify.sanitize(svgStr);
+    return Buffer.from(sanitizedSvgStr);
   }
 }
 

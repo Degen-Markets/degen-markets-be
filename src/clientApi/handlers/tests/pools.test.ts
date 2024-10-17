@@ -19,6 +19,7 @@ const mockPools = [
     isPaused: false,
     value: "1000",
     createdAt: new Date("2023-01-01"),
+    token: "",
   },
   {
     address: "15RTAiwGjWYsMUZqmFvpsyvKEiW22FmbJrvBqmF98i8z",
@@ -28,6 +29,7 @@ const mockPools = [
     isPaused: true,
     value: "2000",
     createdAt: new Date("2023-02-01"),
+    token: "",
   },
 ];
 

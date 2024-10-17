@@ -20,6 +20,7 @@ export const poolsTable = pgTable(
       scale: 0, // 0 scale because we do not want any decimals
     }).notNull(),
     createdAt: timestamp("createdAt").defaultNow().notNull(), // Automatically sets the current timestamp on row insertion, eliminating the need to manually provide it.
+    token: varchar("token", { length: 44 }),
   },
   (table) => {
     return {

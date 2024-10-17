@@ -43,6 +43,13 @@
       "when": 1728892412657,
       "tag": "0005_good_raza",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1729148581946,
+      "tag": "0006_careful_multiple_man",
+      "breakpoints": true
     }
   ]
 }

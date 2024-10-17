@@ -8,7 +8,7 @@ import { PublicKey } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
 import ImageService from "../utils/ImageService";
 import S3Service from "../utils/S3Service";
-import { tryItAsync } from "../utils/tryIt";
+import { tryIt, tryItAsync } from "../utils/tryIt";
 import axios from "axios";
 import {
   buildBadRequestError,
@@ -36,6 +36,10 @@ const VALID_IMAGE_EXTENSIONS = [
   "jpg",
   "gif",
 ] as const;
+
+const userFriendlyExtensionsList = VALID_IMAGE_EXTENSIONS.map((ext) =>
+  ext.toUpperCase(),
+).join("/");
 
 const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
   const poolTitle = event.queryStringParameters?.title;
@@ -151,7 +155,7 @@ const processAndUploadImage = async (imageUrl: string): Promise<string> => {
     logger.error("Couldn't fetch image", { imageUrl });
     throw new Error("Couldn't find an image at that URL");
   }
-  const imgBuffer = getTrial.data.data;
+  let imgBuffer = getTrial.data.data;
   if (!Buffer.isBuffer(imgBuffer)) {
     logger.error("Image URL didn't return a buffer", { imageUrl });
     throw new Error("Couldn't find an image at that URL");
@@ -166,11 +170,18 @@ const processAndUploadImage = async (imageUrl: string): Promise<string> => {
 
   if (!typedIncludes(VALID_IMAGE_EXTENSIONS, imageType)) {
     logger.error("Invalid image type", { imageType });
-    const uppercasedList = VALID_IMAGE_EXTENSIONS.map((ext) =>
-      ext.toUpperCase(),
-    );
-    const errMsg = `Invalid image type. Try a valid ${uppercasedList.join("/")} image`;
+    const errMsg = `Invalid image type. Try a valid ${userFriendlyExtensionsList} image`;
     throw new Error(errMsg);
+  }
+
+  if (imageType === "svg") {
+    const trial = tryIt(() => ImageService.sanitizeSvg(imgBuffer));
+    if (!trial.success) {
+      logger.error("Couldn't sanitize SVG", { imgBuffer });
+      throw new Error(
+        `Incompatible image. Try a valid ${userFriendlyExtensionsList} image`,
+      );
+    }
   }
 
   const filePath = `${S3Service.publicFolder}/${crypto.randomUUID()}.${imageType}`;

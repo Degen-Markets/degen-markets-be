@@ -23,7 +23,7 @@ class ImageService {
     return fileType.ext;
   }
 
-  static sanitizeSvg(imgBuffer: string) {
+  static sanitizeSvg(imgBuffer: Buffer) {
     const svgStr = imgBuffer.toString();
     const sanitizedSvgStr = DOMPurify.sanitize(svgStr);
     return Buffer.from(sanitizedSvgStr);

@@ -277,6 +277,7 @@ export default class PlayersService {
         address: string;
         title: string;
         totalValue: string;
+        image: string;
       };
       option: {
         address: string;
@@ -295,6 +296,7 @@ export default class PlayersService {
             address: poolsTable.address,
             title: poolsTable.title,
             totalValue: poolsTable.value,
+            image: poolsTable.image,
           },
           option: {
             address: poolOptionsTable.address,

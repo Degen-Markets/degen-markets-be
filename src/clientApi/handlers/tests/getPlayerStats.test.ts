@@ -35,6 +35,7 @@ const mockPlayerStats = {
         address: "",
         title: "",
         totalValue: "",
+        image: "",
       },
       option: {
         address: "",

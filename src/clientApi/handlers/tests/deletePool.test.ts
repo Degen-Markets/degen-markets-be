@@ -37,6 +37,7 @@ const spiedDeletePool = jest
     isPaused: false,
     value: "",
     createdAt: new Date(),
+    token: "",
   });
 
 describe("deletePool", () => {

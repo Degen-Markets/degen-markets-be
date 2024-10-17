@@ -50,6 +50,7 @@ describe("getPool", () => {
     image: "",
     isPaused: false,
     createdAt: new Date(),
+    token: "",
   };
 
   it("successfully returns a pool with total stats amounting to 100% for three or fewer options", async () => {

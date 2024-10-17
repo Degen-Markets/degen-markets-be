@@ -22,6 +22,7 @@ describe("poolStatusUpdate", () => {
         description: "",
         image: "",
         createdAt: new Date(),
+        token: "",
       });
   });
 

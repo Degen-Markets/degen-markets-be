@@ -29,6 +29,7 @@ describe("getPoolByAddress", () => {
       isPaused: false,
       value: "1000",
       createdAt: new Date("2023-01-01"),
+      token: "",
     };
 
     MockedPoolsService.getPoolByAddress.mockResolvedValue(mockPool);

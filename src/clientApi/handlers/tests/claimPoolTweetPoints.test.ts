@@ -46,6 +46,7 @@ const spiedGetPoolByAddress = jest
     isPaused: false,
     value: "0",
     createdAt: new Date(),
+    token: "",
   });
 
 const mockPlayer = {

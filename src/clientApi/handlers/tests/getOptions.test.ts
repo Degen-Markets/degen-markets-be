@@ -23,6 +23,7 @@ const mockPool = {
   isPaused: false,
   value: "",
   createdAt: new Date(),
+  token: "",
 };
 
 const mockOptions = [

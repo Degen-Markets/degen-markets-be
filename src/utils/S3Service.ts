@@ -14,8 +14,6 @@ class S3Service {
     "BUCKET_PUBLIC_FOLDER",
   );
 
-  private constructor() {}
-
   public static async upload(
     fileBuffer: Buffer,
     s3ObjectKey: string,

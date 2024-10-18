@@ -184,10 +184,15 @@ const processAndUploadImage = async (imageUrl: string): Promise<string> => {
     }
   }
 
-  const filePath = `${S3Service.publicFolder}/${crypto.randomUUID()}.${imageType}`;
-  const uploadRes = await S3Service.upload(imgBuffer, filePath, {
-    ContentDisposition: "inline",
-    ContentType: `image/${imageType}`,
+  const fileTitle = `${crypto.randomUUID()}.${imageType}`;
+  const uploadRes = await S3Service.upload({
+    fileBuffer: imgBuffer,
+    s3FolderKey: S3Service.publicFolder,
+    s3ObjectName: fileTitle,
+    additionalConfig: {
+      ContentDisposition: "inline",
+      ContentType: `image/${imageType}`,
+    },
   });
   return uploadRes.url;
 };

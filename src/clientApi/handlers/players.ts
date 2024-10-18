@@ -9,6 +9,8 @@ import {
 } from "../../utils/httpResponses";
 import { asc, desc } from "drizzle-orm";
 import { playersTable } from "../../players/schema";
+import { findUserById } from "../../utils/twitter";
+import { tryItAsync } from "../../utils/tryIt";
 
 const logger = new Logger({ serviceName: "playersHandlers" });
 
@@ -52,30 +54,61 @@ export const getPlayersHandler = async (
 export const getPlayerByIdHandler = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyResultV2> => {
-  const playerId = event.pathParameters?.id;
+  logger.info("Received request to fetch player by ID");
 
+  const playerId = event.pathParameters?.id;
   if (!playerId) {
+    logger.warn("Player ID is missing", {
+      pathParameters: event.pathParameters,
+    });
     return buildBadRequestError("Player ID is required");
   }
+  logger.debug("Parsed playerId", { playerId });
 
-  logger.info("Received request to fetch player by ID", { playerId });
-
-  let player;
-
-  try {
-    player = await PlayersService.getPlayerByAddress(playerId);
-  } catch (e) {
-    logger.error("Error fetching player", { error: e });
-    return buildInternalServerError("An unexpected error occurred");
-  }
-
+  let player = await PlayersService.getPlayerByAddress(playerId);
   if (!player) {
-    logger.error("Player not found", { playerId });
+    logger.warn("Player not found");
     return buildNotFoundError("Player not found");
   }
+  logger.debug("Found player");
 
-  logger.info("Successfully retrieved player", { player });
-  return buildOkResponse(player);
+  if (!player.twitterId) {
+    logger.info("Returning player (has no twitterId)");
+    return buildOkResponse(player);
+  }
+  logger.debug("Player has twitterId. Fetching latest info");
+
+  const latestTwitterInfo = await findUserById(player.twitterId);
+  if (!latestTwitterInfo) {
+    logger.warn("Failed to fetch latest Twitter info");
+    logger.info("Returning player (using older twitter info)");
+    return buildOkResponse(player);
+  }
+  logger.debug("Found latest Twitter info for player");
+
+  // Sync the latest twitter info in our db
+  const updateTrial = await tryItAsync(() =>
+    PlayersService.updateTwitterProfile(playerId, {
+      twitterUsername: latestTwitterInfo.twitterUsername,
+      twitterPfpUrl: latestTwitterInfo.twitterPfpUrl || null,
+      twitterId: latestTwitterInfo.twitterId,
+    }),
+  );
+
+  if (!updateTrial.success) {
+    logger.error("Failed to update player's twitter profile", {
+      error: updateTrial.err,
+    });
+    logger.info("Returning player (failed to update twitter info)", {
+      playerId,
+    });
+    return buildOkResponse(player);
+  }
+  const updatedPlayer = updateTrial.data;
+  logger.debug("Updated player's twitter profile");
+
+  logger.info("Returning updated player");
+  return buildOkResponse(updatedPlayer);
 };
 
 const extractQueryParams = (event: APIGatewayProxyEventV2) => {

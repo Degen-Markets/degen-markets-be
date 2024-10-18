@@ -33,6 +33,33 @@ export const findConnectedUser = async (): Promise<
   });
 };
 
+export const findUserById = async (
+  twitterId: string,
+): Promise<{
+  twitterId: string;
+  twitterUsername: string;
+  twitterPfpUrl: string | undefined;
+} | null> => {
+  logger.info("Finding user by ID", { twitterId });
+  const client = new Client(twitterBearerToken);
+  const res = await client.users.findUserById(twitterId, {
+    "user.fields": ["id", "profile_image_url", "username"],
+  });
+  if (!res.data || res.errors) {
+    logger.error("Couldn't find user by ID", {
+      error: res.errors,
+    });
+    return null;
+  }
+
+  logger.info("Found user by ID", { data: res.data });
+  return {
+    twitterId: res.data.id,
+    twitterUsername: res.data.username,
+    twitterPfpUrl: res.data.profile_image_url,
+  };
+};
+
 export const findTweetById = async (
   tweetId: string,
 ): Promise<{ content: string; authorId: string; links: string[] } | null> => {

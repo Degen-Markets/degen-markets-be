@@ -7,6 +7,7 @@ import { LambdaApi } from "./constructs/LambdaApi";
 import { Fn, StackProps } from "aws-cdk-lib";
 import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
+import { Bucket } from "aws-cdk-lib/aws-s3";
 
 export interface SolanaActionsStackProps extends StackProps {
   certificate: Certificate;
@@ -17,10 +18,22 @@ export interface SolanaActionsStackProps extends StackProps {
 }
 
 export class SolanaActionsStack extends TaggedStack {
+  /** The name of the folder which you intend to allow the open internet to publicly access */
+  private BUCKET_PUBLIC_FOLDER_PREFIX = "public";
+
   constructor(scope: Construct, id: string, props: SolanaActionsStackProps) {
     super(scope, id, props);
 
     const { vpc, cname, zone, certificate, database } = props;
+
+    const bucket = new Bucket(this, "Bucket", {
+      blockPublicAccess: {
+        ignorePublicAcls: true,
+        blockPublicAcls: true,
+        restrictPublicBuckets: false,
+        blockPublicPolicy: false,
+      },
+    });
 
     const { lambda } = new LambdaApi(this, "SolanaActionsApiLambda", {
       cname,
@@ -47,6 +60,8 @@ export class SolanaActionsStack extends TaggedStack {
           ),
           TELEGRAM_BOT_KEY: getMandatoryEnvVariable("TELEGRAM_BOT_KEY"),
           TELEGRAM_CHAT_ID: getMandatoryEnvVariable("TELEGRAM_CHAT_ID"),
+          BUCKET_NAME: bucket.bucketName,
+          BUCKET_PUBLIC_FOLDER: this.BUCKET_PUBLIC_FOLDER_PREFIX,
         },
         vpc,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
@@ -67,6 +82,11 @@ export class SolanaActionsStack extends TaggedStack {
     });
 
     database.secret?.grantRead(lambda);
+    bucket.grantReadWrite(lambda);
+    bucket.grantPublicAccess(
+      `${this.BUCKET_PUBLIC_FOLDER_PREFIX}/*`,
+      "s3:GetObject",
+    );
 
     const securityGroup = SecurityGroup.fromSecurityGroupId(
       this,

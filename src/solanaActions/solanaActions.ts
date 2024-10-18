@@ -11,11 +11,9 @@ import { ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { generateEnterPoolTx } from "./enterPoolTx";
 import { getPool } from "./getPool";
 import { claimWinTx } from "./claimWinTx";
-
 import { buildBadRequestError } from "../utils/httpResponses";
 import getPoolCreationForm from "./getPoolCreationForm";
 import generateCreatePoolTx from "./createPoolTx";
-import createPoolTx from "./createPoolTx";
 import generateCreateOptionTx from "./createOptionTx";
 import finishPoolCreation from "./finishPoolCreation";
 

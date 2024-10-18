@@ -10,9 +10,7 @@ class S3Service {
   private static readonly bucketRegion = getMandatoryEnvVariable("AWS_REGION");
 
   /** The path to the publicly accessible folder, for reference */
-  public static readonly publicFolder = getMandatoryEnvVariable(
-    "BUCKET_PUBLIC_FOLDER",
-  );
+  public static readonly publicFolder = "public";
 
   /**
    * Uploads a file to the S3 bucket associated with the calling stack

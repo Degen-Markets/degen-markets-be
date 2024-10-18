@@ -11,6 +11,7 @@ import { asc, desc } from "drizzle-orm";
 import { playersTable } from "../../players/schema";
 import { findUserById } from "../../utils/twitter";
 import { tryItAsync } from "../../utils/tryIt";
+import { findHighResImageUrl } from "./utils";
 
 const logger = new Logger({ serviceName: "playersHandlers" });
 
@@ -90,7 +91,9 @@ export const getPlayerByIdHandler = async (
   const updateTrial = await tryItAsync(() =>
     PlayersService.updateTwitterProfile(playerId, {
       twitterUsername: latestTwitterInfo.twitterUsername,
-      twitterPfpUrl: latestTwitterInfo.twitterPfpUrl || null,
+      twitterPfpUrl: latestTwitterInfo.twitterPfpUrl
+        ? findHighResImageUrl(latestTwitterInfo.twitterPfpUrl)
+        : null,
       twitterId: latestTwitterInfo.twitterId,
     }),
   );

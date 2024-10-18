@@ -1,6 +1,7 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getMandatoryEnvVariable } from "./getMandatoryEnvValue";
 import { Logger } from "@aws-lambda-powertools/logger";
+import { getOptionalEnvVariable } from "./getOptionalEnvVariable";
 
 class S3Service {
   private static readonly logger = new Logger({ serviceName: "S3Service" });
@@ -10,7 +11,8 @@ class S3Service {
   private static readonly bucketRegion = getMandatoryEnvVariable("AWS_REGION");
 
   /** The path to the publicly accessible folder, for reference */
-  public static readonly publicFolder = "public";
+  public static readonly publicFolder =
+    getOptionalEnvVariable("BUCKET_PUBLIC_FOLDER_PREFIX") || "public";
 
   /**
    * Uploads a file to the S3 bucket associated with the calling stack

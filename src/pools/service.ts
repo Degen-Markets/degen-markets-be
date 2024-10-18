@@ -23,42 +23,68 @@ export default class PoolsService {
       this.logger.info(
         `Fetching pools with status: ${status}, sortBy: ${sortBy}, applyPausedFallback: ${applyPausedFallback}`,
       );
+      const statusFilter = this.getStatusFilter(status);
+      const sortOrder = this.getSortOrder(sortBy);
 
-      let statusFilter;
+      let pools = await this.fetchPools(db, statusFilter, sortOrder);
 
-      if (status === "ongoing") {
-        statusFilter = eq(poolsTable.isPaused, false);
-      } else if (status === "completed") {
-        statusFilter = eq(poolsTable.isPaused, true);
-      } else {
-        statusFilter = undefined;
-      }
-
-      const sortOrder =
-        sortBy === "highestVolume"
-          ? desc(poolsTable.value)
-          : desc(poolsTable.createdAt);
-
-      let pools = statusFilter
-        ? await db
-            .select()
-            .from(poolsTable)
-            .where(statusFilter)
-            .orderBy(sortOrder)
-        : await db.select().from(poolsTable).orderBy(sortOrder);
-
-      if (pools.length === 0 && status === "ongoing" && applyPausedFallback) {
+      if (
+        this.shouldFallbackToPausedPools(pools, status, applyPausedFallback)
+      ) {
         this.logger.info("No ongoing pools found, returning paused pools.");
-        pools = await db
-          .select()
-          .from(poolsTable)
-          .where(eq(poolsTable.isPaused, true))
-          .orderBy(sortOrder);
+        pools = await this.fetchPausedPools(db, sortOrder);
       }
 
       this.logger.info(`Found ${pools.length} pools`);
       return pools;
     });
+
+  private static getStatusFilter(status: string) {
+    switch (status) {
+      case "ongoing":
+        return eq(poolsTable.isPaused, false);
+      case "completed":
+        return eq(poolsTable.isPaused, true);
+      default:
+        return undefined;
+    }
+  }
+
+  private static getSortOrder(sortBy: string) {
+    return sortBy === "highestVolume"
+      ? desc(poolsTable.value)
+      : desc(poolsTable.createdAt);
+  }
+
+  private static async fetchPools(
+    db: NodePgDatabase,
+    statusFilter: any,
+    sortOrder: any,
+  ) {
+    return statusFilter
+      ? await db
+          .select()
+          .from(poolsTable)
+          .where(statusFilter)
+          .orderBy(sortOrder)
+      : await db.select().from(poolsTable).orderBy(sortOrder);
+  }
+
+  private static shouldFallbackToPausedPools(
+    pools: any[],
+    status: string,
+    applyPausedFallback: boolean,
+  ) {
+    return pools.length === 0 && status === "ongoing" && applyPausedFallback;
+  }
+
+  private static async fetchPausedPools(db: NodePgDatabase, sortOrder: any) {
+    return db
+      .select()
+      .from(poolsTable)
+      .where(eq(poolsTable.isPaused, true))
+      .orderBy(sortOrder);
+  }
 
   static getPoolByAddress = async (
     poolAddress: string,

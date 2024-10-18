@@ -14,13 +14,48 @@ export default class PoolsService {
 
   private static readonly databaseClient: DatabaseClient = new DatabaseClient();
 
-  static getAllPools = async () =>
+  static getAllPools = async (
+    status: string,
+    sortBy: string,
+    applyPausedFallback: boolean,
+  ) =>
     this.databaseClient.withDb(async (db: NodePgDatabase) => {
-      this.logger.info("Fetching all pools from database");
-      const pools = await db
-        .select()
-        .from(poolsTable)
-        .orderBy(desc(poolsTable.createdAt));
+      this.logger.info(
+        `Fetching pools with status: ${status}, sortBy: ${sortBy}, applyPausedFallback: ${applyPausedFallback}`,
+      );
+
+      let statusFilter;
+
+      if (status === "ongoing") {
+        statusFilter = eq(poolsTable.isPaused, false);
+      } else if (status === "completed") {
+        statusFilter = eq(poolsTable.isPaused, true);
+      } else {
+        statusFilter = undefined;
+      }
+
+      const sortOrder =
+        sortBy === "highestVolume"
+          ? desc(poolsTable.value)
+          : desc(poolsTable.createdAt);
+
+      let pools = statusFilter
+        ? await db
+            .select()
+            .from(poolsTable)
+            .where(statusFilter)
+            .orderBy(sortOrder)
+        : await db.select().from(poolsTable).orderBy(sortOrder);
+
+      if (pools.length === 0 && status === "ongoing" && applyPausedFallback) {
+        this.logger.info("No ongoing pools found, returning paused pools.");
+        pools = await db
+          .select()
+          .from(poolsTable)
+          .where(eq(poolsTable.isPaused, true))
+          .orderBy(sortOrder);
+      }
+
       this.logger.info(`Found ${pools.length} pools`);
       return pools;
     });

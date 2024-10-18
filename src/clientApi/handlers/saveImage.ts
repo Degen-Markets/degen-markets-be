@@ -5,11 +5,10 @@ import {
   buildOkResponse,
   buildUnauthorizedError,
 } from "../../utils/httpResponses";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { verifySignature } from "../../utils/cryptography";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { ADMIN_PUBKEY } from "../constants";
+import S3Service from "../../utils/S3Service";
 
 const logger: Logger = new Logger({ serviceName: "saveImage" });
 
@@ -26,6 +25,7 @@ export const saveImage = async (
   if (!title) {
     return buildBadRequestError("Missing title");
   }
+
   const signature: string | undefined = body.signature;
   if (!signature) {
     return buildBadRequestError("Missing signature");
@@ -38,18 +38,18 @@ export const saveImage = async (
 
   try {
     const imageBuffer = Buffer.from(imageBase64String, "base64");
-    const bucketName = getMandatoryEnvVariable("BUCKET_NAME");
-    const s3Client = new S3Client();
-    const uploadParams = {
-      Body: imageBuffer,
-      Bucket: bucketName,
-      Key: `images/${title}.jpg`,
-    };
-    const putObjectCommand = new PutObjectCommand(uploadParams);
-    await s3Client.send(putObjectCommand);
+    const { url: imageUrl } = await S3Service.upload({
+      fileBuffer: imageBuffer,
+      s3FolderKey: "images",
+      s3ObjectName: `${title}.jpg`,
+      additionalConfig: {
+        ContentType: "image/jpg",
+        ContentDisposition: "inline",
+      },
+    });
     return buildOkResponse({
       status: "SUCCESS",
-      imageUrl: `https://${bucketName}.s3.${getMandatoryEnvVariable("AWS_REGION")}.amazonaws.com/images/${encodeURIComponent(title)}.jpg`,
+      imageUrl,
     });
   } catch (e) {
     logger.error((e as Error).message, e as Error);

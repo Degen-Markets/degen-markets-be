@@ -32,7 +32,11 @@ export default class PoolsService {
         this.shouldFallbackToPausedPools(pools, status, applyPausedFallback)
       ) {
         this.logger.info("No ongoing pools found, returning paused pools.");
-        pools = await this.fetchPausedPools(db, sortOrder);
+        pools = await this.fetchPools(
+          db,
+          eq(poolsTable.isPaused, true),
+          sortOrder,
+        );
       }
 
       this.logger.info(`Found ${pools.length} pools`);
@@ -76,14 +80,6 @@ export default class PoolsService {
     applyPausedFallback: boolean,
   ) {
     return pools.length === 0 && status === "ongoing" && applyPausedFallback;
-  }
-
-  private static async fetchPausedPools(db: NodePgDatabase, sortOrder: any) {
-    return db
-      .select()
-      .from(poolsTable)
-      .where(eq(poolsTable.isPaused, true))
-      .orderBy(sortOrder);
   }
 
   static getPoolByAddress = async (

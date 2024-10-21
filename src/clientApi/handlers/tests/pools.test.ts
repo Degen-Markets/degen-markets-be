@@ -1,4 +1,4 @@
-import { APIGatewayProxyResultV2 } from "aws-lambda";
+import { APIGatewayProxyResultV2, APIGatewayProxyEventV2 } from "aws-lambda";
 import {
   buildInternalServerError,
   buildOkResponse,
@@ -33,17 +33,71 @@ const mockPools = [
   },
 ];
 
-describe("getPools", () => {
+describe("getAllPools", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("returns all pools successfully", async () => {
+  const mockEvent = (queryParams: any = {}): APIGatewayProxyEventV2 =>
+    ({
+      queryStringParameters: queryParams,
+    }) as APIGatewayProxyEventV2;
+
+  it("returns all pools successfully with no filters (default)", async () => {
     MockedPoolsService.getAllPools.mockResolvedValue(mockPools);
 
-    const result: APIGatewayProxyResultV2 = await getAllPools();
+    const result: APIGatewayProxyResultV2 = await getAllPools(mockEvent());
 
-    expect(MockedPoolsService.getAllPools).toHaveBeenCalled();
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+    );
+    expect(result).toEqual(buildOkResponse(mockPools));
+  });
+
+  it("returns ongoing pools successfully", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPools);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(
+      mockEvent({ status: "ongoing" }),
+    );
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "ongoing",
+      "newest",
+      false,
+    );
+    expect(result).toEqual(buildOkResponse(mockPools));
+  });
+
+  it("returns paused pools when no ongoing pools are found and applyPausedFallback is true", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue([]);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(
+      mockEvent({ status: "ongoing", applyPausedFallback: "true" }),
+    );
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "ongoing",
+      "newest",
+      true,
+    );
+    expect(result).toEqual(buildOkResponse([]));
+  });
+
+  it("returns pools sorted by highest volume", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPools);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(
+      mockEvent({ sortBy: "highestVolume" }),
+    );
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "highestVolume",
+      false,
+    );
     expect(result).toEqual(buildOkResponse(mockPools));
   });
 
@@ -52,9 +106,13 @@ describe("getPools", () => {
       new Error("Database error"),
     );
 
-    const result: APIGatewayProxyResultV2 = await getAllPools();
+    const result: APIGatewayProxyResultV2 = await getAllPools(mockEvent());
 
-    expect(MockedPoolsService.getAllPools).toHaveBeenCalled();
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+    );
     expect(result).toEqual(
       buildInternalServerError("An unexpected error occurred"),
     );

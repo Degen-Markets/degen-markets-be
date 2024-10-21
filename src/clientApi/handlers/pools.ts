@@ -11,12 +11,24 @@ import { PoolEntity } from "../../pools/types";
 
 const logger = new Logger({ serviceName: "poolsHandlers" });
 
-export const getAllPools = async (): Promise<APIGatewayProxyResultV2> => {
+export const getAllPools = async (
+  event: APIGatewayProxyEventV2,
+): Promise<APIGatewayProxyResultV2> => {
+  const {
+    status = "",
+    sortBy = "newest",
+    applyPausedFallback = "false",
+  } = event.queryStringParameters || {};
+
   let pools;
   try {
-    pools = await PoolsService.getAllPools();
+    pools = await PoolsService.getAllPools(
+      status,
+      sortBy,
+      applyPausedFallback === "true",
+    );
   } catch (error) {
-    logger.error("Error fetching pools", { error: error });
+    logger.error("Error fetching pools", { error });
     return buildInternalServerError("An unexpected error occurred");
   }
 

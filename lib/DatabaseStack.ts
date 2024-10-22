@@ -26,28 +26,33 @@ export interface DatabaseStackProps extends StackProps {
 }
 
 export class DatabaseStack extends TaggedStack {
-  readonly databaseInstance: DatabaseInstance;
+  readonly database: {
+    instance: DatabaseInstance;
+    name: string;
+    username: string;
+  };
 
   constructor(scope: Construct, id: string, props: DatabaseStackProps) {
     super(scope, id, props);
 
     const { vpc, instanceSize } = props;
 
-    const databaseName = "degenmarkets";
+    this.database.name = "degenmarkets";
+    this.database.username = "postgres";
 
-    this.databaseInstance = new DatabaseInstance(this, "DatabaseInstance", {
+    this.database.instance = new DatabaseInstance(this, "DatabaseInstance", {
       engine: DatabaseInstanceEngine.POSTGRES,
       instanceType: InstanceType.of(
         InstanceClass.BURSTABLE4_GRAVITON,
         instanceSize,
       ),
       publiclyAccessible: false,
-      credentials: Credentials.fromGeneratedSecret("postgres", {
+      credentials: Credentials.fromGeneratedSecret(this.database.username, {
         secretName: "DatabaseCredentials",
       }),
       vpcSubnets: { subnetType: SubnetType.PRIVATE_ISOLATED },
       vpc,
-      databaseName,
+      databaseName: this.database.name,
     });
 
     const migrationLambda = new NodejsFunction(this, "DbMigrationLambda", {
@@ -56,11 +61,11 @@ export class DatabaseStack extends TaggedStack {
       timeout: Duration.minutes(1),
       description: `Db migration lambda`,
       environment: {
-        DATABASE_PASSWORD_SECRET: this.databaseInstance.secret!.secretName,
-        DATABASE_USERNAME: "postgres",
-        DATABASE_DATABASE_NAME: databaseName,
-        DATABASE_HOST: this.databaseInstance.instanceEndpoint.hostname,
-        DATABASE_PORT: this.databaseInstance.instanceEndpoint.port.toString(),
+        DATABASE_PASSWORD_SECRET: this.database.instance.secret!.secretName,
+        DATABASE_USERNAME: this.database.username,
+        DATABASE_DATABASE_NAME: this.database.name,
+        DATABASE_HOST: this.database.instance.instanceEndpoint.hostname,
+        DATABASE_PORT: this.database.instance.instanceEndpoint.port.toString(),
       },
       memorySize: 128,
       functionName: `DbMigration`,
@@ -83,10 +88,10 @@ export class DatabaseStack extends TaggedStack {
         },
       },
     });
-    this.databaseInstance.secret?.grantRead(migrationLambda);
-    this.databaseInstance.connections.allowFrom(
+    this.database.instance.secret?.grantRead(migrationLambda);
+    this.database.instance.connections.allowFrom(
       migrationLambda,
-      Port.tcp(this.databaseInstance.instanceEndpoint.port),
+      Port.tcp(this.database.instance.instanceEndpoint.port),
       `migration lambda access`,
     );
 
@@ -100,14 +105,14 @@ export class DatabaseStack extends TaggedStack {
       subnetSelection: { subnetType: SubnetType.PUBLIC },
     });
 
-    this.databaseInstance.connections.allowFrom(
+    this.database.instance.connections.allowFrom(
       bastionHost,
       Port.tcp(5432),
       "Bastion host connection",
     );
 
     new CfnOutput(this, "DatabaseSecurityGroupOutput", {
-      value: this.databaseInstance.connections.securityGroups[0]
+      value: this.database.instance.connections.securityGroups[0]
         ?.securityGroupId as string,
       description: "Database security group id",
       exportName: "Database:SecurityGroup:Id",

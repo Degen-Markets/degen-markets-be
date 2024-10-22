@@ -35,7 +35,7 @@ const { vpc } = new NetworkingStack(app, `${isDevEnv ? "Dev" : ""}Networking`, {
   env: getEnv(),
 });
 
-const { databaseInstance } = new DatabaseStack(
+const { database } = new DatabaseStack(
   app,
   `${isDevEnv ? "Dev" : ""}Database`,
   {
@@ -51,7 +51,7 @@ new ClientApiStack(app, `${isDevEnv ? "Dev" : ""}ClientApi`, {
   certificate,
   zone,
   cname: `${isDevEnv ? "dev-" : ""}api`,
-  database: databaseInstance,
+  database,
   env: getEnv(),
   crossRegionReferences: true,
 });
@@ -60,7 +60,7 @@ new WebhookApiStack(app, `${isDevEnv ? "Dev" : ""}WebhookApi`, {
   vpc,
   certificate,
   zone,
-  database: databaseInstance,
+  database,
   cname: `${isDevEnv ? "dev-" : ""}webhooks`,
   env: getEnv(),
   crossRegionReferences: true,
@@ -73,7 +73,7 @@ new SolanaActionsStack(app, `${isDevEnv ? "Dev" : ""}SolanaActionsApi`, {
   cname: `${isDevEnv ? "dev-" : ""}actions`,
   env: getEnv(),
   crossRegionReferences: true,
-  database: databaseInstance,
+  database,
 });
 
 new AdminWebsiteStack(app, `${isDevEnv ? "Dev" : ""}AdminWebsiteStack`, {

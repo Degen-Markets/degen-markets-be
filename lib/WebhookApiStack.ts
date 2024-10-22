@@ -13,6 +13,7 @@ import { Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
+import { getDeploymentEnv } from "./utils";
 
 export interface WebhookApiStackProps extends StackProps {
   database: {
@@ -37,20 +38,20 @@ export class WebhookApiStack extends TaggedStack {
     const { cname, zone, certificate, database, vpc } = props;
 
     const deadLetterQueue = new Queue(this, "SmartContractEventDLQ", {
-      queueName: "SmartContractEventsDlq.fifo",
       contentBasedDeduplication: true,
       retentionPeriod: Duration.days(14),
       fifo: true,
     });
 
     this.smartContractEventQueue = new Queue(this, "SmartContractEventQueue", {
-      queueName: "SmartContractEvents.fifo",
       deadLetterQueue: {
         queue: deadLetterQueue,
         maxReceiveCount: 3,
       },
       fifo: true,
     });
+
+    const { stackIdPrefix } = getDeploymentEnv();
 
     const { lambda } = new LambdaApi(this, "WebhookApiLambda", {
       cname,
@@ -67,7 +68,7 @@ export class WebhookApiStack extends TaggedStack {
           minify: true,
         },
       },
-      apiName: "WebhookApi",
+      apiName: `${stackIdPrefix}WebhookApi`,
     });
 
     this.smartContractEventQueue.grantSendMessages(lambda);
@@ -88,7 +89,6 @@ export class WebhookApiStack extends TaggedStack {
           DATABASE_PORT: database.instance.instanceEndpoint.port.toString(),
         },
         memorySize: 128,
-        functionName: `SmartContractEventHandler`,
         entry: path.join(
           __dirname,
           "../src/smartContractEventProcessor/smartContractEventProcessor.ts",

@@ -9,6 +9,7 @@ import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 import { Bucket, BucketAccessControl } from "aws-cdk-lib/aws-s3";
 import { getOptionalEnvVariable } from "../src/utils/getOptionalEnvVariable";
+import { getDeploymentEnv } from "./utils";
 
 export interface ClientApiStackProps extends StackProps {
   certificate: Certificate;
@@ -38,7 +39,7 @@ export class ClientApiStack extends TaggedStack {
       },
     });
 
-    const isDevEnv = getOptionalEnvVariable("DEPLOYMENT_ENV") === "development";
+    const { stackIdPrefix } = getDeploymentEnv();
 
     const { lambda } = new LambdaApi(this, "ClientApiLambda", {
       cname,
@@ -46,7 +47,6 @@ export class ClientApiStack extends TaggedStack {
       zone,
       entryFile: "clientApi/clientApi.ts",
       lambda: {
-        functionName: `${isDevEnv ? "Dev" : ""}ClientApi`,
         environment: {
           DATABASE_PASSWORD_SECRET: database.instance.secret!.secretName,
           DATABASE_USERNAME: database.username,
@@ -75,7 +75,7 @@ export class ClientApiStack extends TaggedStack {
           },
         },
       },
-      apiName: "ClientApi",
+      apiName: `${stackIdPrefix}ClientApi`,
     });
     const securityGroup = SecurityGroup.fromSecurityGroupId(
       this,

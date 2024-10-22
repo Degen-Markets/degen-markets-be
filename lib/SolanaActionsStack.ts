@@ -8,6 +8,7 @@ import { Fn, StackProps } from "aws-cdk-lib";
 import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 import { Bucket } from "aws-cdk-lib/aws-s3";
+import { getDeploymentEnv } from "./utils";
 
 export interface SolanaActionsStackProps extends StackProps {
   certificate: Certificate;
@@ -39,13 +40,14 @@ export class SolanaActionsStack extends TaggedStack {
       },
     });
 
+    const { stackIdPrefix } = getDeploymentEnv();
+
     const { lambda } = new LambdaApi(this, "SolanaActionsApiLambda", {
       cname,
       certificate,
       zone,
       entryFile: "solanaActions/solanaActions.ts",
       lambda: {
-        functionName: "SolanaActionsHandler",
         environment: {
           DATABASE_PASSWORD_SECRET: database.instance.secret!.secretName,
           DATABASE_USERNAME: database.username,
@@ -82,7 +84,7 @@ export class SolanaActionsStack extends TaggedStack {
           },
         },
       },
-      apiName: "SolanaActionsApi",
+      apiName: `${stackIdPrefix}SolanaActionsApi`,
     });
 
     database.instance.secret?.grantRead(lambda);

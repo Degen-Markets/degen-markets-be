@@ -19,6 +19,7 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
 import * as path from "path";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
+import { getDeploymentEnv } from "./utils";
 
 export interface DatabaseStackProps extends StackProps {
   vpc: Vpc;
@@ -68,7 +69,6 @@ export class DatabaseStack extends TaggedStack {
         DATABASE_PORT: this.database.instance.instanceEndpoint.port.toString(),
       },
       memorySize: 128,
-      functionName: `DbMigration`,
       entry: path.join(__dirname, "../src/dbMigration/dbMigration.ts"),
       logRetention: RetentionDays.ONE_MONTH,
       handler: "handler",
@@ -95,13 +95,14 @@ export class DatabaseStack extends TaggedStack {
       `migration lambda access`,
     );
 
+    const { stackIdPrefix } = getDeploymentEnv();
     const bastionHost = new BastionHostLinux(this, "BastionHost", {
       vpc,
       instanceType: InstanceType.of(
         InstanceClass.BURSTABLE4_GRAVITON,
         InstanceSize.NANO,
       ),
-      instanceName: "BastionHost",
+      instanceName: `${stackIdPrefix}BastionHost`,
       subnetSelection: { subnetType: SubnetType.PUBLIC },
     });
 

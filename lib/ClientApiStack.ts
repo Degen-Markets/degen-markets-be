@@ -8,6 +8,7 @@ import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 import { Bucket, BucketAccessControl } from "aws-cdk-lib/aws-s3";
+import { getOptionalEnvVariable } from "../src/utils/getOptionalEnvVariable";
 
 export interface ClientApiStackProps extends StackProps {
   certificate: Certificate;
@@ -33,13 +34,15 @@ export class ClientApiStack extends TaggedStack {
       },
     });
 
+    const isDevEnv = getOptionalEnvVariable("DEPLOYMENT_ENV") === "development";
+
     const { lambda } = new LambdaApi(this, "ClientApiLambda", {
       cname,
       certificate,
       zone,
       entryFile: "clientApi/clientApi.ts",
       lambda: {
-        functionName: "ClientApi",
+        functionName: `${isDevEnv ? "Dev" : ""}ClientApi`,
         environment: {
           DATABASE_PASSWORD_SECRET: database.secret!.secretName,
           DATABASE_USERNAME: "postgres",

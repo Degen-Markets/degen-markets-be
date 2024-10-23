@@ -36,25 +36,27 @@ export class DatabaseStack extends TaggedStack {
   constructor(scope: Construct, id: string, props: DatabaseStackProps) {
     super(scope, id, props);
 
+    const name = "degenmarkets";
+    const username = "postgres";
     const { vpc, instanceSize } = props;
-
-    this.database.name = "degenmarkets";
-    this.database.username = "postgres";
-
-    this.database.instance = new DatabaseInstance(this, "DatabaseInstance", {
-      engine: DatabaseInstanceEngine.POSTGRES,
-      instanceType: InstanceType.of(
-        InstanceClass.BURSTABLE4_GRAVITON,
-        instanceSize,
-      ),
-      publiclyAccessible: false,
-      credentials: Credentials.fromGeneratedSecret(this.database.username, {
-        secretName: "DatabaseCredentials",
+    this.database = {
+      name,
+      username,
+      instance: new DatabaseInstance(this, "DatabaseInstance", {
+        engine: DatabaseInstanceEngine.POSTGRES,
+        instanceType: InstanceType.of(
+          InstanceClass.BURSTABLE4_GRAVITON,
+          instanceSize,
+        ),
+        publiclyAccessible: false,
+        credentials: Credentials.fromGeneratedSecret(username, {
+          secretName: "DatabaseCredentials",
+        }),
+        vpcSubnets: { subnetType: SubnetType.PRIVATE_ISOLATED },
+        vpc,
+        databaseName: name,
       }),
-      vpcSubnets: { subnetType: SubnetType.PRIVATE_ISOLATED },
-      vpc,
-      databaseName: this.database.name,
-    });
+    };
 
     const migrationLambda = new NodejsFunction(this, "DbMigrationLambda", {
       architecture: Architecture.ARM_64,

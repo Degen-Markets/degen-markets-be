@@ -8,13 +8,19 @@ import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import { IHostedZone } from "aws-cdk-lib/aws-route53";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 import { Bucket, BucketAccessControl } from "aws-cdk-lib/aws-s3";
+import { getOptionalEnvVariable } from "../src/utils/getOptionalEnvVariable";
+import { getDeploymentEnv } from "./utils";
 
 export interface ClientApiStackProps extends StackProps {
   certificate: Certificate;
   zone: IHostedZone;
   cname: string;
   vpc: Vpc;
-  database: DatabaseInstance;
+  database: {
+    instance: DatabaseInstance;
+    name: string;
+    username: string;
+  };
 }
 
 export class ClientApiStack extends TaggedStack {
@@ -33,19 +39,20 @@ export class ClientApiStack extends TaggedStack {
       },
     });
 
+    const { stackIdPrefix } = getDeploymentEnv();
+
     const { lambda } = new LambdaApi(this, "ClientApiLambda", {
       cname,
       certificate,
       zone,
       entryFile: "clientApi/clientApi.ts",
       lambda: {
-        functionName: "ClientApi",
         environment: {
-          DATABASE_PASSWORD_SECRET: database.secret!.secretName,
-          DATABASE_USERNAME: "postgres",
-          DATABASE_DATABASE_NAME: "degenmarkets",
-          DATABASE_HOST: database.instanceEndpoint.hostname,
-          DATABASE_PORT: database.instanceEndpoint.port.toString(),
+          DATABASE_PASSWORD_SECRET: database.instance.secret!.secretName,
+          DATABASE_USERNAME: database.username,
+          DATABASE_DATABASE_NAME: database.name,
+          DATABASE_HOST: database.instance.instanceEndpoint.hostname,
+          DATABASE_PORT: database.instance.instanceEndpoint.port.toString(),
           TWITTER_CLIENT_ID: getMandatoryEnvVariable("TWITTER_CLIENT_ID"),
           TWITTER_CLIENT_SECRET: getMandatoryEnvVariable(
             "TWITTER_CLIENT_SECRET",
@@ -68,14 +75,14 @@ export class ClientApiStack extends TaggedStack {
           },
         },
       },
-      apiName: "ClientApi",
+      apiName: `${stackIdPrefix}ClientApi`,
     });
     const securityGroup = SecurityGroup.fromSecurityGroupId(
       this,
       "ImportedSecurityGroup",
       Fn.importValue("Database:SecurityGroup:Id"),
     );
-    database.secret?.grantRead(lambda);
+    database.instance.secret?.grantRead(lambda);
     securityGroup.connections.allowFrom(
       lambda,
       Port.tcp(5432),

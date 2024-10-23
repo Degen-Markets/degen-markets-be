@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
-import { getEnv } from "../lib/utils";
+import { getEnv, getDeploymentEnv } from "../lib/utils";
 import { config as configDotEnv } from "dotenv";
 import { CertificateStack } from "../lib/CertificateStack";
 import { DatabaseStack } from "../lib/DatabaseStack";
@@ -15,61 +15,64 @@ configDotEnv();
 
 const app = new cdk.App();
 
+const { deploymentEnv, subdomainPrefix, stackIdPrefix } = getDeploymentEnv();
+
 const { certificate, zone, solanaActionsCertificate, adminWebsiteCertificate } =
-  new CertificateStack(app, "Certificates", {
+  new CertificateStack(app, `${stackIdPrefix}Certificates`, {
     domain: "degenmarkets.com",
-    cnames: ["api", "webhooks"],
+    cnames: [`${subdomainPrefix}api`, `${subdomainPrefix}webhooks`],
     env: {
       ...getEnv(),
       region: "us-east-1",
     },
   });
 
-const { vpc } = new NetworkingStack(app, "Networking", {
+const { vpc } = new NetworkingStack(app, `${stackIdPrefix}Networking`, {
   env: getEnv(),
 });
 
-const { databaseInstance } = new DatabaseStack(app, "Database", {
+const { database } = new DatabaseStack(app, `${stackIdPrefix}Database`, {
   vpc,
-  instanceSize: InstanceSize.MICRO,
+  instanceSize:
+    deploymentEnv === "development" ? InstanceSize.MICRO : InstanceSize.MICRO,
   env: getEnv(),
   crossRegionReferences: true,
 });
 
-new ClientApiStack(app, "ClientApi", {
-  vpc,
-  certificate,
-  zone,
-  cname: "api",
-  database: databaseInstance,
-  env: getEnv(),
-  crossRegionReferences: true,
-});
-
-new WebhookApiStack(app, "WebhookApi", {
+new ClientApiStack(app, `${stackIdPrefix}ClientApi`, {
   vpc,
   certificate,
   zone,
-  database: databaseInstance,
-  cname: "webhooks",
+  cname: `${subdomainPrefix}api`,
+  database,
   env: getEnv(),
   crossRegionReferences: true,
 });
 
-new SolanaActionsStack(app, "SolanaActionsApi", {
+new WebhookApiStack(app, `${stackIdPrefix}WebhookApi`, {
+  vpc,
+  certificate,
+  zone,
+  database,
+  cname: `${subdomainPrefix}webhooks`,
+  env: getEnv(),
+  crossRegionReferences: true,
+});
+
+new SolanaActionsStack(app, `${stackIdPrefix}SolanaActionsApi`, {
   vpc,
   certificate: solanaActionsCertificate,
   zone,
-  cname: "actions",
+  cname: `${subdomainPrefix}actions`,
   env: getEnv(),
   crossRegionReferences: true,
-  database: databaseInstance,
+  database,
 });
 
-new AdminWebsiteStack(app, "AdminWebsiteStack", {
+new AdminWebsiteStack(app, `${stackIdPrefix}AdminWebsiteStack`, {
   certificate: adminWebsiteCertificate,
   zone,
-  cname: "admin",
+  cname: `${subdomainPrefix}admin`,
   crossRegionReferences: true,
   env: getEnv(),
 });

@@ -8,13 +8,18 @@ import { Fn, StackProps } from "aws-cdk-lib";
 import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 import { Bucket } from "aws-cdk-lib/aws-s3";
+import { getDeploymentEnv } from "./utils";
 
 export interface SolanaActionsStackProps extends StackProps {
   certificate: Certificate;
   zone: IHostedZone;
   cname: string;
   vpc: Vpc;
-  database: DatabaseInstance;
+  database: {
+    instance: DatabaseInstance;
+    name: string;
+    username: string;
+  };
 }
 
 export class SolanaActionsStack extends TaggedStack {
@@ -35,19 +40,20 @@ export class SolanaActionsStack extends TaggedStack {
       },
     });
 
+    const { stackIdPrefix } = getDeploymentEnv();
+
     const { lambda } = new LambdaApi(this, "SolanaActionsApiLambda", {
       cname,
       certificate,
       zone,
       entryFile: "solanaActions/solanaActions.ts",
       lambda: {
-        functionName: "SolanaActionsHandler",
         environment: {
-          DATABASE_PASSWORD_SECRET: database.secret!.secretName,
-          DATABASE_USERNAME: "postgres",
-          DATABASE_DATABASE_NAME: "degenmarkets",
-          DATABASE_HOST: database.instanceEndpoint.hostname,
-          DATABASE_PORT: database.instanceEndpoint.port.toString(),
+          DATABASE_PASSWORD_SECRET: database.instance.secret!.secretName,
+          DATABASE_USERNAME: database.username,
+          DATABASE_DATABASE_NAME: database.name,
+          DATABASE_HOST: database.instance.instanceEndpoint.hostname,
+          DATABASE_PORT: database.instance.instanceEndpoint.port.toString(),
           TWITTER_BOT_APP_KEY: getMandatoryEnvVariable("TWITTER_BOT_APP_KEY"),
           TWITTER_BOT_APP_SECRET: getMandatoryEnvVariable(
             "TWITTER_BOT_APP_SECRET",
@@ -78,10 +84,10 @@ export class SolanaActionsStack extends TaggedStack {
           },
         },
       },
-      apiName: "SolanaActionsApi",
+      apiName: `${stackIdPrefix}SolanaActionsApi`,
     });
 
-    database.secret?.grantRead(lambda);
+    database.instance.secret?.grantRead(lambda);
     bucket.grantReadWrite(lambda);
     bucket.grantPublicAccess(
       `${this.BUCKET_PUBLIC_FOLDER_PREFIX}/*`,

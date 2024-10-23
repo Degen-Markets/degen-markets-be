@@ -1,4 +1,6 @@
 import { Environment } from "aws-cdk-lib";
+import { getOptionalEnvVariable } from "../src/utils/getOptionalEnvVariable";
+import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 
 export function requireNotNull<T>(param: T, errorMessage?: string): T {
   if (param === null || param === undefined) {
@@ -19,3 +21,19 @@ export const getEnv = (): Environment => ({
     "AWS_REGION environment variable not found",
   ),
 });
+
+// This should match the value in the github workflow (.github/workflows/deploy.yml and deploy-dev.yml)
+enum DeploymentEnv {
+  development = "development",
+  production = "production",
+}
+
+export const getDeploymentEnv = () => {
+  const deploymentEnv =
+    getMandatoryEnvVariable<DeploymentEnv>("DEPLOYMENT_ENV");
+  const subdomainPrefix =
+    deploymentEnv === DeploymentEnv.development ? "dev-" : "";
+  const stackIdPrefix =
+    deploymentEnv === DeploymentEnv.development ? "Dev" : "";
+  return { subdomainPrefix, deploymentEnv, stackIdPrefix };
+};

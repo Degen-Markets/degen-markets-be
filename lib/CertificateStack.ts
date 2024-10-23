@@ -6,6 +6,7 @@ import {
 import { IHostedZone, PublicHostedZone } from "aws-cdk-lib/aws-route53";
 import { TaggedStack } from "./TaggedStack";
 import { Construct } from "constructs";
+import { getDeploymentEnv } from "./utils";
 
 export interface CertificateStackProps extends StackProps {
   domain: string;
@@ -33,13 +34,15 @@ export class CertificateStack extends TaggedStack {
       validation: CertificateValidation.fromDns(this.zone),
     });
 
+    const { subdomainPrefix } = getDeploymentEnv();
+
     this.solanaActionsCertificate = new Certificate(this, `SolanaActionsCert`, {
-      domainName: `actions.${domain}`,
+      domainName: `${subdomainPrefix}actions.${domain}`,
       validation: CertificateValidation.fromDns(this.zone),
     });
 
     this.adminWebsiteCertificate = new Certificate(this, `AdminWebsiteCert`, {
-      domainName: `admin.${domain}`,
+      domainName: `${subdomainPrefix}admin.${domain}`,
       validation: CertificateValidation.fromDns(this.zone),
     });
   }

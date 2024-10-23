@@ -1,13 +1,11 @@
-name: Deploy backend
+name: Deploy backend (dev environment)
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
-  deploy-prod:
-    environment: "PROD"
+  deploy-dev:
+    environment: "DEV"
     runs-on: ubuntu-latest
 
     steps:
@@ -42,10 +40,5 @@ jobs:
           TWITTER_BOT_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_BOT_ACCESS_TOKEN_SECRET }}
           TELEGRAM_BOT_KEY: ${{ secrets.TELEGRAM_BOT_KEY }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          DEPLOYMENT_ENV: "production" # this should match the lib/utils.ts enum DeploymentEnv
+          DEPLOYMENT_ENV: "development" # this should match the lib/utils.ts enum DeploymentEnv
         run: make deploy
-
-      - name: Run migrations
-        env:
-          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
-        run: make trigger_db_migration

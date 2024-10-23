@@ -13,9 +13,14 @@ import { Port, SecurityGroup, SubnetType, Vpc } from "aws-cdk-lib/aws-ec2";
 import { DatabaseInstance } from "aws-cdk-lib/aws-rds";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
+import { getDeploymentEnv } from "./utils";
 
 export interface WebhookApiStackProps extends StackProps {
-  database: DatabaseInstance;
+  database: {
+    instance: DatabaseInstance;
+    name: string;
+    username: string;
+  };
   certificate: Certificate;
   zone: IHostedZone;
   vpc: Vpc;
@@ -33,20 +38,20 @@ export class WebhookApiStack extends TaggedStack {
     const { cname, zone, certificate, database, vpc } = props;
 
     const deadLetterQueue = new Queue(this, "SmartContractEventDLQ", {
-      queueName: "SmartContractEventsDlq.fifo",
       contentBasedDeduplication: true,
       retentionPeriod: Duration.days(14),
       fifo: true,
     });
 
     this.smartContractEventQueue = new Queue(this, "SmartContractEventQueue", {
-      queueName: "SmartContractEvents.fifo",
       deadLetterQueue: {
         queue: deadLetterQueue,
         maxReceiveCount: 3,
       },
       fifo: true,
     });
+
+    const { stackIdPrefix } = getDeploymentEnv();
 
     const { lambda } = new LambdaApi(this, "WebhookApiLambda", {
       cname,
@@ -63,7 +68,7 @@ export class WebhookApiStack extends TaggedStack {
           minify: true,
         },
       },
-      apiName: "WebhookApi",
+      apiName: `${stackIdPrefix}WebhookApi`,
     });
 
     this.smartContractEventQueue.grantSendMessages(lambda);
@@ -77,14 +82,13 @@ export class WebhookApiStack extends TaggedStack {
         timeout: Duration.seconds(30),
         description: `Smart contract event handler`,
         environment: {
-          DATABASE_PASSWORD_SECRET: database.secret!.secretName,
-          DATABASE_USERNAME: "postgres",
-          DATABASE_DATABASE_NAME: "degenmarkets",
-          DATABASE_HOST: database.instanceEndpoint.hostname,
-          DATABASE_PORT: database.instanceEndpoint.port.toString(),
+          DATABASE_PASSWORD_SECRET: database.instance.secret!.secretName,
+          DATABASE_USERNAME: database.username,
+          DATABASE_DATABASE_NAME: database.name,
+          DATABASE_HOST: database.instance.instanceEndpoint.hostname,
+          DATABASE_PORT: database.instance.instanceEndpoint.port.toString(),
         },
         memorySize: 128,
-        functionName: `SmartContractEventHandler`,
         entry: path.join(
           __dirname,
           "../src/smartContractEventProcessor/smartContractEventProcessor.ts",
@@ -115,7 +119,7 @@ export class WebhookApiStack extends TaggedStack {
       "ImportedSecurityGroup",
       Fn.importValue("Database:SecurityGroup:Id"),
     );
-    database.secret?.grantRead(smartContractEventHandler);
+    database.instance.secret?.grantRead(smartContractEventHandler);
     securityGroup.connections.allowFrom(
       smartContractEventHandler,
       Port.tcp(5432),

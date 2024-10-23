@@ -22,7 +22,7 @@ bootstrap:
 
 # triggers the database migration
 trigger_db_migration:
-	aws lambda invoke --function-name DbMigration invoke.log
+	aws lambda invoke --function-name $$(aws lambda list-functions | jq -r '.Functions[] | .FunctionName' | grep 'DbMigration') invoke.log
 
 # starts a tunnel to the database in AWS on port 5541
 tunnel:

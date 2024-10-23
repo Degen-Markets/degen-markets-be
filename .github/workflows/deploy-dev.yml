@@ -1,11 +1,7 @@
 name: Deploy backend (dev environment)
 
 on:
-  # we will set this after testing
-  # workflow_dispatch:
-  push:
-    branches:
-      - support-dev-env-in-cdk-86c0r7fpn
+  workflow_dispatch:
 
 jobs:
   deploy-dev:

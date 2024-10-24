@@ -18,15 +18,20 @@ export default class PoolsService {
     status: string,
     sortBy: string,
     applyPausedFallback: boolean,
+    limit: number = 18,
+    offset: number = 0,
   ) =>
     this.databaseClient.withDb(async (db: NodePgDatabase) => {
       this.logger.info(
-        `Fetching pools with status: ${status}, sortBy: ${sortBy}, applyPausedFallback: ${applyPausedFallback}`,
+        `Fetching pools with status: ${status}, sortBy: ${sortBy}, applyPausedFallback: ${applyPausedFallback}, limit: ${limit}, offset: ${offset}`,
       );
+
       const statusFilter = this.getStatusFilter(status);
       const sortOrder = this.getSortOrder(sortBy);
 
-      let pools = await this.fetchPools(db, statusFilter, sortOrder);
+      let pools =
+        (await this.fetchPools(db, statusFilter, sortOrder, limit, offset)) ||
+        [];
 
       if (
         this.shouldFallbackToPausedPools(pools, status, applyPausedFallback)
@@ -36,6 +41,8 @@ export default class PoolsService {
           db,
           eq(poolsTable.isPaused, true),
           sortOrder,
+          limit,
+          offset,
         );
       }
 
@@ -64,6 +71,8 @@ export default class PoolsService {
     db: NodePgDatabase,
     statusFilter: any,
     sortOrder: any,
+    limit: number,
+    offset: number,
   ) {
     return statusFilter
       ? await db
@@ -71,7 +80,14 @@ export default class PoolsService {
           .from(poolsTable)
           .where(statusFilter)
           .orderBy(sortOrder)
-      : await db.select().from(poolsTable).orderBy(sortOrder);
+          .limit(limit)
+          .offset(offset)
+      : await db
+          .select()
+          .from(poolsTable)
+          .orderBy(sortOrder)
+          .limit(limit)
+          .offset(offset);
   }
 
   private static shouldFallbackToPausedPools(

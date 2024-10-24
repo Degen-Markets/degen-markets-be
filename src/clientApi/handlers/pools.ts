@@ -18,7 +18,14 @@ export const getAllPools = async (
     status = "",
     sortBy = "newest",
     applyPausedFallback = "false",
+    limit = "18",
+    offset = "0",
   } = event.queryStringParameters || {};
+
+  const parsedLimit =
+    isNaN(parseInt(limit)) || parseInt(limit) <= 0 ? 18 : parseInt(limit);
+  const parsedOffset =
+    isNaN(parseInt(offset)) || parseInt(offset) < 0 ? 0 : parseInt(offset);
 
   let pools;
   try {
@@ -26,6 +33,8 @@ export const getAllPools = async (
       status,
       sortBy,
       applyPausedFallback === "true",
+      parsedLimit,
+      parsedOffset,
     );
   } catch (error) {
     logger.error("Error fetching pools", { error });

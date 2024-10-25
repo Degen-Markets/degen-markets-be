@@ -103,7 +103,7 @@ export class WebhookApiStack extends TaggedStack {
           commandHooks: {
             afterBundling: (inputDir: string, outputDir: string): string[] => [
               `mkdir -p ${outputDir}/resources/db`,
-              `cp ${inputDir}/resources/db/eu-west-1-bundle.pem ${outputDir}/resources/db/`,
+              `cp ${inputDir}/resources/db/rds-global-bundle.pem ${outputDir}/resources/db/`,
             ],
             beforeBundling: (): string[] => [],
             beforeInstall: (): string[] => [],

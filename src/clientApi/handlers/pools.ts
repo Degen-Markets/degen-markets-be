@@ -18,7 +18,16 @@ export const getAllPools = async (
     status = "",
     sortBy = "newest",
     applyPausedFallback = "false",
+    limit = "18", // Default limit of 18, as the front end displays 3 columns per row with 6 rows on the initial render
+    offset = "0",
   } = event.queryStringParameters || {};
+
+  const parsedLimit =
+    isNaN(parseInt(limit)) || parseInt(limit) <= 0
+      ? 18
+      : Math.min(parseInt(limit), 50);
+  const parsedOffset =
+    isNaN(parseInt(offset)) || parseInt(offset) < 0 ? 0 : parseInt(offset);
 
   let pools;
   try {
@@ -26,6 +35,8 @@ export const getAllPools = async (
       status,
       sortBy,
       applyPausedFallback === "true",
+      parsedLimit,
+      parsedOffset,
     );
   } catch (error) {
     logger.error("Error fetching pools", { error });

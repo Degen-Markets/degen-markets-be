@@ -10,14 +10,14 @@ jest.mock("../../../pools/service");
 
 const MockedPoolsService = jest.mocked(PoolsService);
 
-const mockPools = [
+const mockPoolsData = [
   {
     address: "14RTAiwGjWYsMUZqmFvpsyvKEiW22FmbJrvBqmF98i7y",
     title: "Pool 1",
     description: "Description for Pool 1",
     image: "https://example.com/pool1.jpg",
     isPaused: false,
-    value: "1000",
+    value: "1800",
     createdAt: new Date("2023-01-01"),
     token: "",
   },
@@ -32,7 +32,6 @@ const mockPools = [
     token: "",
   },
 ];
-
 describe("getAllPools", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -43,8 +42,8 @@ describe("getAllPools", () => {
       queryStringParameters: queryParams,
     }) as APIGatewayProxyEventV2;
 
-  it("returns all pools successfully with no filters (default)", async () => {
-    MockedPoolsService.getAllPools.mockResolvedValue(mockPools);
+  it("returns all pools successfully with default filters", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
 
     const result: APIGatewayProxyResultV2 = await getAllPools(mockEvent());
 
@@ -52,12 +51,14 @@ describe("getAllPools", () => {
       "",
       "newest",
       false,
+      18,
+      0,
     );
-    expect(result).toEqual(buildOkResponse(mockPools));
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
   });
 
   it("returns ongoing pools successfully", async () => {
-    MockedPoolsService.getAllPools.mockResolvedValue(mockPools);
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
 
     const result: APIGatewayProxyResultV2 = await getAllPools(
       mockEvent({ status: "ongoing" }),
@@ -67,11 +68,30 @@ describe("getAllPools", () => {
       "ongoing",
       "newest",
       false,
+      18,
+      0,
     );
-    expect(result).toEqual(buildOkResponse(mockPools));
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
   });
 
-  it("returns paused pools when no ongoing pools are found and applyPausedFallback is true", async () => {
+  it("applies pagination with limit and offset", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(
+      mockEvent({ limit: "5", offset: "15" }),
+    );
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+      5,
+      15,
+    );
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
+  });
+
+  it("returns paused pools when applyPausedFallback is true", async () => {
     MockedPoolsService.getAllPools.mockResolvedValue([]);
 
     const result: APIGatewayProxyResultV2 = await getAllPools(
@@ -82,12 +102,14 @@ describe("getAllPools", () => {
       "ongoing",
       "newest",
       true,
+      18,
+      0,
     );
     expect(result).toEqual(buildOkResponse([]));
   });
 
   it("returns pools sorted by highest volume", async () => {
-    MockedPoolsService.getAllPools.mockResolvedValue(mockPools);
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
 
     const result: APIGatewayProxyResultV2 = await getAllPools(
       mockEvent({ sortBy: "highestVolume" }),
@@ -97,8 +119,10 @@ describe("getAllPools", () => {
       "",
       "highestVolume",
       false,
+      18,
+      0,
     );
-    expect(result).toEqual(buildOkResponse(mockPools));
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
   });
 
   it("returns error on database access failure", async () => {
@@ -112,9 +136,128 @@ describe("getAllPools", () => {
       "",
       "newest",
       false,
+      18,
+      0,
     );
     expect(result).toEqual(
       buildInternalServerError("An unexpected error occurred"),
     );
+  });
+
+  it("returns empty pools array when no pools are found", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue([]);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(mockEvent());
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+      18,
+      0,
+    );
+    expect(result).toEqual(buildOkResponse([]));
+  });
+
+  it("returns all pools successfully with default limit and offset", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(mockEvent());
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+      18,
+      0,
+    );
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
+  });
+
+  it("returns pools with custom limit and offset", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(
+      mockEvent({ limit: "5", offset: "2" }),
+    );
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+      5,
+      2,
+    );
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
+  });
+
+  it("uses default limit and offset when invalid values are passed", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(
+      mockEvent({ limit: "-5", offset: "-18" }),
+    );
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+      18,
+      0,
+    );
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
+  });
+
+  it("returns an error if fetching pools fails", async () => {
+    MockedPoolsService.getAllPools.mockRejectedValue(
+      new Error("Database error"),
+    );
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(mockEvent());
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+      18,
+      0,
+    );
+    expect(result).toEqual(
+      buildInternalServerError("An unexpected error occurred"),
+    );
+  });
+
+  it("returns pools based on status and applyPausedFallback", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(
+      mockEvent({ status: "ongoing", applyPausedFallback: "true" }),
+    );
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "ongoing",
+      "newest",
+      true,
+      18,
+      0,
+    );
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
+  });
+
+  it("caps limit at 50 when a higher value is provided", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(
+      mockEvent({ limit: "1000", offset: "0" }),
+    );
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+      50,
+      0,
+    );
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
   });
 });

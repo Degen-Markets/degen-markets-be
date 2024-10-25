@@ -243,4 +243,21 @@ describe("getAllPools", () => {
     );
     expect(result).toEqual(buildOkResponse(mockPoolsData));
   });
+
+  it("caps limit at 50 when a higher value is provided", async () => {
+    MockedPoolsService.getAllPools.mockResolvedValue(mockPoolsData);
+
+    const result: APIGatewayProxyResultV2 = await getAllPools(
+      mockEvent({ limit: "1000", offset: "0" }),
+    );
+
+    expect(MockedPoolsService.getAllPools).toHaveBeenCalledWith(
+      "",
+      "newest",
+      false,
+      50,
+      0,
+    );
+    expect(result).toEqual(buildOkResponse(mockPoolsData));
+  });
 });

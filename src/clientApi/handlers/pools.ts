@@ -23,7 +23,9 @@ export const getAllPools = async (
   } = event.queryStringParameters || {};
 
   const parsedLimit =
-    isNaN(parseInt(limit)) || parseInt(limit) <= 0 ? 18 : parseInt(limit);
+    isNaN(parseInt(limit)) || parseInt(limit) <= 0
+      ? 18
+      : Math.min(parseInt(limit), 50);
   const parsedOffset =
     isNaN(parseInt(offset)) || parseInt(offset) < 0 ? 0 : parseInt(offset);
 

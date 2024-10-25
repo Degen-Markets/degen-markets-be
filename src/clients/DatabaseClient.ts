@@ -39,7 +39,7 @@ export class DatabaseClient {
       port: this.port,
       ssl: {
         rejectUnauthorized: true,
-        ca: fs.readFileSync("resources/db/eu-west-1-bundle.pem", "utf8"),
+        ca: fs.readFileSync("resources/db/rds-global-bundle.pem", "utf8"),
       },
       connectionTimeoutMillis: 10_000,
     };

@@ -18,7 +18,7 @@ export const getAllPools = async (
     status = "",
     sortBy = "newest",
     applyPausedFallback = "false",
-    limit = "18",
+    limit = "18", // Default limit of 18, as the front end displays 3 columns per row with 6 rows on the initial render
     offset = "0",
   } = event.queryStringParameters || {};
 

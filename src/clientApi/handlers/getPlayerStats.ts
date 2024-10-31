@@ -6,8 +6,13 @@ import {
   buildOkResponse,
 } from "../../utils/httpResponses";
 import PlayersService from "../../players/service";
+import { typedIncludes } from "../../utils/typedStdLib";
 
 const logger = new Logger({ serviceName: "getPlayerStats" });
+
+const SORTABLE_FIELDS = ["createdAt"] as const;
+
+type SortDirection = "ASC" | "DESC";
 
 const getPlayerStatsHandler = async (
   event: APIGatewayProxyEventV2,
@@ -19,16 +24,39 @@ const getPlayerStatsHandler = async (
     return buildBadRequestError(":id URL path parameter is required");
   }
 
+  // Parse and validate sort parameter
+  const sortParam = event.queryStringParameters?.sort;
+  let sort:
+    | { field: (typeof SORTABLE_FIELDS)[number]; direction: SortDirection }
+    | undefined;
+
+  if (sortParam) {
+    const [field, direction] = sortParam.split(":");
+
+    if (!typedIncludes(SORTABLE_FIELDS, field)) {
+      return buildBadRequestError(
+        `Sort field must be one of: ${SORTABLE_FIELDS.join(", ")}`,
+      );
+    }
+
+    if (direction !== "ASC" && direction !== "DESC") {
+      return buildBadRequestError(
+        "Sort direction must be either 'ASC' or 'DESC'",
+      );
+    }
+
+    sort = { field, direction };
+  }
+
   const player = await PlayersService.getPlayerByAddress(playerAddress);
   if (!player) {
     logger.error("Player not found", { playerAddress });
     return buildNotFoundError("Player not found");
   }
 
-  logger.info("Player found, fetching stats", { playerAddress });
+  logger.info("Player found, fetching stats", { playerAddress, sort });
 
-  // TODO: this could potentially be made even more lean, based on what frontend requires
-  const playerStats = await PlayersService.getStats(playerAddress);
+  const playerStats = await PlayersService.getStats(playerAddress, { sort });
 
   logger.info("Successfully retrieved player stats", { playerStats });
   return buildOkResponse(playerStats);

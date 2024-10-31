@@ -10,6 +10,7 @@ import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { poolEntriesTable } from "../poolEntries/schema";
 import { poolsTable } from "../pools/schema";
 import { poolOptionsTable } from "../poolOptions/schema";
+import { asc, desc } from "drizzle-orm";
 
 export default class PlayersService {
   private static readonly logger = new Logger({
@@ -269,6 +270,7 @@ export default class PlayersService {
 
   static getStats = async (
     playerId: string,
+    { sort }: { sort?: { field: "createdAt"; direction: "ASC" | "DESC" } },
   ): Promise<{
     poolEntries: {
       address: string;
@@ -288,7 +290,7 @@ export default class PlayersService {
   }> => {
     this.logger.info("Fetching player stats", { playerId });
     return this.databaseClient.withDb(async (db) => {
-      const poolEntries = await db
+      let poolEntriesQuery = db
         .select({
           address: poolEntriesTable.address,
           value: poolEntriesTable.value,
@@ -310,7 +312,21 @@ export default class PlayersService {
           poolOptionsTable,
           eq(poolEntriesTable.option, poolOptionsTable.address),
         )
-        .where(eq(poolEntriesTable.entrant, playerId));
+        .where(eq(poolEntriesTable.entrant, playerId))
+        .$dynamic();
+
+      if (sort) {
+        const { field, direction } = sort;
+        if (field === "createdAt") {
+          poolEntriesQuery = poolEntriesQuery.orderBy(
+            direction === "ASC"
+              ? asc(poolsTable.createdAt)
+              : desc(poolsTable.createdAt),
+          );
+        }
+      }
+
+      const poolEntries = await poolEntriesQuery;
 
       const stats = {
         poolEntries,

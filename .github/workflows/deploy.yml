@@ -42,6 +42,7 @@ jobs:
           TWITTER_BOT_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_BOT_ACCESS_TOKEN_SECRET }}
           TELEGRAM_BOT_KEY: ${{ secrets.TELEGRAM_BOT_KEY }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SOLANA_RPC_URL: ${{ secrets.SOLANA_RPC_URL }}
           DEPLOYMENT_ENV: "production" # this should match the lib/utils.ts enum DeploymentEnv
         run: make deploy
 

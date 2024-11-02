@@ -2,9 +2,10 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import idl from "../../resources/solana/idl/degen_pools.json";
 import * as anchor from "@coral-xyz/anchor";
 import { DegenPools } from "../../resources/solana/types/degen_pools";
+import { getMandatoryEnvVariable } from "../utils/getMandatoryEnvValue";
 
 export const connection = new Connection(
-  "https://mainnet.helius-rpc.com/?api-key=da7e8928-8eba-45ae-9e4d-a07b87565a80",
+  getMandatoryEnvVariable("SOLANA_RPC_URL"),
   "confirmed",
 );
 

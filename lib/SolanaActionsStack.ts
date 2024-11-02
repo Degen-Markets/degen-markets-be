@@ -68,6 +68,7 @@ export class SolanaActionsStack extends TaggedStack {
           TELEGRAM_CHAT_ID: getMandatoryEnvVariable("TELEGRAM_CHAT_ID"),
           BUCKET_NAME: bucket.bucketName,
           BUCKET_PUBLIC_FOLDER: this.BUCKET_PUBLIC_FOLDER_PREFIX,
+          SOLANA_RPC_URL: getMandatoryEnvVariable("SOLANA_RPC_URL"),
         },
         vpc,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },

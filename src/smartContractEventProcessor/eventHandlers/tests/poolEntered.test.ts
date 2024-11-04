@@ -19,6 +19,8 @@ describe("poolEnteredEventHandler", () => {
     entrant: `2rLVMHhvmKZVYBbhTjmGpVXoLv9ZVNJvKTEUxXAEq7Ff${randomChar}`,
     entry: `9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP${randomChar}`,
     value: `100000000000000000${Math.floor(Math.random() * 10)}`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
 
   beforeEach(() => {
@@ -62,6 +64,8 @@ describe("poolEnteredEventHandler", () => {
       option: mockEventData.option,
       pool: mockEventData.pool,
       value: mockEventData.value,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
     });
 
     expect(PoolOptionsService.incrementValue).toHaveBeenCalledWith(

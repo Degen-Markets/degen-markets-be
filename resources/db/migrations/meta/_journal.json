@@ -50,6 +50,13 @@
       "when": 1729148581946,
       "tag": "0006_careful_multiple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1730454252522,
+      "tag": "0007_fast_leper_queen",
+      "breakpoints": true
     }
   ]
 }

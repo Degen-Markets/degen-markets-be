@@ -5,6 +5,7 @@ import { calculatePointsEarned } from "../utils";
 import BN from "bn.js";
 import PoolOptionsService from "../../../poolOptions/service";
 import PoolsService from "../../../pools/service";
+import { timestamp } from "drizzle-orm/mysql-core";
 
 jest.mock("../utils");
 const mockedCalculatePointsEarned = jest.mocked(calculatePointsEarned);
@@ -44,7 +45,7 @@ describe("poolEnteredEventHandler", () => {
       .spyOn(PoolsService, "incrementValue")
       .mockImplementation(mockedPoolsUpdate);
 
-    await poolEnteredEventHandler(mockEventData);
+    await poolEnteredEventHandler(mockEventData, new Date());
 
     expect(mockedCalculatePointsEarned).toHaveBeenCalledWith(
       new BN(mockEventData.value),

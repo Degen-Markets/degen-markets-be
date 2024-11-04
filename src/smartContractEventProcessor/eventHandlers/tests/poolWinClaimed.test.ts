@@ -19,6 +19,8 @@ describe("winClaimedEventHandler", () => {
         pool: "",
         value: "",
         isClaimed: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
 
     await winClaimedEventHandler(mockWinClaimedEventData);

@@ -4,7 +4,7 @@ import {
   PoolEntriesInsertEntity,
   poolEntriesTable,
 } from "./schema";
-import { Logger } from "@aws-lambda-powertools/logger";
+import { LogFormatter, Logger } from "@aws-lambda-powertools/logger";
 import BN from "bn.js";
 import { DatabaseClient } from "../clients/DatabaseClient";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
@@ -20,15 +20,30 @@ export default class PoolEntriesService {
     data: PoolEntriesInsertEntity,
   ): Promise<PoolEntriesEntity> {
     if (new BN(data.value).ltn(0)) throw new Error("Value must be positive");
-    this.logger.info("Inserting entry into db", { poolEntry: data });
-    const { address, entrant, option, pool, value } = data;
+    this.logger.info("Inserting or updating entry into db", {
+      poolEntry: data,
+    });
+
+    const existingEntry = await db
+      .select()
+      .from(poolEntriesTable)
+      .where(eq(poolEntriesTable.address, data.address))
+      .limit(1);
+
+    this.logger.info(
+      existingEntry ? "Updating Existing Entry" : "Creating new entry",
+      { address: data.address },
+    );
+    const { address, entrant, option, pool, value, createdAt, updatedAt } =
+      data;
     const result = await db
       .insert(poolEntriesTable)
-      .values({ address, entrant, option, pool, value })
+      .values({ address, entrant, option, pool, value, createdAt, updatedAt })
       .onConflictDoUpdate({
         target: poolEntriesTable.address,
         set: {
           value: sql`${poolEntriesTable.value} + ${value}`,
+          updatedAt: updatedAt,
         },
       })
       .returning();

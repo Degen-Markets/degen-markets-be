@@ -41,6 +41,9 @@ export const generateEnterPoolTx = async (event: APIGatewayProxyEventV2) => {
     entrant,
   );
 
+  const block = await connection.getLatestBlockhash();
+  const blockTime = await connection.getBlockTime(await connection.getSlot());
+
   logger.info(
     JSON.stringify(
       {
@@ -48,6 +51,8 @@ export const generateEnterPoolTx = async (event: APIGatewayProxyEventV2) => {
         entryAccount: entryAccountPubkey.toString(),
         optionAccount: optionAccountPubkey.toString(),
         poolAccount: poolAccountPubkey.toString(),
+        blockHash: block.blockhash,
+        approximateBlockTime: blockTime,
       },
       null,
       2,
@@ -65,7 +70,6 @@ export const generateEnterPoolTx = async (event: APIGatewayProxyEventV2) => {
     })
     .transaction();
 
-  const block = await connection.getLatestBlockhash();
   transaction.feePayer = entrant;
   transaction.recentBlockhash = block.blockhash;
 

@@ -45,7 +45,10 @@ const forwardToEventHandler = async (
       logger.info("Processing `poolEntered` event", {
         event: smartContractEvent,
       });
-      await poolEnteredEventHandler(smartContractEvent.data);
+      await poolEnteredEventHandler(
+        smartContractEvent.data,
+        smartContractEvent.timestamp,
+      );
       break;
 
     case "poolCreated":

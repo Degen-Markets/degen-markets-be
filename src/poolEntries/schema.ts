@@ -1,4 +1,11 @@
-import { boolean, index, numeric, pgTable, varchar } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  numeric,
+  pgTable,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 import { playersTable } from "../players/schema";
 
 export const poolEntriesTable = pgTable(
@@ -25,6 +32,8 @@ export const poolEntriesTable = pgTable(
     }).notNull(), // Total value in the entry
 
     isClaimed: boolean("isClaimed").notNull().default(false),
+    createdAt: timestamp("createdAt").notNull(),
+    updatedAt: timestamp("updatedAt").notNull(),
   },
   (table) => {
     return {

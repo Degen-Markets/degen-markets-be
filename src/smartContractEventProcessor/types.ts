@@ -19,7 +19,7 @@ type RecursivelyConvertPubkeyAndBnToString<T> =
 export type SmartContractEvent = {
   [K in EventName]: {
     eventName: K;
-    timestamp: Date;
+    timestamp: string;
     data: RecursivelyConvertPubkeyAndBnToString<EventsRecord[K]>;
   };
 }[EventName];

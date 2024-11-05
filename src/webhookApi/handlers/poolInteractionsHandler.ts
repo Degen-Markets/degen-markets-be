@@ -37,7 +37,7 @@ export const poolInteractionsHandler = async (
     return buildBadRequestError("blockTime is required but missing.");
   }
 
-  const timestamp = new Date(blockTime * 1000); // Convert Unix timestamp to Date
+  const timestamp = new Date(blockTime * 1000).toISOString(); // Convert blockTime to a string in ISO format
 
   const logMessages = parsedBody[0]?.meta?.logMessages;
 
@@ -92,7 +92,7 @@ export const poolInteractionsHandler = async (
 
 function mapLogToEventOrNull(
   log: string,
-  timestamp: Date,
+  timestamp: string,
 ): SmartContractEvent | null {
   const base64Data = log.replace("Program data: ", "");
 

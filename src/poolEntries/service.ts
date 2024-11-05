@@ -25,16 +25,23 @@ export default class PoolEntriesService {
     });
 
     this.logger.info("Inserting entry into db", { poolEntry: data });
-    const { address, entrant, option, pool, value, createdAt, updatedAt } =
-      data;
+    const { address, entrant, option, pool, value, updatedAt } = data;
     const result = await db
       .insert(poolEntriesTable)
-      .values({ address, entrant, option, pool, value, createdAt, updatedAt })
+      .values({
+        address,
+        entrant,
+        option,
+        pool,
+        value,
+        updatedAt,
+        createdAt: updatedAt, // Set createdAt to updatedAt if there is new entry
+      })
       .onConflictDoUpdate({
         target: poolEntriesTable.address,
         set: {
           value: sql`${poolEntriesTable.value} + ${value}`,
-          updatedAt: updatedAt,
+          updatedAt,
         },
       })
       .returning();

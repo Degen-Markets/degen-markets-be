@@ -28,23 +28,18 @@ export const poolInteractionsHandler = async (
   }
   const parsedBody = parseTrial.data;
 
-  const blockTime = parsedBody[0]?.blockTime;
+  const blockTime = parsedBody[0].blockTime;
 
   if (!blockTime) {
-    logger.warn("blockTime not found in event body, falling back to timestamp");
+    logger.error(
+      "blockTime is missing from event body. Terminating processing.",
+    );
+    return buildBadRequestError("blockTime is required but missing.");
   }
 
-  const timestamp = blockTime
-    ? new Date(blockTime * 1000) // Convert Unix timestamp to Date
-    : new Date(parsedBody[0]?.timestamp || Date.now());
+  const timestamp = new Date(blockTime * 1000); // Convert Unix timestamp to Date
 
   const logMessages = parsedBody[0]?.meta?.logMessages;
-
-  logger.info("Event timestamp", {
-    blockTime,
-    timestamp: timestamp.toISOString(),
-    webhookTimestamp: parsedBody[0]?.timestamp,
-  });
 
   if (
     !Array.isArray(logMessages) ||

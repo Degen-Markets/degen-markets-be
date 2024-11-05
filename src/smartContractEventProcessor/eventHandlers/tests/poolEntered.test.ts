@@ -5,7 +5,6 @@ import { calculatePointsEarned } from "../utils";
 import BN from "bn.js";
 import PoolOptionsService from "../../../poolOptions/service";
 import PoolsService from "../../../pools/service";
-import { timestamp } from "drizzle-orm/mysql-core";
 
 jest.mock("../utils");
 const mockedCalculatePointsEarned = jest.mocked(calculatePointsEarned);
@@ -19,8 +18,6 @@ describe("poolEnteredEventHandler", () => {
     entrant: `2rLVMHhvmKZVYBbhTjmGpVXoLv9ZVNJvKTEUxXAEq7Ff${randomChar}`,
     entry: `9W959DqEETiGZocYWCQPaJ6sBmUzgfxXfqGeTEdp3aQP${randomChar}`,
     value: `100000000000000000${Math.floor(Math.random() * 10)}`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
   };
 
   beforeEach(() => {
@@ -34,6 +31,7 @@ describe("poolEnteredEventHandler", () => {
     const mockedEntriesInsert = jest.fn();
     const mockedOptionsUpdate = jest.fn();
     const mockedPoolsUpdate = jest.fn();
+
     jest
       .spyOn(PlayersService, "insertNewOrAwardPoints")
       .mockImplementation(mockedPlayerInsert);
@@ -47,12 +45,14 @@ describe("poolEnteredEventHandler", () => {
       .spyOn(PoolsService, "incrementValue")
       .mockImplementation(mockedPoolsUpdate);
 
-    await poolEnteredEventHandler(mockEventData, new Date());
+    const testDate = new Date();
+    await poolEnteredEventHandler(mockEventData, testDate);
 
     expect(mockedCalculatePointsEarned).toHaveBeenCalledWith(
       new BN(mockEventData.value),
       expect.any(Number),
     );
+
     expect(mockedPlayerInsert).toHaveBeenCalledWith(
       mockEventData.entrant,
       randomPointsEarned,
@@ -64,8 +64,7 @@ describe("poolEnteredEventHandler", () => {
       option: mockEventData.option,
       pool: mockEventData.pool,
       value: mockEventData.value,
-      createdAt: expect.any(Date),
-      updatedAt: expect.any(Date),
+      updatedAt: testDate,
     });
 
     expect(PoolOptionsService.incrementValue).toHaveBeenCalledWith(

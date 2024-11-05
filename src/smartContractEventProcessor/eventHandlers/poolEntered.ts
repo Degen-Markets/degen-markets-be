@@ -34,7 +34,6 @@ const poolEnteredEventHandler = async (
       option,
       pool,
       value: valueStr,
-      createdAt: timestamp,
       updatedAt: timestamp,
     }),
     PoolsService.incrementValue(pool, valueStr),

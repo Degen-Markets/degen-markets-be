@@ -1,5 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
-import { programId } from "../solanaActions/constants";
+
+import { programId } from "../utils/constants";
 
 export const deriveEntryAccountKey = (
   optionAccountKey: PublicKey,

@@ -4,13 +4,14 @@ import {
   ACTIONS_CORS_HEADERS,
   createPostResponse,
 } from "@solana/actions";
-import { connection, defaultBanner, program } from "./constants";
+import { defaultBanner } from "./constants";
 import { getOptionTitleHash } from "../utils/cryptography";
 import * as anchor from "@coral-xyz/anchor";
 import { deriveOptionAccountKey } from "../poolOptions/utils";
 import { PublicKey } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { LinkedAction } from "@solana/actions-spec";
+import { connection, program } from "../clients/SolanaProgramClient";
 
 const logger: Logger = new Logger({ serviceName: "generateCreateOptionTx" });
 

@@ -1,1 +1,2 @@
-export const getMandatoryEnvVariable = (variableName: string) => variableName;
+export const getMandatoryEnvVariable = (variableName: string) =>
+  `https://${variableName}`;

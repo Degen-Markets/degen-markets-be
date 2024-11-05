@@ -1,5 +1,5 @@
-import { program } from "../solanaActions/constants";
 import { DecodedSmartContractEvent } from "./types";
+import { program } from "../clients/SolanaProgramClient";
 
 /** Typed version of {@link program.coder.events.decode} */
 export const decodeEventBase64Data = (

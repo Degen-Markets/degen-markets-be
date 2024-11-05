@@ -24,16 +24,7 @@ export default class PoolEntriesService {
       poolEntry: data,
     });
 
-    const existingEntry = await db
-      .select()
-      .from(poolEntriesTable)
-      .where(eq(poolEntriesTable.address, data.address))
-      .limit(1);
-
-    this.logger.info(
-      existingEntry ? "Updating Existing Entry" : "Creating new entry",
-      { address: data.address },
-    );
+    this.logger.info("Inserting entry into db", { poolEntry: data });
     const { address, entrant, option, pool, value, createdAt, updatedAt } =
       data;
     const result = await db

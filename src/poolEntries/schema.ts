@@ -32,8 +32,8 @@ export const poolEntriesTable = pgTable(
     }).notNull(), // Total value in the entry
 
     isClaimed: boolean("isClaimed").notNull().default(false),
-    createdAt: timestamp("createdAt").notNull(),
-    updatedAt: timestamp("updatedAt").notNull(),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    updatedAt: timestamp("updatedAt").notNull().defaultNow(),
   },
   (table) => {
     return {

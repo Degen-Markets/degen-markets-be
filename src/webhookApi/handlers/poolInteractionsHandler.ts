@@ -37,6 +37,7 @@ export const poolInteractionsHandler = async (
   const timestamp = blockTime
     ? new Date(blockTime * 1000) // Convert Unix timestamp to Date
     : new Date(parsedBody[0]?.timestamp || Date.now());
+
   const logMessages = parsedBody[0]?.meta?.logMessages;
 
   logger.info("Event timestamp", {

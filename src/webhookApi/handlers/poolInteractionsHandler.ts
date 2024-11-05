@@ -30,6 +30,10 @@ export const poolInteractionsHandler = async (
 
   const blockTime = parsedBody[0]?.blockTime;
 
+  if (!blockTime) {
+    logger.warn("blockTime not found in event body, falling back to timestamp");
+  }
+
   const timestamp = blockTime
     ? new Date(blockTime * 1000) // Convert Unix timestamp to Date
     : new Date(parsedBody[0]?.timestamp || Date.now());

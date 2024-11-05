@@ -1,4 +1,3 @@
-import { connection, program } from "./constants";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import {
   ActionPostResponse,
@@ -9,6 +8,7 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { APIGatewayProxyResultV2 } from "aws-lambda";
 import { deriveEntryAccountKey } from "../poolEntries/utils";
 import PoolEntriesService from "../poolEntries/service";
+import { connection, program } from "../clients/SolanaProgramClient";
 
 const logger = new Logger({ serviceName: "ClaimWinTx" });
 

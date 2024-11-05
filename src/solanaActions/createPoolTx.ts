@@ -1,5 +1,5 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { connection, defaultBanner, program } from "./constants";
+import { defaultBanner } from "./constants";
 import { derivePoolAccountKey } from "../pools/utils";
 import { getTitleHash } from "../utils/cryptography";
 import * as anchor from "@coral-xyz/anchor";
@@ -16,6 +16,7 @@ import {
   buildOkResponse,
 } from "../utils/httpResponses";
 import { typedIncludes } from "../utils/typedStdLib";
+import { connection, program } from "../clients/SolanaProgramClient";
 
 const logger: Logger = new Logger({ serviceName: "generateCreatePoolTx" });
 

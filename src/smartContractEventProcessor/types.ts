@@ -1,6 +1,6 @@
 import { BN, IdlEvents } from "@coral-xyz/anchor";
-import { program } from "../solanaActions/constants";
 import { PublicKey } from "@solana/web3.js";
+import { program } from "../clients/SolanaProgramClient";
 
 /** the following are intermediary types for generating {@link SmartContractEvent} */
 

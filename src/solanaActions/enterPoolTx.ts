@@ -8,9 +8,9 @@ import {
 } from "@solana/actions";
 import BN from "bn.js";
 import * as anchor from "@coral-xyz/anchor";
-import { connection, program } from "./constants";
 import { buildBadRequestError } from "../utils/httpResponses";
 import { deriveEntryAccountKey } from "../poolEntries/utils";
+import { connection, program } from "../clients/SolanaProgramClient";
 
 const logger: Logger = new Logger({ serviceName: "enterPoolService" });
 

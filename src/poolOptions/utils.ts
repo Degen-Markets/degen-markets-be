@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 import { getBytesFromHashedStr } from "../utils/cryptography";
-import { program } from "../solanaActions/constants";
+import { programId } from "../utils/constants";
 
 export const deriveOptionAccountKey = (
   title: string,
@@ -8,7 +8,7 @@ export const deriveOptionAccountKey = (
 ) => {
   const [pda, _] = anchor.web3.PublicKey.findProgramAddressSync(
     [getBytesFromHashedStr(poolAccountKey.toString().concat(title))],
-    program.programId,
+    programId,
   );
   console.log(`Derived option account is ${pda}`);
   return pda;

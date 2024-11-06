@@ -2,6 +2,7 @@ import { getMandatoryEnvVariable } from "./getMandatoryEnvValue";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { auth, Client } from "twitter-api-sdk";
 import { findMyUser, TwitterResponse } from "twitter-api-sdk/dist/types";
+import { tryItAsync } from "./tryIt";
 
 const logger = new Logger({ serviceName: "TwitterUtils" });
 
@@ -42,21 +43,24 @@ export const findUserById = async (
 } | null> => {
   logger.info("Finding user by ID", { twitterId });
   const client = new Client(twitterBearerToken);
-  const res = await client.users.findUserById(twitterId, {
-    "user.fields": ["id", "profile_image_url", "username"],
-  });
-  if (!res.data || res.errors) {
-    logger.error("Couldn't find user by ID", {
-      error: res.errors,
-    });
+  const resTrial = await tryItAsync(() =>
+    client.users.findUserById(twitterId, {
+      "user.fields": ["id", "profile_image_url", "username"],
+    }),
+  );
+  if (!resTrial.success || !resTrial.data.data || resTrial.data.errors) {
+    const error = resTrial.success ? resTrial.data.errors : resTrial.err;
+    logger.error("Couldn't find user by ID", { error });
     return null;
   }
 
-  logger.info("Found user by ID", { data: res.data });
+  const data = resTrial.data.data;
+
+  logger.info("Found user by ID", { data });
   return {
-    twitterId: res.data.id,
-    twitterUsername: res.data.username,
-    twitterPfpUrl: res.data.profile_image_url,
+    twitterId: data.id,
+    twitterUsername: data.username,
+    twitterPfpUrl: data.profile_image_url,
   };
 };
 

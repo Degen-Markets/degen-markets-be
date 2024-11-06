@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/degen_pools.json`.
  */
 export type DegenPools = {
-  address: "DCSwWMUAWXVAz9MrezGQBVX6PpKtZBDD2UAq6Jn2KkH9";
+  address: "5MnKYzSNUZgxjBNMz4QQczAeZyrEGJsuneV31p3tCEM3";
   metadata: {
     name: "degenPools";
     version: "0.1.0";

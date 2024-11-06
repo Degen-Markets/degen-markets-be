@@ -74,21 +74,20 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
 
     finalImgUrl = trial.data;
   }
+  const creator = new PublicKey(account);
 
   // TODO: test Pool with that title does not exist
-  const poolAccountKey = derivePoolAccountKey(poolTitle, account).toString();
+  const poolAccountKey = derivePoolAccountKey(poolTitle, creator).toString();
 
   try {
     const transaction = await program.methods
       .createPool(poolTitle, getTitleHash(poolTitle), finalImgUrl, description)
       .accountsStrict({
         poolAccount: poolAccountKey,
-        admin: account,
+        admin: creator,
         systemProgram: anchor.web3.SystemProgram.programId,
       })
       .transaction();
-
-    const creator = new PublicKey(account);
 
     const block = await connection.getLatestBlockhash();
     transaction.feePayer = creator;

@@ -77,7 +77,7 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
   const creator = new PublicKey(account);
 
   // TODO: test Pool with that title does not exist
-  const poolAccountKey = derivePoolAccountKey(poolTitle, creator).toString();
+  const poolAccountKey = derivePoolAccountKey(poolTitle, creator);
 
   try {
     const transaction = await program.methods

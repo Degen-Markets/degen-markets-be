@@ -2,10 +2,10 @@
  * Program IDL in camelCase format in order to be used in JS/TS.
  *
  * Note that this is only a type helper and is not the actual IDL. The original
- * IDL can be found at `solana/idl/degen_pools.json`.
+ * IDL can be found at `target/idl/degen_pools.json`.
  */
 export type DegenPools = {
-  address: "2JWqYTXG5yHSU78hjKb39YFx82whbK74v6sMqMG3TVBQ";
+  address: "5MnKYzSNUZgxjBNMz4QQczAeZyrEGJsuneV31p3tCEM3";
   metadata: {
     name: "degenPools";
     version: "0.1.0";
@@ -61,7 +61,6 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
-          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
         },
         {
           name: "systemProgram";
@@ -94,6 +93,10 @@ export type DegenPools = {
                 kind: "arg";
                 path: "titleHash";
               },
+              {
+                kind: "account";
+                path: "admin";
+              },
             ];
           };
         },
@@ -101,7 +104,6 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
-          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
         },
         {
           name: "systemProgram";
@@ -186,6 +188,7 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
+          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
         },
       ];
       args: [
@@ -207,6 +210,7 @@ export type DegenPools = {
           name: "admin";
           writable: true;
           signer: true;
+          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
         },
       ];
       args: [
@@ -297,6 +301,11 @@ export type DegenPools = {
       code: 6007;
       name: "descriptionTooLong";
       msg: "The description is too long. Maximum length is 200 characters.";
+    },
+    {
+      code: 6008;
+      name: "poolAccountDoesNotMatch";
+      msg: "Pool account does not match derived key";
     },
   ];
   types: [

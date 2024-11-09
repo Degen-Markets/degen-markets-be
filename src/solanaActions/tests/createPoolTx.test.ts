@@ -9,6 +9,10 @@ import createPoolTx, { _Utils } from "../createPoolTx";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { PublicKey } from "@solana/web3.js";
 import { connection } from "../../clients/SolanaProgramClient";
+import { defaultBanner } from "../constants";
+import axios from "axios";
+import ImageService from "../../utils/ImageService";
+import S3Service from "../../utils/S3Service";
 
 describe("createPoolTx", () => {
   let mockEvent: APIGatewayProxyEventV2;
@@ -131,5 +135,100 @@ describe("getPayload", () => {
     };
 
     expect(payload).toEqual(expectedPayload);
+  });
+});
+
+describe("getFinalImgUrl", () => {
+  beforeAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("returns default banner if no image URL is provided", async () => {
+    const finalImgUrl = await _Utils.getFinalImgUrl(undefined);
+    expect(finalImgUrl).toEqual(defaultBanner);
+  });
+
+  it("returns the processed image URL if an image URL is provided", async () => {
+    const mockImgUrl = "mock-image-url";
+    jest.spyOn(_Utils, "processAndUploadImage").mockResolvedValue(mockImgUrl);
+    const finalImgUrl = await _Utils.getFinalImgUrl("mockImageUrl");
+    expect(finalImgUrl).toEqual(mockImgUrl);
+  });
+});
+
+describe("processAndUploadImage", () => {
+  const userFriendlyExtensionsList = "SVG/PNG/WEBP/JPEG/JPG/GIF";
+
+  beforeAll(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("throws an error if the image URL is invalid", async () => {
+    jest.spyOn(axios, "get").mockRejectedValueOnce(new Error());
+    await expect(_Utils.processAndUploadImage("mockImageUrl")).rejects.toThrow(
+      "Invalid image URL",
+    );
+  });
+
+  it("throws an error if the image response is not a buffer", async () => {
+    jest.spyOn(axios, "get").mockResolvedValueOnce({ data: "not a buffer" });
+    await expect(_Utils.processAndUploadImage("mockImageUrl")).rejects.toThrow(
+      "Couldn't find an image at that URL",
+    );
+  });
+
+  it("throws an error if image type cannot be determined", async () => {
+    jest
+      .spyOn(axios, "get")
+      .mockResolvedValueOnce({ data: Buffer.from("test") });
+    jest.spyOn(ImageService, "getType").mockRejectedValueOnce(new Error());
+    await expect(_Utils.processAndUploadImage("mockImageUrl")).rejects.toThrow(
+      "Couldn't read that image",
+    );
+  });
+
+  it("throws an error if image type is not supported", async () => {
+    jest
+      .spyOn(axios, "get")
+      .mockResolvedValueOnce({ data: Buffer.from("test") });
+    jest.spyOn(ImageService, "getType").mockResolvedValueOnce("tiff" as any);
+    await expect(_Utils.processAndUploadImage("mockImageUrl")).rejects.toThrow(
+      `Invalid image type. Try a valid ${userFriendlyExtensionsList} image`,
+    );
+  });
+
+  it("throws an error if SVG sanitization fails", async () => {
+    jest
+      .spyOn(axios, "get")
+      .mockResolvedValueOnce({ data: Buffer.from("test") });
+    jest.spyOn(ImageService, "getType").mockResolvedValueOnce("svg");
+    jest.spyOn(ImageService, "sanitizeSvg").mockImplementationOnce(() => {
+      throw new Error();
+    });
+    await expect(_Utils.processAndUploadImage("mockImageUrl")).rejects.toThrow(
+      `Incompatible image. Try a valid ${userFriendlyExtensionsList} image`,
+    );
+  });
+
+  it("successfully processes and uploads valid images", async () => {
+    const mockBuffer = Buffer.from("test");
+    const mockUrl = "https://example.com/image.png";
+
+    jest.spyOn(axios, "get").mockResolvedValueOnce({ data: mockBuffer });
+    jest.spyOn(ImageService, "getType").mockResolvedValueOnce("png");
+    jest.spyOn(S3Service, "upload").mockResolvedValueOnce({ url: mockUrl });
+
+    const result = await _Utils.processAndUploadImage("mockImageUrl");
+    expect(result).toBe(mockUrl);
+
+    expect(S3Service.upload).toHaveBeenCalledWith({
+      fileBuffer: mockBuffer,
+      s3FolderKey: S3Service.publicFolder,
+      s3ObjectName: expect.stringMatching(/.*\.png$/),
+      additionalConfig: {
+        ContentDisposition: "inline",
+        ContentType: "image/png",
+      },
+    });
   });
 });

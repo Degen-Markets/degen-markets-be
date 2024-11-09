@@ -53,35 +53,78 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
     description,
     account,
   });
-  if (!poolTitle || !account) {
-    logger.error("Pool title or account not found", { poolTitle, account });
-    return buildBadRequestError("Bad request!", ACTIONS_CORS_HEADERS);
-  }
 
-  let finalImgUrl = defaultBanner;
-
-  if (imageUrl) {
-    const trial = await tryItAsync<string, Error>(async () =>
-      processAndUploadImage(imageUrl),
+  if (!poolTitle) {
+    logger.error("Pool title not found", { poolTitle });
+    return buildBadRequestError(
+      "Pool title missing in request",
+      ACTIONS_CORS_HEADERS,
     );
-    if (!trial.success) {
-      logger.error("Error processing image", { error: trial.err });
-      return buildBadRequestError(
-        (trial.err as Error).message,
-        ACTIONS_CORS_HEADERS,
-      );
-    }
-
-    finalImgUrl = trial.data;
   }
-  const creator = new PublicKey(account);
 
-  // TODO: test Pool with that title does not exist
-  const poolAccountKey = derivePoolAccountKey(poolTitle, creator);
+  const creatorTrial = tryIt(() => new PublicKey(account));
+  if (!creatorTrial.success) {
+    logger.error("Valid account is missing in request", { account });
+    return buildBadRequestError(
+      "Valid account is missing in request",
+      ACTIONS_CORS_HEADERS,
+    );
+  }
+  const creator = creatorTrial.data;
 
-  try {
+  const imgUrlTrial = await tryItAsync<string, Error>(async () =>
+    _Utils.getFinalImgUrl(imageUrl),
+  );
+  if (!imgUrlTrial.success) {
+    logger.error("Error processing image", { error: imgUrlTrial.err });
+    return buildBadRequestError(
+      (imgUrlTrial.err as Error).message,
+      ACTIONS_CORS_HEADERS,
+    );
+  }
+  const imgUrl = imgUrlTrial.data;
+
+  const payloadTrial = await tryItAsync(async () =>
+    _Utils.getPayload({
+      poolTitle,
+      imgUrl,
+      description,
+      creator,
+    }),
+  );
+
+  if (!payloadTrial.success) {
+    logger.error((payloadTrial.err as Error).message, {
+      error: payloadTrial.err,
+    });
+    return buildInternalServerError(
+      "Something went wrong, please try again",
+      ACTIONS_CORS_HEADERS,
+    );
+  }
+
+  const payload = payloadTrial.data;
+  logger.info("Pool Creation transaction generated", { ...payload });
+  return buildOkResponse(payload, ACTIONS_CORS_HEADERS);
+};
+
+export const _Utils = {
+  getPayload: async ({
+    poolTitle,
+    imgUrl,
+    description,
+    creator,
+  }: {
+    poolTitle: string;
+    imgUrl: string;
+    description: string;
+    creator: PublicKey;
+  }) => {
+    // TODO: test Pool with that title does not exist
+    const poolAccountKey = derivePoolAccountKey(poolTitle, creator);
+
     const transaction = await program.methods
-      .createPool(poolTitle, getTitleHash(poolTitle), finalImgUrl, description)
+      .createPool(poolTitle, getTitleHash(poolTitle), imgUrl, description)
       .accountsStrict({
         poolAccount: poolAccountKey,
         admin: creator,
@@ -89,9 +132,13 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
       })
       .transaction();
 
+    logger.debug("Generated transaction", { transaction });
+
     const block = await connection.getLatestBlockhash();
     transaction.feePayer = creator;
     transaction.recentBlockhash = block.blockhash;
+
+    logger.debug("Added blockhash and creator", { transaction });
 
     // TODO: display pool title
     const payload = await createPostResponse({
@@ -105,7 +152,7 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
             action: {
               label: "",
               type: "action",
-              icon: finalImgUrl,
+              icon: imgUrl,
               title: "Create Bet Option",
               description: "Option #1 for your bet",
               links: {
@@ -113,7 +160,7 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
                   {
                     type: "transaction",
                     label: "Create the first option for your bet",
-                    href: `/pools/${poolAccountKey}/create-option?count=2&image=${imageUrl}&poolTitle=${poolTitle}&options={title}`,
+                    href: `/pools/${poolAccountKey}/create-option?count=2&image=${imgUrl}&poolTitle=${poolTitle}&options={title}`,
                     parameters: [
                       {
                         name: "title",
@@ -130,71 +177,74 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
       },
     });
 
-    logger.info("Pool Creation transaction serialized", { ...payload });
+    logger.debug("Created payload", { payload });
 
-    return buildOkResponse(payload, ACTIONS_CORS_HEADERS);
-  } catch (e) {
-    logger.error((e as Error).message, { error: e });
-    return buildInternalServerError(
-      "Something went wrong, please try again",
-      ACTIONS_CORS_HEADERS,
-    );
-  }
-};
+    return payload;
+  },
+  getFinalImgUrl: async (imageUrl: string | undefined): Promise<string> => {
+    let result = defaultBanner;
 
-/**
- * Process and upload an image to S3
- * @param imageUrl - The URL of the image to process
- * @returns The URL of the uploaded image on S3
- */
-const processAndUploadImage = async (imageUrl: string): Promise<string> => {
-  const getTrial = await tryItAsync(() =>
-    axios.get(imageUrl, { responseType: "arraybuffer" }),
-  );
-  if (!getTrial.success) {
-    logger.error("Couldn't fetch image", { imageUrl });
-    throw new Error("Couldn't find an image at that URL");
-  }
-  let imgBuffer = getTrial.data.data;
-  if (!Buffer.isBuffer(imgBuffer)) {
-    logger.error("Image URL didn't return a buffer", { imageUrl });
-    throw new Error("Couldn't find an image at that URL");
-  }
-
-  const getTypeTrial = await tryItAsync(() => ImageService.getType(imgBuffer));
-  if (!getTypeTrial.success) {
-    logger.error("Error getting image type", { error: getTypeTrial.err });
-    throw new Error("Couldn't find an image at that URL");
-  }
-  const imageType = getTypeTrial.data;
-
-  if (!typedIncludes(VALID_IMAGE_EXTENSIONS, imageType)) {
-    logger.error("Invalid image type", { imageType });
-    const errMsg = `Invalid image type. Try a valid ${userFriendlyExtensionsList} image`;
-    throw new Error(errMsg);
-  }
-
-  if (imageType === "svg") {
-    const trial = tryIt(() => ImageService.sanitizeSvg(imgBuffer));
-    if (!trial.success) {
-      logger.error("Couldn't sanitize SVG", { imgBuffer });
-      throw new Error(
-        `Incompatible image. Try a valid ${userFriendlyExtensionsList} image`,
-      );
+    if (imageUrl) {
+      result = await _Utils.processAndUploadImage(imageUrl);
     }
-  }
+    return result;
+  },
+  /**
+   * Process and upload an image to S3
+   * @param imageUrl - The URL of the image to process
+   * @returns The URL of the uploaded image on S3
+   */
+  processAndUploadImage: async (imageUrl: string): Promise<string> => {
+    const getTrial = await tryItAsync(() =>
+      axios.get(imageUrl, { responseType: "arraybuffer" }),
+    );
+    if (!getTrial.success) {
+      logger.error("Couldn't fetch image", { imageUrl });
+      throw new Error("Invalid image URL");
+    }
+    let imgBuffer = getTrial.data.data;
+    if (!Buffer.isBuffer(imgBuffer)) {
+      logger.error("Image URL didn't return a buffer", { imageUrl });
+      throw new Error("Couldn't find an image at that URL");
+    }
 
-  const fileTitle = `${crypto.randomUUID()}.${imageType}`;
-  const uploadRes = await S3Service.upload({
-    fileBuffer: imgBuffer,
-    s3FolderKey: S3Service.publicFolder,
-    s3ObjectName: fileTitle,
-    additionalConfig: {
-      ContentDisposition: "inline",
-      ContentType: `image/${imageType}`,
-    },
-  });
-  return uploadRes.url;
+    const getTypeTrial = await tryItAsync(() =>
+      ImageService.getType(imgBuffer),
+    );
+    if (!getTypeTrial.success) {
+      logger.error("Error getting image type", { error: getTypeTrial.err });
+      throw new Error("Couldn't read that image");
+    }
+    const imageType = getTypeTrial.data;
+
+    if (!typedIncludes(VALID_IMAGE_EXTENSIONS, imageType)) {
+      logger.error("Invalid image type", { imageType });
+      const errMsg = `Invalid image type. Try a valid ${userFriendlyExtensionsList} image`;
+      throw new Error(errMsg);
+    }
+
+    if (imageType === "svg") {
+      const trial = tryIt(() => ImageService.sanitizeSvg(imgBuffer));
+      if (!trial.success) {
+        logger.error("Couldn't sanitize SVG", { imgBuffer });
+        throw new Error(
+          `Incompatible image. Try a valid ${userFriendlyExtensionsList} image`,
+        );
+      }
+    }
+
+    const fileTitle = `${crypto.randomUUID()}.${imageType}`;
+    const uploadRes = await S3Service.upload({
+      fileBuffer: imgBuffer,
+      s3FolderKey: S3Service.publicFolder,
+      s3ObjectName: fileTitle,
+      additionalConfig: {
+        ContentDisposition: "inline",
+        ContentType: `image/${imageType}`,
+      },
+    });
+    return uploadRes.url;
+  },
 };
 
 export default generateCreatePoolTx;

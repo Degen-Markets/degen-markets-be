@@ -28,6 +28,7 @@ export const buildOkResponse = (
   return {
     statusCode: 200,
     body: body ? JSON.stringify(body) : "",
+    headers,
   };
 };
 export const buildForbiddenError = (message: string) => {

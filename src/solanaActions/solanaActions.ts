@@ -16,9 +16,9 @@ import getPoolCreationForm from "./getPoolCreationForm";
 import generateCreatePoolTx from "./createPoolTx";
 import generateCreateOptionTx from "./createOptionTx";
 import finishPoolCreation from "./finishPoolCreation";
-import getMysteryBoxes from "./getMysteryBoxes";
-import mysteryBoxesPreviewTx from "./postMysteryBoxesPreviewTx";
-import postMysteryBoxesConfirmTx from "./postMysteryBoxesConfirmTx";
+import getMysteryBoxesHandler from "./getMysteryBoxes";
+import mysteryBoxesPreviewTxHandler from "./postMysteryBoxesPreviewTx";
+import postMysteryBoxesConfirmTxHandler from "./postMysteryBoxesConfirmTx";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
 
@@ -82,17 +82,17 @@ const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   {
     method: "GET",
     path: "/pools/mystery-boxes",
-    handler: middy().handler(getMysteryBoxes),
+    handler: middy().handler(getMysteryBoxesHandler),
   },
   {
     method: "POST",
     path: "/pools/mystery-boxes-preview-tx",
-    handler: middy().handler(mysteryBoxesPreviewTx),
+    handler: middy().handler(mysteryBoxesPreviewTxHandler),
   },
   {
     method: "POST",
     path: "/pools/mystery-boxes-confirm-tx",
-    handler: middy().handler(postMysteryBoxesConfirmTx),
+    handler: middy().handler(postMysteryBoxesConfirmTxHandler),
   },
 ];
 

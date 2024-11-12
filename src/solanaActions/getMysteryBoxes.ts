@@ -1,10 +1,16 @@
-import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { buildOkResponse } from "../utils/httpResponses";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { defaultBanner } from "./constants";
 import { MAX_MYSTERY_BOXES } from "./postMysteryBoxesPreviewTx";
+import { Logger } from "@aws-lambda-powertools/logger";
 
-const getMysteryBoxes = async (event: APIGatewayProxyEventV2) => {
+const logger = new Logger({
+  serviceName: "getMysteryBoxesHandler",
+});
+
+const getMysteryBoxesHandler = async () => {
+  logger.info("Running `getMysteryBoxesHandler`");
+
   const formData: ActionGetResponse = {
     label: "",
     description: "",
@@ -29,7 +35,9 @@ const getMysteryBoxes = async (event: APIGatewayProxyEventV2) => {
       ],
     },
   };
+
+  logger.info("Completed `getMysteryBoxesHandler`");
   return buildOkResponse(formData, ACTIONS_CORS_HEADERS);
 };
 
-export default getMysteryBoxes;
+export default getMysteryBoxesHandler;

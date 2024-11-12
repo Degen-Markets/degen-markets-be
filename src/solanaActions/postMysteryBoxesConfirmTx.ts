@@ -5,22 +5,34 @@ import { ActionPostResponse } from "@solana/actions";
 import { defaultBanner } from "./constants";
 import { PRICE_PER_BOX_IN_SOL } from "./postMysteryBoxesPreviewTx";
 import { Logger } from "@aws-lambda-powertools/logger";
+import { tryIt } from "../utils/tryIt";
 
 const logger = new Logger({
-  serviceName: "postMysteryBoxesConfirmTx",
+  serviceName: "postMysteryBoxesConfirmTxHandler",
 });
 
-const postMysteryBoxesConfirmTx = async (event: APIGatewayProxyEventV2) => {
+const postMysteryBoxesConfirmTxHandler = async (
+  event: APIGatewayProxyEventV2,
+) => {
+  logger.info("Running `postMysteryBoxesConfirmTxHandler`", { event });
   const qs = event.queryStringParameters;
   if (!qs) {
+    logger.warn("Missing query string parameters");
     return buildBadRequestError("Missing query string parameters");
   }
   const { amountInSol } = qs;
   if (!amountInSol) {
+    logger.warn("Missing amountInSol");
     return buildBadRequestError("Missing amountInSol");
   }
   logger.debug("amountInSol", amountInSol);
-  const amountInSolNumber = parseFloat(amountInSol);
+
+  const parseTrial = tryIt(() => parseFloat(amountInSol));
+  if (!parseTrial.success) {
+    logger.warn("Invalid amountInSol");
+    return buildBadRequestError("Invalid amountInSol");
+  }
+  const amountInSolNumber = parseTrial.data;
 
   // TODO: Send txn to blockchain
   const count = amountInSolNumber / PRICE_PER_BOX_IN_SOL;
@@ -41,7 +53,8 @@ const postMysteryBoxesConfirmTx = async (event: APIGatewayProxyEventV2) => {
     },
   };
 
+  logger.info("Completed `postMysteryBoxesConfirmTxHandler`", { res });
   return buildOkResponse(res, ACTIONS_CORS_HEADERS);
 };
 
-export default postMysteryBoxesConfirmTx;
+export default postMysteryBoxesConfirmTxHandler;

@@ -18,6 +18,7 @@ const logger: Logger = new Logger({
 });
 
 const AUTHORITY_WALLET = new PublicKey(ADMIN_PUBKEY);
+const PRICE_PER_BOX = 0.02;
 
 const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
   const amountInSol = event.queryStringParameters?.amountInSol;
@@ -62,7 +63,7 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
         available: formatSolBalance(balanceBigInt),
       });
       return buildBadRequestError(
-        `Insufficient balance. Required: ${formatSolBalance(amountLamports)}, Available: ${formatSolBalance(balanceBigInt)}`,
+        `Insufficient balance! Required: ${formatSolBalance(amountLamports)}, Available: ${formatSolBalance(balanceBigInt)}`,
       );
     }
 
@@ -81,6 +82,8 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
 
     const displayAmount = formatSolBalance(amountLamports, false);
 
+    const count = Number(amountInSol) / PRICE_PER_BOX;
+
     const payload: ActionPostResponse = await createPostResponse({
       fields: {
         type: "transaction",
@@ -93,7 +96,7 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
               type: "completed",
               label: "Mystery Box Purchased!",
               title: "Mystery Box Purchase completed",
-              description: `Successfully Purchased mystery box for ${displayAmount} SOL!`,
+              description: `Successfully Purchased ${count} mystery box for ${displayAmount} SOL!`,
               icon: "",
             },
           },

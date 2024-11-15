@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest ./src",
+    "test": "jest ./src/solanaActions/tests/generateMysteryBoxPurchaseTx.test.ts",
     "cdk": "cdk",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --fix --ext .ts",

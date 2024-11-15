@@ -52,6 +52,8 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
     return buildBadRequestError("Amount must be greater than 0 SOL");
   }
 
+  const count = Number(amountInSol) / PRICE_PER_BOX;
+
   try {
     const buyer = new PublicKey(account);
     const balance = await connection.getBalance(buyer);
@@ -81,8 +83,6 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
     transaction.recentBlockhash = block.blockhash;
 
     const displayAmount = formatSolBalance(amountLamports, false);
-
-    const count = Number(amountInSol) / PRICE_PER_BOX;
 
     const payload: ActionPostResponse = await createPostResponse({
       fields: {

@@ -69,8 +69,6 @@ export const convertSolToLamports = (solAmount: string): bigint | null => {
     throw new Error(
       `Error converting SOL to lamports, error:${e}, solAmount: ${solAmount}`,
     );
-
-    return 0n;
   }
 };
 

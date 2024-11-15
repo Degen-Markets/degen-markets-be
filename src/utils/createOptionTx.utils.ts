@@ -47,8 +47,9 @@ export const _Utils = {
     transaction.feePayer = creator;
     transaction.recentBlockhash = block.blockhash;
 
+    const MIN_OPTIONS_COUNT = 2;
     const finishPoolCreationAction: LinkedAction[] =
-      count > 2
+      count > MIN_OPTIONS_COUNT
         ? [
             {
               type: "post",

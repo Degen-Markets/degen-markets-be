@@ -1,32 +1,15 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { PublicKey, Transaction } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
-import * as anchor from "@coral-xyz/anchor";
-import {
-  ActionPostResponse,
-  ACTIONS_CORS_HEADERS,
-  createPostResponse,
-} from "@solana/actions";
-import {
-  buildBadRequestError,
-  buildInternalServerError,
-  buildOkResponse,
-} from "../utils/httpResponses";
+import { ACTIONS_CORS_HEADERS } from "@solana/actions";
 
-import { connection } from "../clients/SolanaProgramClient";
-import { ADMIN_PUBKEY } from "../clientApi/constants";
-import { convertSolToLamports, formatSolBalance } from "../../lib/utils";
+import { _Utils } from "../utils/serializedMysteryBoxTx";
 
 const logger: Logger = new Logger({
   serviceName: "GenerateMysteryBoxPurchaseTx",
 });
 
-const AUTHORITY_WALLET = new PublicKey(ADMIN_PUBKEY);
-const PRICE_PER_BOX = 0.02;
-
 const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
   const amountInSol = event.queryStringParameters?.amountInSol;
-
   const { account } = JSON.parse(event.body || "{}");
 
   logger.info("Serializing a mystery box purchase tx", {
@@ -35,85 +18,26 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
   });
 
   if (!amountInSol || !account) {
-    logger.error("Invalid amount format!", { amountInSol, account });
-    return buildBadRequestError(
-      "Invalid amount format. Please provide a valid SOL amount.",
-    );
+    logger.error("Invalid parameters", { amountInSol, account });
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Invalid amount format. Please provide a valid SOL amount.",
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    };
   }
-
-  // Convert amount to lamports
-  const amountLamports = convertSolToLamports(amountInSol);
-
-  if (!amountLamports) {
-    logger.error("Failed to convert amount to lamports", { amountInSol });
-    return buildBadRequestError(
-      "Invalid amount format. Please provide a valid number.",
-    );
-  }
-
-  if (amountLamports <= 0n) {
-    logger.error("Amount must be greater than 0", { amountInSol });
-    return buildBadRequestError("Amount must be greater than 0 SOL");
-  }
-
-  const count = Number(amountInSol) / PRICE_PER_BOX;
 
   try {
-    const buyer = new PublicKey(account);
-    const balance = await connection.getBalance(buyer);
-    const balanceBigInt = BigInt(balance);
-
-    if (balanceBigInt < amountLamports) {
-      logger.error("Insufficient balance", {
-        required: formatSolBalance(amountLamports),
-        available: formatSolBalance(balanceBigInt),
-      });
-      return buildBadRequestError(
-        `Insufficient balance! Required: ${formatSolBalance(amountLamports)}, Available: ${formatSolBalance(balanceBigInt)}`,
-      );
-    }
-
-    const transferInstruction = anchor.web3.SystemProgram.transfer({
-      fromPubkey: buyer,
-      toPubkey: AUTHORITY_WALLET,
-      lamports: amountLamports,
-    });
-
-    const transaction = new Transaction();
-    transaction.add(transferInstruction);
-
-    const block = await connection.getLatestBlockhash();
-    transaction.feePayer = buyer;
-    transaction.recentBlockhash = block.blockhash;
-
-    const displayAmount = formatSolBalance(amountLamports, false);
-
-    const payload: ActionPostResponse = await createPostResponse({
-      fields: {
-        type: "transaction",
-        transaction,
-        message: `Purchase Mystery Box for ${displayAmount} SOL`,
-        links: {
-          next: {
-            type: "inline",
-            action: {
-              type: "completed",
-              label: "Mystery Box Purchased!",
-              title: "Mystery Box Purchase completed",
-              description: `Successfully Purchased ${count} mystery box for ${displayAmount} SOL!`,
-              icon: "",
-            },
-          },
-        },
-      },
+    const payload = await _Utils.serializeMysteryBoxPurchaseTx({
+      amountInSol,
+      account,
     });
 
     logger.info("Mystery Box Purchase transaction serialized successfully", {
       payload,
-      buyer: buyer.toString(),
-      amountLamports: amountLamports.toString(),
-      amountSol: displayAmount,
-      authority: AUTHORITY_WALLET.toString(),
+      buyer: account,
+      amountInSol,
     });
 
     return {
@@ -123,9 +47,15 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
     };
   } catch (e) {
     logger.error((e as Error).message, { error: e });
-    return buildInternalServerError(
-      "Failed to generate mystery box purchase transaction. Please try again.",
-    );
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message:
+          (e as Error).message ||
+          "Failed to generate mystery box purchase transaction. Please try again.",
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    };
   }
 };
 

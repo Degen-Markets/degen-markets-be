@@ -31,7 +31,7 @@ const mysteryBoxesPreviewTxHandler = async (event: APIGatewayProxyEventV2) => {
   const parseTrial = tryIt(() => parseInt(count));
   if (!parseTrial.success || isNaN(parseTrial.data) || parseTrial.data < 1) {
     logger.warn("Invalid count");
-    return buildBadRequestError("Invalid number of boxes!");
+    return buildBadRequestError("You must pick at least 1 box!");
   }
 
   const countNumber = parseTrial.data;

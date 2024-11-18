@@ -1,7 +1,6 @@
 import { buildOkResponse } from "../utils/httpResponses";
 import { ActionGetResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { defaultBanner } from "./constants";
-import { MAX_MYSTERY_BOXES } from "./postMysteryBoxesPreviewTx";
 import { Logger } from "@aws-lambda-powertools/logger";
 
 const logger = new Logger({
@@ -28,7 +27,7 @@ const getMysteryBoxesHandler = async () => {
               type: "number",
               label: "Number of Mystery Boxes to buy",
               required: true,
-              max: MAX_MYSTERY_BOXES,
+              min: 1,
             },
           ],
         },

@@ -5,7 +5,6 @@ import { defaultBanner } from "./constants";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { tryIt } from "../utils/tryIt";
 
-export const MAX_MYSTERY_BOXES = 100;
 export const PRICE_PER_BOX_IN_SOL = 0.02;
 
 const logger = new Logger({
@@ -34,10 +33,10 @@ const mysteryBoxesPreviewTxHandler = async (event: APIGatewayProxyEventV2) => {
     !parseTrial.success ||
     isNaN(parseTrial.data) ||
     parseTrial.data < 1 ||
-    parseTrial.data > MAX_MYSTERY_BOXES
+    parseTrial.data % PRICE_PER_BOX_IN_SOL > 0
   ) {
     logger.warn("Invalid count");
-    return buildBadRequestError("Invalid count");
+    return buildBadRequestError("Invalid number of boxes!");
   }
 
   const countNumber = parseTrial.data;

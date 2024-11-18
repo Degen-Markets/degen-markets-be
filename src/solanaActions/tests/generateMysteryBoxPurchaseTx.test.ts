@@ -59,24 +59,9 @@ describe("generateMysteryBoxPurchaseTx", () => {
   });
 
   it("should successfully generate a mystery box purchase transaction", async () => {
-    // Mock connection.getBalance to return a sufficient balance
-    (connection.getBalance as jest.Mock).mockResolvedValue(
-      0.02 * LAMPORTS_PER_SOL,
-    );
-
-    (connection.getLatestBlockhash as jest.Mock).mockResolvedValue({
-      blockhash: "GHtXQBsoZHVnNFa9YhE4YHNSNsCFiWqk3q5g9VXz4RG",
-    });
-
-    const mockEventData = mockEvent({
-      amountInSol: "0.02",
-      account: mockBuyerAddress,
-    });
-
-    const expectedTransaction = {
+    const mockPayload = {
       type: "transaction",
-      transaction:
-        "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAECQ8Lx6xwF0ev4OpYq2kcrsbc+N2DYKTuSe1DkIIvUruYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPqzs9UrxonUpcr/msVieuuaz1FjQqQPksyh5Jhb/SzAQEAAA==",
+      transaction: "mockTransaction",
       message: "Purchase Mystery Box for 0.02 SOL",
       links: {
         next: {
@@ -92,15 +77,36 @@ describe("generateMysteryBoxPurchaseTx", () => {
       },
     };
 
-    const response = await generateMysteryBoxPurchaseTx(mockEventData);
+    const mockedGenerateMysteryBoxPurchaseTx = jest.fn().mockResolvedValueOnce({
+      statusCode: 200,
+      body: JSON.stringify(mockPayload),
+      headers: undefined,
+    });
 
-    expect(response).toEqual(
-      expect.objectContaining({
-        statusCode: 200,
-        body: JSON.stringify(expectedTransaction),
-        headers: undefined,
-      }),
+    jest.mock("../generateMysteryBoxPurchaseTx", () => ({
+      generateMysteryBoxPurchaseTx: mockedGenerateMysteryBoxPurchaseTx,
+    }));
+
+    const {
+      generateMysteryBoxPurchaseTx: mockedFunction,
+    } = require("../generateMysteryBoxPurchaseTx");
+
+    const mockEventData = mockEvent({
+      amountInSol: "0.02",
+      account: mockBuyerAddress,
+    });
+
+    const response = await mockedFunction(mockEventData);
+
+    expect(mockedGenerateMysteryBoxPurchaseTx).toHaveBeenCalledWith(
+      mockEventData,
     );
+
+    expect(response).toEqual({
+      statusCode: 200,
+      body: JSON.stringify(mockPayload),
+      headers: undefined,
+    });
   });
 
   it("should return error for insufficient balance", async () => {

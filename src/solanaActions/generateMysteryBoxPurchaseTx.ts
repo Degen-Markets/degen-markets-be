@@ -2,7 +2,11 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
 import * as anchor from "@coral-xyz/anchor";
-import { ActionPostResponse, createPostResponse } from "@solana/actions";
+import {
+  ActionPostResponse,
+  ACTIONS_CORS_HEADERS,
+  createPostResponse,
+} from "@solana/actions";
 import {
   buildBadRequestError,
   buildInternalServerError,
@@ -112,7 +116,11 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
       authority: AUTHORITY_WALLET.toString(),
     });
 
-    return buildOkResponse(payload);
+    return {
+      statusCode: 200,
+      body: JSON.stringify(payload),
+      headers: ACTIONS_CORS_HEADERS,
+    };
   } catch (e) {
     logger.error((e as Error).message, { error: e });
     return buildInternalServerError(

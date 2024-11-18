@@ -29,12 +29,7 @@ const mysteryBoxesPreviewTxHandler = async (event: APIGatewayProxyEventV2) => {
   logger.debug("Obtained count from query string parameters", { count });
 
   const parseTrial = tryIt(() => parseInt(count));
-  if (
-    !parseTrial.success ||
-    isNaN(parseTrial.data) ||
-    parseTrial.data < 1 ||
-    parseTrial.data % PRICE_PER_BOX_IN_SOL > 0
-  ) {
+  if (!parseTrial.success || isNaN(parseTrial.data) || parseTrial.data < 1) {
     logger.warn("Invalid count");
     return buildBadRequestError("Invalid number of boxes!");
   }

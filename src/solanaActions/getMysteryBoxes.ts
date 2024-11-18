@@ -27,7 +27,6 @@ const getMysteryBoxesHandler = async () => {
               type: "number",
               label: "Number of Mystery Boxes to buy",
               required: true,
-              min: 1,
               pattern: "[0-9]",
             },
           ],

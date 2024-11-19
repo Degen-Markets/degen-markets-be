@@ -25,20 +25,16 @@ jest.mock("@coral-xyz/anchor", () => ({
 }));
 
 describe("generateMysteryBoxPurchaseTx", () => {
-  const PRICE_PER_BOX = 0.02;
   const mockBuyerAddress = "5ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH";
   const mockBlockhash = "GHtXQBsoZHVnNFa9YhE4YHNSNsCFiWqk3q5g9VXz4RG";
-  const mockAmount = "0.02";
-  const boxCount = Number(mockAmount) / PRICE_PER_BOX;
+  const count = "1";
 
   const mockEvent = (params: {
-    amountInSol?: string;
+    count?: string;
     account?: string;
   }): APIGatewayProxyEventV2 =>
     ({
-      queryStringParameters: params.amountInSol
-        ? { amountInSol: params.amountInSol }
-        : {},
+      queryStringParameters: params.count ? { count: params.count } : {},
       body: JSON.stringify({ account: params.account }),
     }) as APIGatewayProxyEventV2;
 
@@ -58,9 +54,9 @@ describe("generateMysteryBoxPurchaseTx", () => {
   });
 
   it("should successfully generate a mystery box purchase transaction", async () => {
-    const mockLamports = BigInt(Number(mockAmount) * LAMPORTS_PER_SOL);
+    const mockLamports = BigInt(Number(count) * 0.02 * LAMPORTS_PER_SOL);
     const mockEventData = mockEvent({
-      amountInSol: mockAmount,
+      count,
       account: mockBuyerAddress,
     });
     const mockPayload = {
@@ -94,7 +90,7 @@ describe("generateMysteryBoxPurchaseTx", () => {
 
   it("should return error for insufficient balance", async () => {
     const mockEventData = mockEvent({
-      amountInSol: "0.02",
+      count: "1",
       account: mockBuyerAddress,
     });
 
@@ -113,8 +109,8 @@ describe("generateMysteryBoxPurchaseTx", () => {
 
   it("should return error for missing account parameter", async () => {
     const mockEventData = mockEvent({
-      amountInSol: "0.02",
-    }); // Missing `account`
+      count: "1",
+    });
 
     const response = await generateMysteryBoxPurchaseTx(mockEventData);
 
@@ -129,7 +125,7 @@ describe("generateMysteryBoxPurchaseTx", () => {
 
   it("should return error for invalid amount format", async () => {
     const mockEventData = mockEvent({
-      amountInSol: "invalid", // Invalid amount
+      count: "invalid", // Invalid amount
       account: mockBuyerAddress,
     });
 
@@ -138,7 +134,7 @@ describe("generateMysteryBoxPurchaseTx", () => {
     expect(response).toEqual({
       statusCode: 400,
       body: JSON.stringify({
-        message: "Invalid amount: invalid",
+        message: "Invalid amount: NaN",
       }),
       headers: ACTIONS_CORS_HEADERS,
     });
@@ -146,7 +142,7 @@ describe("generateMysteryBoxPurchaseTx", () => {
 
   it("should return error for zero amount", async () => {
     const mockEventData = mockEvent({
-      amountInSol: "0", // Zero amount
+      count: "0",
       account: mockBuyerAddress,
     });
 

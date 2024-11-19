@@ -14,7 +14,8 @@ const logger: Logger = new Logger({
 });
 
 const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
-  const amountInSol = event.queryStringParameters?.amountInSol;
+  const count = event.queryStringParameters?.count;
+  const amountInSol = PRICE_PER_BOX * Number(count);
   const { account } = JSON.parse(event.body || "{}");
 
   logger.info("Serializing a mystery box purchase tx", {

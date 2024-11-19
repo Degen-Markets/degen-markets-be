@@ -52,7 +52,7 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
   }
   const buyer = new PublicKey(account);
   const balance = await connection.getBalance(buyer);
-  const balanceBigInt = BigInt(balance || LAMPORTS_PER_SOL);
+  const balanceBigInt = BigInt(balance);
 
   if (balanceBigInt < amountLamports) {
     logger.error(`Insufficient balance!`);

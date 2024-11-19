@@ -58,8 +58,7 @@ describe("generateMysteryBoxPurchaseTx", () => {
   });
 
   it("should successfully generate a mystery box purchase transaction", async () => {
-    const mockLamports = BigInt(Number(mockAmount) * LAMPORTS_PER_SOL);
-    const mockBuyerAddress = "5ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH";
+    const mockLamports = BigInt(Number(mockAmount) * LAMPORTS_PER_SOL); // Convert SOL to lamports
     const mockEventData = mockEvent({
       amountInSol: mockAmount,
       account: mockBuyerAddress,
@@ -101,15 +100,15 @@ describe("generateMysteryBoxPurchaseTx", () => {
       account: mockBuyerAddress,
     });
 
-    // Mock connection.getBalance to return insufficient balance
-    jest.spyOn(connection, "getBalance").mockResolvedValue(100_000_00);
+    // Mock connection.getBalance to return insufficient balance (in lamports)
+    jest.spyOn(connection, "getBalance").mockResolvedValue(100_000_00); // Mock balance less than required
 
     const response = await generateMysteryBoxPurchaseTx(mockEventData);
 
     expect(response).toEqual({
       statusCode: 400,
       body: JSON.stringify({
-        message: `Insufficient balance! Required: ${PRICE_PER_BOX} SOL, Available: ${100_000_00 / LAMPORTS_PER_SOL} SOL`,
+        message: `Insufficient balance! Required: 0.02 SOL, Available: ${100_000_00 / LAMPORTS_PER_SOL} SOL`,
       }),
       headers: ACTIONS_CORS_HEADERS,
     });
@@ -164,34 +163,4 @@ describe("generateMysteryBoxPurchaseTx", () => {
       headers: ACTIONS_CORS_HEADERS,
     });
   });
-
-  // it("should return error if account is missing", async () => {
-  //   const response = await generateMysteryBoxPurchaseTx(
-  //     mockEvent({ amountInSol: "0.02" }),
-  //   );
-
-  //   expect(response).toEqual({
-  //     statusCode: 400,
-  //     body: JSON.stringify({
-  //       message: "Account address is required to process the transaction.",
-  //     }),
-  //     headers: ACTIONS_CORS_HEADERS,
-  //   });
-  // });
-
-  // it("handles errors from transaction creation", async () => {
-  //   (connection.getBalance as jest.Mock).mockRejectedValue(
-  //     new Error("Connection error"),
-  //   );
-
-  //   const response = await generateMysteryBoxPurchaseTx(
-  //     mockEvent({ amountInSol: "0.02", account: mockBuyerAddress }),
-  //   );
-
-  //   expect(response).toEqual({
-  //     statusCode: 404,
-  //     body: JSON.stringify(response.body),
-  //     headers: ACTIONS_CORS_HEADERS,
-  //   });
-  // });
 });

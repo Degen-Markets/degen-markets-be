@@ -7,7 +7,9 @@ const logger = new Logger({
   serviceName: "getMysteryBoxesHandler",
 });
 
-const getMysteryBoxesHandler = async () => {
+const getMysteryBoxesHandler = async (): Promise<
+  ReturnType<typeof buildOkResponse>
+> => {
   logger.info("Running `getMysteryBoxesHandler`");
 
   const formData: ActionGetResponse = {

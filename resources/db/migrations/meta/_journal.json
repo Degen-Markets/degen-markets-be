@@ -64,6 +64,13 @@
       "when": 1732028694230,
       "tag": "0008_handy_ultragirl",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1732029859782,
+      "tag": "0009_flippant_blindfold",
+      "breakpoints": true
     }
   ]
 }

@@ -25,11 +25,9 @@ jest.mock("@coral-xyz/anchor", () => ({
 }));
 
 describe("generateMysteryBoxPurchaseTx", () => {
-  const PRICE_PER_BOX = 0.02;
   const mockBuyerAddress = "5ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH";
   const mockBlockhash = "GHtXQBsoZHVnNFa9YhE4YHNSNsCFiWqk3q5g9VXz4RG";
   const mockAmount = "0.02";
-  const boxCount = Number(mockAmount) / PRICE_PER_BOX;
 
   const mockEvent = (params: {
     amountInSol?: string;

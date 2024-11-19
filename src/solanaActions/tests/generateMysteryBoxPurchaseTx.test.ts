@@ -58,7 +58,7 @@ describe("generateMysteryBoxPurchaseTx", () => {
   });
 
   it("should successfully generate a mystery box purchase transaction", async () => {
-    const mockLamports = BigInt(Number(mockAmount) * LAMPORTS_PER_SOL); // Convert SOL to lamports
+    const mockLamports = BigInt(Number(mockAmount) * LAMPORTS_PER_SOL);
     const mockEventData = mockEvent({
       amountInSol: mockAmount,
       account: mockBuyerAddress,
@@ -72,21 +72,19 @@ describe("generateMysteryBoxPurchaseTx", () => {
     // Mock dependencies
     jest
       .spyOn(connection, "getBalance")
-      .mockResolvedValue(Number(mockLamports)); // Mock sufficient balance
+      .mockResolvedValue(Number(mockLamports));
     jest
       .spyOn(_Utils, "serializeMysteryBoxPurchaseTx")
       .mockResolvedValue(mockPayload);
 
     const response = await generateMysteryBoxPurchaseTx(mockEventData);
 
-    // Ensure serializeMysteryBoxPurchaseTx is called with the correct arguments
     expect(_Utils.serializeMysteryBoxPurchaseTx).toHaveBeenCalledWith({
       amountLamports: mockLamports,
       account: mockBuyerAddress,
       buyer: new PublicKey(mockBuyerAddress),
     });
 
-    // Validate the response
     expect(response).toEqual({
       statusCode: 200,
       body: JSON.stringify(mockPayload),
@@ -100,8 +98,7 @@ describe("generateMysteryBoxPurchaseTx", () => {
       account: mockBuyerAddress,
     });
 
-    // Mock connection.getBalance to return insufficient balance (in lamports)
-    jest.spyOn(connection, "getBalance").mockResolvedValue(100_000_00); // Mock balance less than required
+    jest.spyOn(connection, "getBalance").mockResolvedValue(100_000_00);
 
     const response = await generateMysteryBoxPurchaseTx(mockEventData);
 

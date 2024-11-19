@@ -71,6 +71,13 @@
       "when": 1732029859782,
       "tag": "0009_flippant_blindfold",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1732030493078,
+      "tag": "0010_young_lizard",
+      "breakpoints": true
     }
   ]
 }

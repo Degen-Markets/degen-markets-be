@@ -10,12 +10,12 @@ import {
 export const boxesTable = pgTable(
   "boxes",
   {
-    isOpened: boolean("is_opened").notNull().default(false),
+    isOpened: boolean("isOpened").notNull().default(false),
     player: varchar("player", { length: 44 }).notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    openedAt: timestamp("opened_at"),
-    winningToken: varchar("winning_token", { length: 44 }),
-    winningAmount: integer("winning_amount"),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    openedAt: timestamp("openedAt"),
+    winningToken: varchar("winningToken", { length: 44 }),
+    winningAmount: integer("winningAmount"),
   },
   (table) => ({
     idxPlayer: index("idx_player").on(table.player),

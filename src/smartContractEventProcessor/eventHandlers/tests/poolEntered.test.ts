@@ -31,6 +31,7 @@ describe("poolEnteredEventHandler", () => {
     const mockedEntriesInsert = jest.fn();
     const mockedOptionsUpdate = jest.fn();
     const mockedPoolsUpdate = jest.fn();
+
     jest
       .spyOn(PlayersService, "insertNewOrAwardPoints")
       .mockImplementation(mockedPlayerInsert);
@@ -44,12 +45,14 @@ describe("poolEnteredEventHandler", () => {
       .spyOn(PoolsService, "incrementValue")
       .mockImplementation(mockedPoolsUpdate);
 
-    await poolEnteredEventHandler(mockEventData);
+    const testDate = new Date();
+    await poolEnteredEventHandler(mockEventData, testDate);
 
     expect(mockedCalculatePointsEarned).toHaveBeenCalledWith(
       new BN(mockEventData.value),
       expect.any(Number),
     );
+
     expect(mockedPlayerInsert).toHaveBeenCalledWith(
       mockEventData.entrant,
       randomPointsEarned,
@@ -61,6 +64,7 @@ describe("poolEnteredEventHandler", () => {
       option: mockEventData.option,
       pool: mockEventData.pool,
       value: mockEventData.value,
+      updatedAt: testDate,
     });
 
     expect(PoolOptionsService.incrementValue).toHaveBeenCalledWith(

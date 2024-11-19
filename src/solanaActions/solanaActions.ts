@@ -19,6 +19,7 @@ import finishPoolCreation from "./finishPoolCreation";
 import getMysteryBoxesHandler from "./getMysteryBoxes";
 import mysteryBoxesPreviewTxHandler from "./postMysteryBoxesPreviewTx";
 import postMysteryBoxesConfirmTxHandler from "./postMysteryBoxesConfirmTx";
+import generateMysteryBoxPurchaseTx from "./generateMysteryBoxPurchaseTx";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
 
@@ -93,6 +94,11 @@ const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
     method: "POST",
     path: "/pools/mystery-boxes-confirm-tx",
     handler: middy().handler(postMysteryBoxesConfirmTxHandler),
+  },
+  {
+    method: "POST",
+    path: "/pools/mystery-boxes",
+    handler: middy().handler(generateMysteryBoxPurchaseTx),
   },
 ];
 

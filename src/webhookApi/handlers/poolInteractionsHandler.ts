@@ -28,7 +28,19 @@ export const poolInteractionsHandler = async (
   }
   const parsedBody = parseTrial.data;
 
+  const blockTime = parsedBody[0].blockTime;
+
+  if (!blockTime) {
+    logger.error(
+      "blockTime is missing from event body. Terminating processing.",
+    );
+    return buildBadRequestError("blockTime is required but missing.");
+  }
+
+  const timestamp = new Date(blockTime * 1000).toISOString(); // Convert blockTime to a string in ISO format
+
   const logMessages = parsedBody[0]?.meta?.logMessages;
+
   if (
     !Array.isArray(logMessages) ||
     logMessages.length === 0 ||
@@ -43,7 +55,7 @@ export const poolInteractionsHandler = async (
   );
 
   const smartContractEvents = programDataLogs
-    .map(mapLogToEventOrNull)
+    .map((log) => mapLogToEventOrNull(log, timestamp))
     .filter((event) => event !== null) as SmartContractEvent[]; // `.filter` doesn't narrow the type apparently (https://stackoverflow.com/a/63541957)
 
   const sqs = new SQS();
@@ -78,7 +90,10 @@ export const poolInteractionsHandler = async (
   return buildOkResponse({ message: "Events processor completed run" });
 };
 
-function mapLogToEventOrNull(log: string): SmartContractEvent | null {
+function mapLogToEventOrNull(
+  log: string,
+  timestamp: string,
+): SmartContractEvent | null {
   const base64Data = log.replace("Program data: ", "");
 
   const parseTrial = tryIt(() => decodeEventBase64Data(base64Data));
@@ -96,6 +111,7 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
     case "poolEntered":
       return {
         eventName: event.name,
+        timestamp,
         data: {
           pool: event.data.pool.toString(),
           option: event.data.option.toString(),
@@ -108,6 +124,7 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
     case "poolCreated":
       return {
         eventName: event.name,
+        timestamp,
         data: {
           poolAccount: event.data.poolAccount.toString(),
           title: event.data.title,
@@ -119,6 +136,7 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
     case "optionCreated":
       return {
         eventName: event.name,
+        timestamp,
         data: {
           poolAccount: event.data.poolAccount.toString(),
           option: event.data.option.toString(),
@@ -129,6 +147,7 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
     case "winnerSet":
       return {
         eventName: event.name,
+        timestamp,
         data: {
           pool: event.data.pool.toString(),
           option: event.data.option.toString(),
@@ -138,6 +157,7 @@ function mapLogToEventOrNull(log: string): SmartContractEvent | null {
     case "poolStatusUpdated":
       return {
         eventName: event.name,
+        timestamp,
         data: {
           isPaused: event.data.isPaused,
           pool: event.data.pool.toString(),

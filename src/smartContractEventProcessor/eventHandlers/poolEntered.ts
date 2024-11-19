@@ -15,6 +15,7 @@ const logger = new Logger({
 
 const poolEnteredEventHandler = async (
   eventData: SmartContractEventData<"poolEntered">,
+  timestamp: Date,
 ) => {
   logger.info("Processing PoolEntered event", { eventData });
 
@@ -33,6 +34,7 @@ const poolEnteredEventHandler = async (
       option,
       pool,
       value: valueStr,
+      updatedAt: timestamp,
     }),
     PoolsService.incrementValue(pool, valueStr),
     PoolOptionsService.incrementValue(option, valueStr),

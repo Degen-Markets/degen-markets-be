@@ -50,10 +50,4 @@ describe("convertSolToLamports", () => {
       "Error converting SOL to lamports",
     );
   });
-
-  // it("throws error for empty string", () => {
-  //   expect(() => convertSolToLamports("")).toThrow(
-  //     "Error converting SOL to lamports",
-  //   );
-  // });
 });

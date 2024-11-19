@@ -4,37 +4,22 @@ import { ActionPostResponse, createPostResponse } from "@solana/actions";
 import { connection } from "../clients/SolanaProgramClient";
 import { ADMIN_PUBKEY } from "../clientApi/constants";
 import { convertSolToLamports, formatSolBalance } from "../../lib/utils";
+import { PRICE_PER_BOX } from "../solanaActions/generateMysteryBoxPurchaseTx";
+import { Logger } from "@aws-lambda-powertools/logger";
 
 const AUTHORITY_WALLET = new PublicKey(ADMIN_PUBKEY);
-const PRICE_PER_BOX = 0.02;
 
 export const _Utils = {
   async serializeMysteryBoxPurchaseTx({
-    amountInSol,
+    amountLamports,
     account,
+    buyer,
   }: {
-    amountInSol: string;
+    amountLamports: bigint;
     account: string;
+    buyer: PublicKey;
   }): Promise<ActionPostResponse> {
-    const amountLamports = convertSolToLamports(amountInSol);
-    if (!amountLamports) {
-      throw new Error("Invalid amount format. Please provide a valid number.");
-    }
-
-    if (amountLamports <= 0n) {
-      throw new Error("Amount must be greater than 0 SOL");
-    }
-
-    const count = Number(amountInSol) / PRICE_PER_BOX;
-    const buyer = new PublicKey(account);
-    const balance = await connection.getBalance(buyer);
-    const balanceBigInt = BigInt(balance);
-
-    if (balanceBigInt < amountLamports) {
-      throw new Error(
-        `Insufficient balance! Required: ${formatSolBalance(amountLamports)}, Available: ${formatSolBalance(balanceBigInt)}`,
-      );
-    }
+    const count = Number(amountLamports) / PRICE_PER_BOX;
 
     const transferInstruction = anchor.web3.SystemProgram.transfer({
       fromPubkey: buyer,

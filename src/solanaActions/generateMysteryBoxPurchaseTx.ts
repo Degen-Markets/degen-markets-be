@@ -3,6 +3,11 @@ import { Logger } from "@aws-lambda-powertools/logger";
 import { ACTIONS_CORS_HEADERS } from "@solana/actions";
 
 import { _Utils } from "../utils/serializedMysteryBoxTx";
+import { buildBadRequestError } from "../utils/httpResponses";
+import { convertSolToLamports, formatSolBalance } from "../../lib/utils";
+import { connection } from "../clients/SolanaProgramClient";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+export const PRICE_PER_BOX = 0.02;
 
 const logger: Logger = new Logger({
   serviceName: "GenerateMysteryBoxPurchaseTx",
@@ -16,13 +21,45 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
     amountInSol,
     account,
   });
+  buildBadRequestError;
 
-  if (!amountInSol || !account) {
-    logger.error("Invalid parameters", { amountInSol, account });
+  if (!account) {
+    logger.error("Account missing", { account });
     return {
       statusCode: 400,
       body: JSON.stringify({
-        message: "Invalid amount format. Please provide a valid SOL amount.",
+        message: "Account address is required to process the transaction.",
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  }
+
+  if (!amountInSol || isNaN(Number(amountInSol)) || Number(amountInSol) <= 0) {
+    logger.error("Invalid amount", { amountInSol });
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: `Invalid amount: ${amountInSol}`,
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  }
+
+  const amountLamports = convertSolToLamports(amountInSol);
+
+  if (!amountLamports) {
+    throw new Error("Invalid amount format. Please provide a valid number.");
+  }
+  const buyer = new PublicKey(account);
+  const balance = await connection.getBalance(buyer);
+  const balanceBigInt = BigInt(balance || LAMPORTS_PER_SOL);
+
+  if (balanceBigInt < amountLamports) {
+    logger.error(`Insufficient balance!`);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: `Insufficient balance! Required: ${formatSolBalance(amountLamports)}, Available: ${formatSolBalance(balanceBigInt)}`,
       }),
       headers: ACTIONS_CORS_HEADERS,
     };
@@ -30,8 +67,9 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
 
   try {
     const payload = await _Utils.serializeMysteryBoxPurchaseTx({
-      amountInSol,
+      amountLamports,
       account,
+      buyer,
     });
 
     logger.info("Mystery Box Purchase transaction serialized successfully", {

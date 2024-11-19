@@ -1,12 +1,13 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
 import { connection } from "../../clients/SolanaProgramClient";
 import generateMysteryBoxPurchaseTx from "../generateMysteryBoxPurchaseTx";
+import { _Utils } from "../../utils/serializedMysteryBoxTx";
 import { ACTIONS_CORS_HEADERS } from "@solana/actions";
-import { convertSolToLamports } from "../../../lib/utils";
 
-jest.mock("../generateMysteryBoxPurchaseTx");
+jest.mock("../../utils/serializedMysteryBoxTx");
+jest.mock("@aws-lambda-powertools/logger");
 
 jest.mock("../../clients/SolanaProgramClient", () => ({
   connection: {
@@ -24,8 +25,11 @@ jest.mock("@coral-xyz/anchor", () => ({
 }));
 
 describe("generateMysteryBoxPurchaseTx", () => {
+  const PRICE_PER_BOX = 0.02;
   const mockBuyerAddress = "5ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH";
   const mockBlockhash = "GHtXQBsoZHVnNFa9YhE4YHNSNsCFiWqk3q5g9VXz4RG";
+  const mockAmount = "0.02";
+  const boxCount = Number(mockAmount) / PRICE_PER_BOX;
 
   const mockEvent = (params: {
     amountInSol?: string;
@@ -54,47 +58,140 @@ describe("generateMysteryBoxPurchaseTx", () => {
   });
 
   it("should successfully generate a mystery box purchase transaction", async () => {
-    const mockPayload = {
-      type: "transaction",
-      transaction: "mockTransaction",
-      message: "Purchase Mystery Box for 0.02 SOL",
-      links: {
-        next: {
-          type: "inline",
-          action: {
-            type: "completed",
-            label: "Mystery Box Purchased!",
-            title: "Mystery Box Purchase completed",
-            description: "Successfully Purchased 1 mystery box for 0.02 SOL!",
-            icon: "",
-          },
-        },
-      },
-    };
-
+    const mockLamports = BigInt(Number(mockAmount) * LAMPORTS_PER_SOL);
+    const mockBuyerAddress = "5ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH";
     const mockEventData = mockEvent({
-      amountInSol: "0.02",
+      amountInSol: mockAmount,
       account: mockBuyerAddress,
     });
+    const mockPayload = {
+      transaction: "mockTransaction",
+      message: "Success",
+      type: "transaction" as const,
+    };
 
-    const mockedGenerateMysteryBoxPurchaseTx = jest.mocked(
-      generateMysteryBoxPurchaseTx,
-    );
-    mockedGenerateMysteryBoxPurchaseTx.mockResolvedValueOnce({
-      statusCode: 200,
-      body: JSON.stringify(mockPayload),
-      headers: ACTIONS_CORS_HEADERS,
-    });
+    // Mock dependencies
+    jest
+      .spyOn(connection, "getBalance")
+      .mockResolvedValue(Number(mockLamports)); // Mock sufficient balance
+    jest
+      .spyOn(_Utils, "serializeMysteryBoxPurchaseTx")
+      .mockResolvedValue(mockPayload);
 
     const response = await generateMysteryBoxPurchaseTx(mockEventData);
 
-    expect(mockedGenerateMysteryBoxPurchaseTx).toHaveBeenCalledWith(
-      mockEventData,
-    );
+    // Ensure serializeMysteryBoxPurchaseTx is called with the correct arguments
+    expect(_Utils.serializeMysteryBoxPurchaseTx).toHaveBeenCalledWith({
+      amountLamports: mockLamports,
+      account: mockBuyerAddress,
+      buyer: new PublicKey(mockBuyerAddress),
+    });
+
+    // Validate the response
     expect(response).toEqual({
       statusCode: 200,
       body: JSON.stringify(mockPayload),
       headers: ACTIONS_CORS_HEADERS,
     });
   });
+
+  it("should return error for insufficient balance", async () => {
+    const mockEventData = mockEvent({
+      amountInSol: "0.02",
+      account: mockBuyerAddress,
+    });
+
+    // Mock connection.getBalance to return insufficient balance
+    jest.spyOn(connection, "getBalance").mockResolvedValue(100_000_00);
+
+    const response = await generateMysteryBoxPurchaseTx(mockEventData);
+
+    expect(response).toEqual({
+      statusCode: 400,
+      body: JSON.stringify({
+        message: `Insufficient balance! Required: ${PRICE_PER_BOX} SOL, Available: ${100_000_00 / LAMPORTS_PER_SOL} SOL`,
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    });
+  });
+
+  it("should return error for missing account parameter", async () => {
+    const mockEventData = mockEvent({
+      amountInSol: "0.02",
+    }); // Missing `account`
+
+    const response = await generateMysteryBoxPurchaseTx(mockEventData);
+
+    expect(response).toEqual({
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Account address is required to process the transaction.",
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    });
+  });
+
+  it("should return error for invalid amount format", async () => {
+    const mockEventData = mockEvent({
+      amountInSol: "invalid", // Invalid amount
+      account: mockBuyerAddress,
+    });
+
+    const response = await generateMysteryBoxPurchaseTx(mockEventData);
+
+    expect(response).toEqual({
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Invalid amount: invalid",
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    });
+  });
+
+  it("should return error for zero amount", async () => {
+    const mockEventData = mockEvent({
+      amountInSol: "0", // Zero amount
+      account: mockBuyerAddress,
+    });
+
+    const response = await generateMysteryBoxPurchaseTx(mockEventData);
+
+    expect(response).toEqual({
+      statusCode: 400,
+      body: JSON.stringify({
+        message: "Invalid amount: 0",
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    });
+  });
+
+  // it("should return error if account is missing", async () => {
+  //   const response = await generateMysteryBoxPurchaseTx(
+  //     mockEvent({ amountInSol: "0.02" }),
+  //   );
+
+  //   expect(response).toEqual({
+  //     statusCode: 400,
+  //     body: JSON.stringify({
+  //       message: "Account address is required to process the transaction.",
+  //     }),
+  //     headers: ACTIONS_CORS_HEADERS,
+  //   });
+  // });
+
+  // it("handles errors from transaction creation", async () => {
+  //   (connection.getBalance as jest.Mock).mockRejectedValue(
+  //     new Error("Connection error"),
+  //   );
+
+  //   const response = await generateMysteryBoxPurchaseTx(
+  //     mockEvent({ amountInSol: "0.02", account: mockBuyerAddress }),
+  //   );
+
+  //   expect(response).toEqual({
+  //     statusCode: 404,
+  //     body: JSON.stringify(response.body),
+  //     headers: ACTIONS_CORS_HEADERS,
+  //   });
+  // });
 });

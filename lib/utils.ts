@@ -44,9 +44,11 @@ export const getDeploymentEnv = () => {
  * @param solAmount - Amount in SOL as string
  * @returns Amount in lamports as BigInt
  */
-export const convertSolToLamports = (solAmount: string): bigint | null => {
+export const convertSolToLamports = (
+  solAmount: string | number,
+): bigint | null => {
   try {
-    const cleanAmount = solAmount.trim().replace(/,/g, "");
+    const cleanAmount = solAmount.toString().trim().replace(/,/g, "");
 
     if (!/^\d*\.?\d*$/.test(cleanAmount)) {
       return null;

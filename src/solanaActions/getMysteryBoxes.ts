@@ -20,7 +20,7 @@ const getMysteryBoxesHandler = async () => {
         {
           label: "Buy Boxes",
           type: "transaction",
-          href: "/pools/mystery-boxes-preview-tx?count={count}",
+          href: "/pools/mystery-boxes?count={count}",
           parameters: [
             {
               name: "count",

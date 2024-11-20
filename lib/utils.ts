@@ -2,6 +2,7 @@ import { Environment } from "aws-cdk-lib";
 import { getOptionalEnvVariable } from "../src/utils/getOptionalEnvVariable";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
 export const LAMPORTS_PER_SOL_BIGINT = 1_000_000_000n;
+export const LAMPORTS_PER_SOL_BIGINT = 1_000_000_000n;
 
 export function requireNotNull<T>(param: T, errorMessage?: string): T {
   if (param === null || param === undefined) {
@@ -44,9 +45,11 @@ export const getDeploymentEnv = () => {
  * @param solAmount - Amount in SOL as string
  * @returns Amount in lamports as BigInt
  */
-export const convertSolToLamports = (solAmount: string): bigint | null => {
+export const convertSolToLamports = (
+  solAmount: string | number,
+): bigint | null => {
   try {
-    const cleanAmount = solAmount.trim().replace(/,/g, "");
+    const cleanAmount = solAmount.toString().trim().replace(/,/g, "");
 
     if (!/^\d*\.?\d*$/.test(cleanAmount)) {
       return null;

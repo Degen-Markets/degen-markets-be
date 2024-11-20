@@ -4,18 +4,20 @@ import {
   pgTable,
   timestamp,
   varchar,
-  integer,
+  numeric,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 export const boxesTable = pgTable(
   "boxes",
   {
+    id: uuid("id").primaryKey().defaultRandom(),
     isOpened: boolean("isOpened").notNull().default(false),
     player: varchar("player", { length: 44 }).notNull(),
     createdAt: timestamp("createdAt").notNull().defaultNow(),
     openedAt: timestamp("openedAt"),
     winningToken: varchar("winningToken", { length: 44 }),
-    winningAmount: integer("winningAmount"),
+    winningAmount: numeric("winningAmount", { precision: 50, scale: 0 }),
   },
   (table) => ({
     idxPlayer: index("idx_player").on(table.player),

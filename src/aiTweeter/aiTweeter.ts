@@ -21,7 +21,7 @@ export const handler = async (event: ScheduledEvent) => {
 
   logger.debug("Got OpenAI Response:", { choices: response.choices });
   const firstChoice = response.choices[0]?.message;
-  logger.info(`Came up with the following tweet: ${firstChoice}`);
+  logger.info(`Came up with the following tweet: `, { tweet: firstChoice });
 
   // if (firstChoice?.content) {
   //   await sendBotTweet(firstChoice.content);

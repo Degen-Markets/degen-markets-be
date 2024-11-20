@@ -1,7 +1,5 @@
 import { Environment } from "aws-cdk-lib";
-import { getOptionalEnvVariable } from "../src/utils/getOptionalEnvVariable";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
-export const LAMPORTS_PER_SOL_BIGINT = 1_000_000_000n;
 export const LAMPORTS_PER_SOL_BIGINT = 1_000_000_000n;
 
 export function requireNotNull<T>(param: T, errorMessage?: string): T {

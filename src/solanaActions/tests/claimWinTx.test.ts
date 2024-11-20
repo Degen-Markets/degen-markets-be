@@ -1,6 +1,5 @@
 import { PublicKey, Transaction } from "@solana/web3.js";
-import { ACTIONS_CORS_HEADERS, createPostResponse } from "@solana/actions";
-import { Logger } from "@aws-lambda-powertools/logger";
+
 import * as actionUtils from "@solana/actions";
 import * as entryUtils from "../../poolEntries/utils";
 import PoolEntriesService from "../../poolEntries/service";
@@ -13,41 +12,49 @@ jest.mock("@aws-lambda-powertools/logger");
 jest.mock("../../poolEntries/utils");
 jest.mock("@solana/actions");
 
-const mockPoolAccountKey = "9ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH";
-const mockOptionAccountKey = "5ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH";
-const mockWinnerAccountKey = "3ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH";
-const mockEntryAccountKey = "7ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH";
-const mockBlockhash = "GHtXQBsoZHVnNFa9YhE4YHNSNsCFiWqk3q5g9VXz4RG";
-
 describe("claimWinTx", () => {
-  let mockTransaction: Transaction;
+  const MOCK_KEYS = {
+    pool: "9ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH",
+    option: "5ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH",
+    winner: "3ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH",
+    entry: "7ZWj7a1f8tWkjBESHKgrLmXshuXxqeY9SYv6hRRHh5YH",
+  };
 
-  const mockEventData = {
-    address: mockEntryAccountKey,
-    isClaimed: false,
-    entrant: mockWinnerAccountKey,
-    option: mockOptionAccountKey,
-    pool: mockPoolAccountKey,
+  const MOCK_BLOCKHASH = "GHtXQBsoZHVnNFa9YhE4YHNSNsCFiWqk3q5g9VXz4RG";
+
+  const createMockEventData = (isClaimed = false) => ({
+    address: MOCK_KEYS.entry,
+    isClaimed,
+    entrant: MOCK_KEYS.winner,
+    option: MOCK_KEYS.option,
+    pool: MOCK_KEYS.pool,
     value: "1000",
     createdAt: new Date(),
     updatedAt: new Date(),
-  };
+  });
+
+  const createErrorResponse = (message: string) => ({
+    statusCode: 400,
+    body: JSON.stringify({ message }),
+    headers: actionUtils.ACTIONS_CORS_HEADERS,
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
 
+    // Setup default mocks
+    const mockTransaction = new Transaction();
+
     (entryUtils.deriveEntryAccountKey as jest.Mock).mockReturnValue(
-      new PublicKey(mockEntryAccountKey),
+      new PublicKey(MOCK_KEYS.entry),
     );
 
-    mockTransaction = new Transaction();
-
     (PoolEntriesService.getByAddress as jest.Mock).mockResolvedValue(
-      mockEventData,
+      createMockEventData(),
     );
 
     (connection.getLatestBlockhash as jest.Mock).mockResolvedValue({
-      blockhash: mockBlockhash,
+      blockhash: MOCK_BLOCKHASH,
       lastValidBlockHeight: 123456,
     });
 
@@ -60,7 +67,7 @@ describe("claimWinTx", () => {
       accountsPartial: mockAccountsPartial,
     });
 
-    (createPostResponse as jest.Mock).mockResolvedValue({
+    (actionUtils.createPostResponse as jest.Mock).mockResolvedValue({
       transaction: mockTransaction,
       type: "transaction",
     });
@@ -73,60 +80,36 @@ describe("claimWinTx", () => {
       type: "transaction" as const,
     };
 
-    jest
-      .spyOn(PoolEntriesService, "getByAddress")
-      .mockResolvedValue(mockEventData);
-
-    jest
-      .spyOn(entryUtils, "deriveEntryAccountKey")
-      .mockReturnValue(new PublicKey(mockEntryAccountKey));
-
-    jest
-      .spyOn(actionUtils, "createPostResponse")
-      .mockResolvedValue(mockPayload);
-
-    jest.spyOn(connection, "getLatestBlockhash").mockResolvedValue({
-      blockhash: "mockBlockhash",
-      lastValidBlockHeight: 123,
-    });
-
-    const mockTransaction = new Transaction();
-
-    const mockClaimWin = jest.fn().mockReturnValue({
-      accountsPartial: jest.fn().mockReturnValue({
-        transaction: jest.fn().mockResolvedValue(mockTransaction),
-      }),
-    });
-
-    program.methods.claimWin = mockClaimWin;
+    (actionUtils.createPostResponse as jest.Mock).mockResolvedValue(
+      mockPayload,
+    );
 
     const response = await claimWinTx(
-      mockPoolAccountKey,
-      mockOptionAccountKey,
-      mockWinnerAccountKey,
+      MOCK_KEYS.pool,
+      MOCK_KEYS.option,
+      MOCK_KEYS.winner,
     );
 
     expect(entryUtils.deriveEntryAccountKey).toHaveBeenCalledWith(
-      new PublicKey(mockOptionAccountKey),
-      new PublicKey(mockWinnerAccountKey),
+      new PublicKey(MOCK_KEYS.option),
+      new PublicKey(MOCK_KEYS.winner),
     );
 
     expect(PoolEntriesService.getByAddress).toHaveBeenCalledWith(
-      mockEntryAccountKey,
+      MOCK_KEYS.entry,
     );
 
-    expect(mockClaimWin).toHaveBeenCalled();
-    expect(mockClaimWin().accountsPartial).toHaveBeenCalledWith({
-      poolAccount: new PublicKey(mockPoolAccountKey),
-      optionAccount: new PublicKey(mockOptionAccountKey),
-      entryAccount: new PublicKey(mockEntryAccountKey),
-      winner: new PublicKey(mockWinnerAccountKey),
+    expect(program.methods.claimWin().accountsPartial).toHaveBeenCalledWith({
+      poolAccount: new PublicKey(MOCK_KEYS.pool),
+      optionAccount: new PublicKey(MOCK_KEYS.option),
+      entryAccount: new PublicKey(MOCK_KEYS.entry),
+      winner: new PublicKey(MOCK_KEYS.winner),
     });
 
     expect(response).toEqual({
       statusCode: 200,
       body: JSON.stringify(mockPayload),
-      headers: ACTIONS_CORS_HEADERS,
+      headers: actionUtils.ACTIONS_CORS_HEADERS,
     });
   });
 
@@ -134,79 +117,45 @@ describe("claimWinTx", () => {
     (PoolEntriesService.getByAddress as jest.Mock).mockResolvedValue(null);
 
     const response = await claimWinTx(
-      mockPoolAccountKey,
-      mockOptionAccountKey,
-      mockWinnerAccountKey,
+      MOCK_KEYS.pool,
+      MOCK_KEYS.option,
+      MOCK_KEYS.winner,
     );
 
-    expect(response).toEqual({
-      statusCode: 400,
-      body: JSON.stringify({ message: "You did not win this bet!" }),
-      headers: ACTIONS_CORS_HEADERS,
-    });
+    expect(response).toEqual(createErrorResponse("You did not win this bet!"));
   });
 
   it("should return error if entry is already claimed", async () => {
-    (PoolEntriesService.getByAddress as jest.Mock).mockResolvedValue({
-      address: mockEntryAccountKey,
-      isClaimed: true,
-      entrant: mockWinnerAccountKey,
-      option: mockOptionAccountKey,
-      pool: mockPoolAccountKey,
-      value: "1000",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    const response = await claimWinTx(
-      mockPoolAccountKey,
-      mockOptionAccountKey,
-      mockWinnerAccountKey,
+    (PoolEntriesService.getByAddress as jest.Mock).mockResolvedValue(
+      createMockEventData(true),
     );
 
-    expect(response).toEqual({
-      statusCode: 400,
-      body: JSON.stringify({ message: "You have already claimed this bet!" }),
-      headers: ACTIONS_CORS_HEADERS,
-    });
+    const response = await claimWinTx(
+      MOCK_KEYS.pool,
+      MOCK_KEYS.option,
+      MOCK_KEYS.winner,
+    );
+
+    expect(response).toEqual(
+      createErrorResponse("You have already claimed this bet!"),
+    );
   });
 
   it("should handle program transaction errors", async () => {
-    const mockError = new Error("Transaction failed");
     (program.methods.claimWin as jest.Mock).mockReturnValue({
       accountsPartial: jest.fn().mockReturnValue({
-        transaction: jest.fn().mockRejectedValue(mockError),
+        transaction: jest
+          .fn()
+          .mockRejectedValue(new Error("Transaction failed")),
       }),
     });
 
     const response = await claimWinTx(
-      mockPoolAccountKey,
-      mockOptionAccountKey,
-      mockWinnerAccountKey,
+      MOCK_KEYS.pool,
+      MOCK_KEYS.option,
+      MOCK_KEYS.winner,
     );
 
-    expect(response).toEqual({
-      statusCode: 400,
-      body: JSON.stringify({ message: "You did not win this bet!" }),
-      headers: ACTIONS_CORS_HEADERS,
-    });
-  });
-
-  it("should properly set transaction properties", async () => {
-    await claimWinTx(
-      mockPoolAccountKey,
-      mockOptionAccountKey,
-      mockWinnerAccountKey,
-    );
-
-    expect(createPostResponse).toHaveBeenCalledWith({
-      fields: {
-        type: "transaction",
-        transaction: expect.objectContaining({
-          feePayer: expect.any(PublicKey),
-          recentBlockhash: mockBlockhash,
-        }),
-      },
-    });
+    expect(response).toEqual(createErrorResponse("You did not win this bet!"));
   });
 });

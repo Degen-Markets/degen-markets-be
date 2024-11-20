@@ -22,7 +22,8 @@ export const handler = async (event: ScheduledEvent) => {
       },
       {
         role: "user",
-        content: "give me 1 short sentence rage baiting crypto prediction",
+        content:
+          "give me 1 short degenerate sentence rage baiting crypto prediction",
       },
     ],
   });

@@ -1,7 +1,7 @@
 import { Environment } from "aws-cdk-lib";
-import { getOptionalEnvVariable } from "../src/utils/getOptionalEnvVariable";
 import { getMandatoryEnvVariable } from "../src/utils/getMandatoryEnvValue";
-export const LAMPORTS_PER_SOL_BIGINT = 1_000_000_000n;
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+export const LAMPORTS_PER_SOL_BIGINT = BigInt(LAMPORTS_PER_SOL);
 
 export function requireNotNull<T>(param: T, errorMessage?: string): T {
   if (param === null || param === undefined) {

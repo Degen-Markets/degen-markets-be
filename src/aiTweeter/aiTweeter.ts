@@ -9,12 +9,12 @@ const logger = new Logger({ serviceName: "AITweeter" });
 export const handler = async (event: ScheduledEvent) => {
   logger.info(`Ran scheduled event`, { event });
   const response = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo-16k",
+    model: "gpt-4o",
     messages: [
       { role: "system", content: "you are a provocateur" },
       {
         role: "user",
-        content: "give me a short degenerate sentence about crypto",
+        content: "give me 1 short sentence rage baiting crypto prediction",
       },
     ],
   });

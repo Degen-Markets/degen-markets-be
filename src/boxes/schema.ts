@@ -20,6 +20,7 @@ export const boxesTable = pgTable(
     winningAmount: numeric("winningAmount", { precision: 50, scale: 0 }),
   },
   (table) => ({
+    idxIsOpened: index("idx_isOpened").on(table.isOpened),
     idxPlayer: index("idx_player").on(table.player),
   }),
 );

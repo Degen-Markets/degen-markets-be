@@ -52,7 +52,7 @@ export class AiTweeterStack extends TaggedStack {
       schedule: Schedule.rate(
         props.deploymentEnv === DeploymentEnv.production
           ? Duration.minutes(1)
-          : Duration.minutes(1),
+          : Duration.minutes(5),
       ),
       ruleName: "AiTweeterScheduler",
     });

@@ -31,7 +31,6 @@ export class AiTweeterStack extends TaggedStack {
       entry: path.join(__dirname, "../src/aiTweeter/aiTweeter.ts"),
       logRetention: RetentionDays.ONE_MONTH,
       handler: "handler",
-      vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
       bundling: {
         externalModules: ["@aws-sdk"],
         minify: true,

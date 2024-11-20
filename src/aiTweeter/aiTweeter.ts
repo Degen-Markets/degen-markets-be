@@ -1,6 +1,7 @@
 import { ScheduledEvent } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import OpenAI from "openai";
+import { sendBotTweet } from "../utils/twitterBot";
 const openai = new OpenAI();
 
 const logger = new Logger({ serviceName: "AITweeter" });
@@ -18,8 +19,11 @@ export const handler = async (event: ScheduledEvent) => {
     ],
   });
 
-  logger.debug("Got OpenAI Response:", { response });
-  logger.info(
-    `Came up with the following tweet: ${response.choices[0]?.message}`,
-  );
+  logger.debug("Got OpenAI Response:", { choices: response.choices });
+  const firstChoice = response.choices[0]?.message;
+  logger.info(`Came up with the following tweet: ${firstChoice}`);
+
+  // if (firstChoice?.content) {
+  //   await sendBotTweet(firstChoice.content);
+  // }
 };

@@ -25,6 +25,16 @@ export class AiTweeterStack extends TaggedStack {
       description: "AI Tweeter lambda",
       environment: {
         OPENAI_API_KEY: getMandatoryEnvVariable("OPENAI_API_KEY"),
+        TWITTER_BOT_APP_KEY: getMandatoryEnvVariable("TWITTER_BOT_APP_KEY"),
+        TWITTER_BOT_APP_SECRET: getMandatoryEnvVariable(
+          "TWITTER_BOT_APP_SECRET",
+        ),
+        TWITTER_BOT_ACCESS_TOKEN: getMandatoryEnvVariable(
+          "TWITTER_BOT_ACCESS_TOKEN",
+        ),
+        TWITTER_BOT_ACCESS_TOKEN_SECRET: getMandatoryEnvVariable(
+          "TWITTER_BOT_ACCESS_TOKEN_SECRET",
+        ),
       },
       memorySize: 256,
       functionName: "AiTweeter",

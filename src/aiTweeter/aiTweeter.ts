@@ -14,7 +14,7 @@ export const handler = async (event: ScheduledEvent) => {
       { role: "system", content: "you are a provocateur" },
       {
         role: "user",
-        content: "give me a 1 short sentence rage baiting crypto prediction ",
+        content: "give me a short degenerate statement about crypto",
       },
     ],
   });
@@ -23,6 +23,7 @@ export const handler = async (event: ScheduledEvent) => {
   logger.info(`Came up with the following tweet: `, { tweet: firstChoice });
 
   if (firstChoice?.content) {
-    await sendBotTweet(firstChoice.content);
+    // remove double quotes, because OpenAI adds it
+    await sendBotTweet(firstChoice.content.replace(/\"/g, ""));
   }
 };

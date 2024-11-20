@@ -51,8 +51,8 @@ export class AiTweeterStack extends TaggedStack {
       description: "Ai Tweeter scheduler",
       schedule: Schedule.rate(
         props.deploymentEnv === DeploymentEnv.production
-          ? Duration.minutes(1)
-          : Duration.minutes(5),
+          ? Duration.minutes(15)
+          : Duration.minutes(3),
       ),
       ruleName: "AiTweeterScheduler",
     });

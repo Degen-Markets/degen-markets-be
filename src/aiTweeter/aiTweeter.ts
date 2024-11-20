@@ -14,7 +14,7 @@ export const handler = async (event: ScheduledEvent) => {
       { role: "system", content: "you are a provocateur" },
       {
         role: "user",
-        content: "give me a short degenerate statement about crypto",
+        content: "give me a short degenerate sentence about crypto",
       },
     ],
   });

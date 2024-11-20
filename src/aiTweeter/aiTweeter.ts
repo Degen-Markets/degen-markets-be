@@ -32,6 +32,6 @@ export const handler = async (event: ScheduledEvent) => {
 
   if (firstChoice?.content) {
     // remove double quotes, because OpenAI adds it
-    await sendBotTweet(firstChoice.content.replace(/\"/g, ""));
+    await sendBotTweet(firstChoice.content.replace(/"/g, ""));
   }
 };

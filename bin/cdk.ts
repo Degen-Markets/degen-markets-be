@@ -10,6 +10,7 @@ import { ClientApiStack } from "../lib/ClientApiStack";
 import { WebhookApiStack } from "../lib/WebhookApiStack";
 import { SolanaActionsStack } from "../lib/SolanaActionsStack";
 import { AdminWebsiteStack } from "../lib/AdminWebsiteStack";
+import { AiTweeterStack } from "../lib/AiTweeterStack";
 
 configDotEnv();
 
@@ -75,4 +76,9 @@ new AdminWebsiteStack(app, `${stackIdPrefix}AdminWebsiteStack`, {
   cname: `${subdomainPrefix}admin`,
   crossRegionReferences: true,
   env: getEnv(),
+});
+
+new AiTweeterStack(app, `${stackIdPrefix}AiStack`, {
+  env: getEnv(),
+  deploymentEnv,
 });

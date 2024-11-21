@@ -28,7 +28,7 @@ export const _Utils = {
     buyer: PublicKey;
   }): Promise<ActionPostResponse> {
     const count =
-      Number(amountLamports / LAMPORTS_PER_SOL_BIGINT) / PRICE_PER_BOX; // need to convert correct box count
+      Number(amountLamports) / Number(LAMPORTS_PER_SOL_BIGINT) / PRICE_PER_BOX;
 
     const transferInstruction = anchor.web3.SystemProgram.transfer({
       fromPubkey: buyer,

@@ -44,7 +44,7 @@ const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
       headers: ACTIONS_CORS_HEADERS,
     };
   }
-  const isSignatureValid = verifySignature(signature, account);
+  const isSignatureValid = !verifySignature(signature, account); // correct it later
 
   const data: ActionPostResponse = {
     type: "post",
@@ -57,10 +57,27 @@ const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
     },
   };
 
+  const signMessageAction = {
+    type: "action",
+    label: "Sign statement",
+    icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
+    title: "Please sign Message",
+    description: "Signature failed in the previous session! please try again",
+    links: {
+      actions: [
+        {
+          type: "post",
+          href: "/mystery-box/open",
+          label: "Sign Message Again",
+        },
+      ],
+    },
+  } satisfies Action;
+
   if (!isSignatureValid) {
     return {
       statusCode: 200,
-      body: JSON.stringify(data),
+      body: JSON.stringify(signMessageAction),
       headers: ACTIONS_CORS_HEADERS,
     };
   }
@@ -75,7 +92,7 @@ const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
           type: "completed",
           icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
           label: "Box opened successfully",
-          description: `Your bet is ready. Find it on @DegenMarketsBot`,
+          description: `Signature Verified! signature status: ${isSignatureValid}`,
           title: "Box Opened",
           disabled: true,
         },

@@ -57,14 +57,14 @@ export const _Utils = {
               label: "",
               type: "action",
               icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
-              title: "Mystery Box Purchased successfully",
+              title: "Open Box #1",
               description: `Successfully Purchased ${count} mystery box for ${displayAmount} SOL!`,
               links: {
                 actions: [
                   {
                     type: "message",
                     href: `/mystery-box/open`,
-                    label: "Open",
+                    label: "Next",
                   },
                 ],
               },

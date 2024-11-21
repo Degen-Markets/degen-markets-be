@@ -2,7 +2,7 @@ import { Action, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { SignMessageResponse } from "@solana/actions-spec";
 import { messageString } from "../utils/cryptography";
 
-const openMysteryBox = async () => {
+const boxSignMessage = async () => {
   const response: SignMessageResponse = {
     type: "message",
     data: messageString,
@@ -21,4 +21,4 @@ const openMysteryBox = async () => {
   };
 };
 
-export default openMysteryBox;
+export default boxSignMessage;

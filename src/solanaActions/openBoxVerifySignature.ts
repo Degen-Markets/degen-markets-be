@@ -6,11 +6,6 @@ import {
   ACTIONS_CORS_HEADERS,
 } from "@solana/actions";
 
-import { _Utils } from "../utils/serializedMysteryBoxTx";
-import { buildBadRequestError } from "../utils/httpResponses";
-import { convertSolToLamports, formatSolBalance } from "../../lib/utils";
-import { connection } from "../clients/SolanaProgramClient";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { verifySignature } from "../utils/cryptography";
 export const PRICE_PER_BOX = 0.02;
 
@@ -19,13 +14,16 @@ const logger: Logger = new Logger({
 });
 
 const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
-  const { account, signature } = JSON.parse(event.body || "{}");
-  console.log({
-    signature,
-    account,
+  logger.info("Received event for box signature verification", {
+    body: event.body,
   });
+
+  const { account, signature } = JSON.parse(event.body || "{}");
+
+  logger.debug("Parsed input values", { account, signature });
+
   if (!account) {
-    logger.error("Account missing", { account });
+    logger.error("Missing account address in the request");
     return {
       statusCode: 400,
       body: JSON.stringify({
@@ -34,8 +32,9 @@ const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
       headers: ACTIONS_CORS_HEADERS,
     };
   }
+
   if (!signature) {
-    logger.error("Signature missing", { account });
+    logger.error("Missing signature in the request", { account });
     return {
       statusCode: 400,
       body: JSON.stringify({
@@ -44,43 +43,40 @@ const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
       headers: ACTIONS_CORS_HEADERS,
     };
   }
-  const isSignatureValid = !verifySignature(signature, account); // correct it later
 
-  const data: ActionPostResponse = {
-    type: "post",
-    message: "Invalid Signature,try again!",
-    links: {
-      next: {
-        type: "post",
-        href: "/mystery-box/open",
-      },
-    },
-  };
+  logger.info("Verifying signature", { account, signature });
 
-  const signMessageAction = {
-    type: "action",
-    label: "Sign statement",
-    icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
-    title: "Please sign Message",
-    description: "Signature failed in the previous session! please try again",
-    links: {
-      actions: [
-        {
-          type: "post",
-          href: "/mystery-box/open",
-          label: "Sign Message Again",
-        },
-      ],
-    },
-  } satisfies Action;
+  const isSignatureValid = verifySignature(signature, account);
 
   if (!isSignatureValid) {
+    logger.warn("Signature verification failed", { account, signature });
+    const signMessageAction = {
+      type: "action",
+      label: "Sign statement",
+      icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
+      title: "Please sign Message",
+      description:
+        "Signature failed in the previous session! Please try again.",
+      links: {
+        actions: [
+          {
+            type: "post",
+            href: "/mystery-box/open",
+            label: "Sign Message Again",
+          },
+        ],
+      },
+    } satisfies Action;
+
+    logger.info("Returning action for re-signing the message");
     return {
       statusCode: 200,
       body: JSON.stringify(signMessageAction),
       headers: ACTIONS_CORS_HEADERS,
     };
   }
+
+  logger.info("Signature verification succeeded", { account });
 
   const payload: ActionPostResponse = {
     type: "post",
@@ -92,13 +88,18 @@ const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
           type: "completed",
           icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
           label: "Box opened successfully",
-          description: `Signature Verified! signature status: ${isSignatureValid}`,
+          description: `Signature Verified! Signature status: ${isSignatureValid}`,
           title: "Box Opened",
           disabled: true,
         },
       },
     },
   };
+
+  logger.info("Returning success response with verified signature payload", {
+    payload,
+  });
+
   return {
     statusCode: 200,
     body: JSON.stringify(payload),

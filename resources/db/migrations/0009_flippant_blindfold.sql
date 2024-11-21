@@ -1,0 +1,1 @@
+ALTER TABLE "boxes" ALTER COLUMN "winning_amount" SET DATA TYPE integer;

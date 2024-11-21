@@ -1,6 +1,10 @@
 import { PublicKey, Transaction } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
-import { ActionPostResponse, createPostResponse } from "@solana/actions";
+import {
+  Action,
+  ActionPostResponse,
+  createPostResponse,
+} from "@solana/actions";
 import { connection } from "../clients/SolanaProgramClient";
 import { ADMIN_PUBKEY } from "../clientApi/constants";
 import { convertSolToLamports, formatSolBalance } from "../../lib/utils";
@@ -45,11 +49,20 @@ export const _Utils = {
           next: {
             type: "inline",
             action: {
-              type: "completed",
-              label: "Mystery Box Purchased!",
-              title: "Mystery Box Purchase completed",
+              label: "",
+              type: "action",
+              icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
+              title: "Mystery Box Purchased successfully",
               description: `Successfully Purchased ${count} mystery box for ${displayAmount} SOL!`,
-              icon: "",
+              links: {
+                actions: [
+                  {
+                    type: "message",
+                    href: `/mystery-box/open`,
+                    label: "Open",
+                  },
+                ],
+              },
             },
           },
         },

@@ -85,7 +85,7 @@ const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
       next: {
         type: "inline",
         action: {
-          type: "completed",
+          type: "action",
           icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
           label: "Box opened successfully",
           description: `Signature Verified! Signature status: ${isSignatureValid}`,

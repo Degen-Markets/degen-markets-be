@@ -7,7 +7,11 @@ import {
 } from "@solana/actions";
 import { connection } from "../clients/SolanaProgramClient";
 import { ADMIN_PUBKEY } from "../clientApi/constants";
-import { convertSolToLamports, formatSolBalance } from "../../lib/utils";
+import {
+  convertSolToLamports,
+  formatSolBalance,
+  LAMPORTS_PER_SOL_BIGINT,
+} from "../../lib/utils";
 import { PRICE_PER_BOX } from "../solanaActions/generateMysteryBoxPurchaseTx";
 import { Logger } from "@aws-lambda-powertools/logger";
 
@@ -23,7 +27,8 @@ export const _Utils = {
     account: string;
     buyer: PublicKey;
   }): Promise<ActionPostResponse> {
-    const count = Number(amountLamports) / PRICE_PER_BOX;
+    const count =
+      Number(amountLamports / LAMPORTS_PER_SOL_BIGINT) / PRICE_PER_BOX; // need to convert correct box count
 
     const transferInstruction = anchor.web3.SystemProgram.transfer({
       fromPubkey: buyer,

@@ -19,7 +19,7 @@ const logger: Logger = new Logger({
 });
 
 const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
-  const { account, signature, state } = JSON.parse(event.body || "{}");
+  const { account, signature } = JSON.parse(event.body || "{}");
   console.log({
     signature,
     account,
@@ -44,52 +44,47 @@ const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
       headers: ACTIONS_CORS_HEADERS,
     };
   }
-  //   const isSignatureValid = verifySignature(signature, account);
+  const isSignatureValid = verifySignature(signature, account);
 
-  //   const data: ActionPostResponse = {
-  //     title: "Invalid signature",
-  //     description: "Invalid signature provided please try again",
-  //     icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
-  //     label: "Invalid signature",
-  //     type: "post",
-  //     links: {
-  //       actions: [
-  //         { href: "mystery-box/open", label: "Sign Again", type: "post" },
-  //       ],
-  //     },
-  //   };
+  const data: ActionPostResponse = {
+    type: "post",
+    message: "Invalid Signature,try again!",
+    links: {
+      next: {
+        type: "post",
+        href: "/mystery-box/open",
+      },
+    },
+  };
 
-  //   if (!isSignatureValid) {
-  //     return {
-  //       statusCode: 200,
-  //       body: JSON.stringify(data),
-  //       headers: ACTIONS_CORS_HEADERS,
-  //     };
-  //   }
+  if (!isSignatureValid) {
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  }
 
-  //   const payload: ActionPostResponse = {
-  //     type: "post",
-  //     message: "Finished!",
-  //     links: {
-  //       next: {
-  //         type: "inline",
-  //         action: {
-  //           type: "completed",
-  //           icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
-  //           label: "",
-  //           description: `Your bet is ready. Find it on @DegenMarketsBot`,
-  //           title: "Created your bet!",
-  //           disabled: true,
-  //         },
-  //       },
-  //     },
-  //   };
+  const payload: ActionPostResponse = {
+    type: "post",
+    message: "Finished!",
+    links: {
+      next: {
+        type: "inline",
+        action: {
+          type: "completed",
+          icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
+          label: "Box opened successfully",
+          description: `Your bet is ready. Find it on @DegenMarketsBot`,
+          title: "Box Opened",
+          disabled: true,
+        },
+      },
+    },
+  };
   return {
     statusCode: 200,
-    body: JSON.stringify({
-      signature: signature,
-      account: account,
-    }),
+    body: JSON.stringify(payload),
     headers: ACTIONS_CORS_HEADERS,
   };
 };

@@ -8,7 +8,7 @@ const logger: Logger = new Logger({
   serviceName: "boxSignatureVerifyMessage",
 });
 
-const boxSignMessageAndVerify = async (event: APIGatewayProxyEventV2) => {
+const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
   const boxCount = event.queryStringParameters?.boxCount;
   const { account, signature } = JSON.parse(event.body || "{}");
 
@@ -126,4 +126,4 @@ const boxSignMessageAndVerify = async (event: APIGatewayProxyEventV2) => {
   };
 };
 
-export default boxSignMessageAndVerify;
+export default handleOpenBox;

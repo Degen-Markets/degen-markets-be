@@ -1,9 +1,18 @@
 import { PublicKey, Transaction } from "@solana/web3.js";
 import * as anchor from "@coral-xyz/anchor";
-import { ActionPostResponse, createPostResponse } from "@solana/actions";
+import {
+  Action,
+  ActionPostResponse,
+  ActionsJson,
+  createPostResponse,
+} from "@solana/actions";
 import { connection } from "../clients/SolanaProgramClient";
 import { ADMIN_PUBKEY } from "../clientApi/constants";
-import { convertSolToLamports, formatSolBalance } from "../../lib/utils";
+import {
+  convertSolToLamports,
+  formatSolBalance,
+  LAMPORTS_PER_SOL_BIGINT,
+} from "../../lib/utils";
 import { PRICE_PER_BOX } from "../solanaActions/generateMysteryBoxPurchaseTx";
 import { Logger } from "@aws-lambda-powertools/logger";
 
@@ -19,7 +28,8 @@ export const _Utils = {
     account: string;
     buyer: PublicKey;
   }): Promise<ActionPostResponse> {
-    const count = Number(amountLamports) / PRICE_PER_BOX;
+    const count =
+      Number(amountLamports) / Number(LAMPORTS_PER_SOL_BIGINT) / PRICE_PER_BOX;
 
     const transferInstruction = anchor.web3.SystemProgram.transfer({
       fromPubkey: buyer,
@@ -45,11 +55,20 @@ export const _Utils = {
           next: {
             type: "inline",
             action: {
-              type: "completed",
-              label: "Mystery Box Purchased!",
-              title: "Mystery Box Purchase completed",
+              label: "",
+              type: "action",
+              icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
+              title: "Open Box #1",
               description: `Successfully Purchased ${count} mystery box for ${displayAmount} SOL!`,
-              icon: "",
+              links: {
+                actions: [
+                  {
+                    type: "transaction",
+                    href: `/mystery-boxes/open?boxCount=${count}`,
+                    label: "Next",
+                  },
+                ],
+              },
             },
           },
         },

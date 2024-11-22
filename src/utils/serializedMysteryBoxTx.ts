@@ -3,6 +3,7 @@ import * as anchor from "@coral-xyz/anchor";
 import {
   Action,
   ActionPostResponse,
+  ActionsJson,
   createPostResponse,
 } from "@solana/actions";
 import { connection } from "../clients/SolanaProgramClient";
@@ -26,7 +27,7 @@ export const _Utils = {
     amountLamports: bigint;
     account: string;
     buyer: PublicKey;
-  }): Promise<ActionPostResponse> {
+  }): Promise<Action> {
     const count =
       Number(amountLamports) / Number(LAMPORTS_PER_SOL_BIGINT) / PRICE_PER_BOX;
 
@@ -45,33 +46,21 @@ export const _Utils = {
 
     const displayAmount = formatSolBalance(amountLamports, false);
 
-    return createPostResponse({
-      fields: {
-        type: "transaction",
-        transaction,
-        message: `Purchase Mystery Box for ${displayAmount} SOL`,
-        links: {
-          next: {
-            type: "inline",
-            action: {
-              label: "",
-              type: "action",
-              icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
-              title: "Open Box #1",
-              description: `Successfully Purchased ${count} mystery box for ${displayAmount} SOL!`,
-              links: {
-                actions: [
-                  {
-                    type: "transaction",
-                    href: `/mystery-box/open`,
-                    label: "Next",
-                  },
-                ],
-              },
-            },
+    return {
+      title: "Mystery Box Purchase Successful",
+      description: `Successfully Purchased ${count} mystery box for ${displayAmount} SOL!`,
+      icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
+      label: "",
+      type: "action",
+      links: {
+        actions: [
+          {
+            type: "message",
+            href: `/mystery-box/open`,
+            label: "Next",
           },
-        },
+        ],
       },
-    });
+    } satisfies Action;
   },
 };

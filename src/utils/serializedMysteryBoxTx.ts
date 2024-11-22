@@ -46,6 +46,8 @@ export const _Utils = {
 
     const displayAmount = formatSolBalance(amountLamports, false);
 
+    // TODO: listen to SOL transfer event and create Boxes here
+
     return createPostResponse({
       fields: {
         type: "transaction",

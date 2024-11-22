@@ -3,6 +3,7 @@ import { ActionPostResponse, SignMessageResponse } from "@solana/actions-spec";
 import { messageString, verifySignature } from "../utils/cryptography";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
+import MysteryBoxServices from "../boxes/service";
 
 const logger: Logger = new Logger({
   serviceName: "boxSignatureVerifyMessage",
@@ -10,8 +11,15 @@ const logger: Logger = new Logger({
 
 const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
   const boxCount = event.queryStringParameters?.boxCount;
-  const { account, signature } = JSON.parse(event.body || "{}");
 
+  logger.info("Received event for box signature verification", {
+    body: event.body,
+  });
+
+  const { account, signature, currentBoxPosition } = JSON.parse(
+    event.body || "{}",
+  );
+  // for sign-message, runs only once when user purchase Box
   if (boxCount) {
     const response: SignMessageResponse = {
       type: "message",
@@ -31,29 +39,19 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
     };
   }
 
-  logger.info("Received event for box signature verification", {
-    body: event.body,
+  logger.debug("Parsed input values", {
+    account,
+    signature,
+    currentBoxPosition,
   });
 
-  logger.debug("Parsed input values", { account, signature });
-
-  if (!account) {
-    logger.error("Missing account address in the request");
+  if (!account || !signature || currentBoxPosition === undefined) {
+    logger.error("Missing required parameters in the request");
     return {
       statusCode: 400,
       body: JSON.stringify({
-        message: "Account address is required to process the transaction.",
-      }),
-      headers: ACTIONS_CORS_HEADERS,
-    };
-  }
-
-  if (!signature) {
-    logger.error("Missing signature in the request", { account });
-    return {
-      statusCode: 400,
-      body: JSON.stringify({
-        message: "Signature is required to process the transaction.",
+        message:
+          "Account address, signature, and currentBoxPosition are required.",
       }),
       headers: ACTIONS_CORS_HEADERS,
     };
@@ -76,7 +74,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
         actions: [
           {
             type: "post",
-            href: "/mystery-boxes/open",
+            href: `/mystery-boxes/open?boxCount=${boxCount}`,
             label: "Sign Message Again",
           },
         ],
@@ -91,39 +89,104 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
     };
   }
 
-  // if the signature is valid we should set the box:isOpened field on it to true here
-
-  // proceeding next action here
-
   logger.info("Signature verification succeeded", { account });
 
-  const payload: ActionPostResponse = {
-    type: "post",
-    message: "Finished!",
-    links: {
-      next: {
-        type: "inline",
-        action: {
-          type: "action",
-          icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
-          label: "Box opened successfully",
-          description: `Signature Verified! Signature status: ${isSignatureValid}`,
-          title: "Box Opened",
-          disabled: true,
+  try {
+    // Get unopened boxes for the player
+    const unopenedBoxes =
+      await MysteryBoxServices.getUnopenedBoxesForPlayer(account);
+
+    if (unopenedBoxes.length === 0) {
+      logger.info("No unopened boxes found for player", { account });
+      const payload: ActionPostResponse = {
+        type: "post",
+        message: "All boxes opened!",
+        links: {
+          next: {
+            type: "inline",
+            action: {
+              type: "completed",
+              icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
+              label: "All boxes opened",
+              description: "You've opened all your boxes!",
+              title: "Boxes Complete",
+              disabled: true,
+            },
+          },
         },
-      },
-    },
-  };
+      };
 
-  logger.info("Returning success response with verified signature payload", {
-    payload,
-  });
+      return {
+        statusCode: 200,
+        body: JSON.stringify(payload),
+        headers: ACTIONS_CORS_HEADERS,
+      };
+    }
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(payload),
-    headers: ACTIONS_CORS_HEADERS,
-  };
+    // Open the next box
+    await MysteryBoxServices.openBox(account, unopenedBoxes[0].id);
+
+    // Determine the next action based on remaining unopened boxes
+    const nextAction: ActionPostResponse =
+      unopenedBoxes.length > 1
+        ? {
+            type: "post",
+            message: "Continue opening boxes",
+            links: {
+              next: {
+                type: "inline",
+                action: {
+                  type: "action",
+                  icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
+                  label: `Open Box #${currentBoxPosition + 1}`,
+                  description: "Click to open your next box!",
+                  title: "Open Next Box",
+                  links: {
+                    actions: [
+                      {
+                        type: "post",
+                        href: "/mystery-boxes/open",
+                        label: `Open Box #${currentBoxPosition + 1}`,
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          }
+        : {
+            type: "post",
+            message: "All boxes opened!",
+            links: {
+              next: {
+                type: "inline",
+                action: {
+                  type: "completed",
+                  icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
+                  label: "All boxes opened",
+                  description: "You've opened all your boxes!",
+                  title: "Boxes Complete",
+                  disabled: true,
+                },
+              },
+            },
+          };
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(nextAction),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  } catch (error) {
+    logger.error("Error processing box opening", { error, account });
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: "An error occurred while processing your request.",
+      }),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  }
 };
 
 export default handleOpenBox;

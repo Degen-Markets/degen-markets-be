@@ -123,6 +123,11 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
       };
     }
 
+    // Ensure there is at least one unopened box
+    if (!unopenedBoxes[0]) {
+      throw new Error("Unexpected error: unopenedBoxes array is empty.");
+    }
+
     // Open the next box
     await MysteryBoxServices.openBox(account, unopenedBoxes[0].id);
 

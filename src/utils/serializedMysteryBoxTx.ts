@@ -62,7 +62,7 @@ export const _Utils = {
               links: {
                 actions: [
                   {
-                    type: "message",
+                    type: "transaction",
                     href: `/mystery-box/open`,
                     label: "Next",
                   },

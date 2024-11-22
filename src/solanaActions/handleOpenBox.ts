@@ -11,8 +11,8 @@ const logger: Logger = new Logger({
 
 const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
   const boxCount = event.queryStringParameters?.boxCount;
-  const currentBoxPosition = event.queryStringParameters?.currentBoxPosition;
-
+  const boxPosition = event.queryStringParameters?.currentBoxPosition;
+  const currentBoxPosition = Number(boxPosition);
   logger.info("Received event for box signature verification", {
     body: event.body,
   });
@@ -49,7 +49,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        message: `Account:${account}, signature:${signature}, and currentBoxPosition:${currentBoxPosition} are required.`,
+        message: `Account, signature and currentBoxPosition are required.`,
       }),
       headers: ACTIONS_CORS_HEADERS,
     };

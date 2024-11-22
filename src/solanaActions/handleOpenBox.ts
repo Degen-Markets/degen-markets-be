@@ -27,7 +27,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
       links: {
         next: {
           type: "post",
-          href: "/mystery-boxes/open",
+          href: "/mystery-boxes/open?currentBoxPosition=0",
         },
       },
     };
@@ -74,7 +74,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
         actions: [
           {
             type: "post",
-            href: `/mystery-boxes/open?boxCount=${boxCount}`,
+            href: `/mystery-boxes/open?boxCount=${boxCount}&currentBoxPosition=0`,
             label: "Sign Message Again",
           },
         ],
@@ -150,7 +150,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
                     actions: [
                       {
                         type: "post",
-                        href: "/mystery-boxes/open",
+                        href: `/mystery-boxes/open?currentBoxPosition=${currentBoxPosition + 1}`,
                         label: `Open Box #${currentBoxPosition + 1}`,
                       },
                     ],

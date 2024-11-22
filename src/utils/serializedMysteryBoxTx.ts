@@ -66,7 +66,7 @@ export const _Utils = {
                 actions: [
                   {
                     type: "transaction",
-                    href: `/mystery-boxes/open?boxCount=${count}`,
+                    href: `/mystery-boxes/open?boxCount=${count}&currentBoxPosition=0`,
                     label: "Next",
                   },
                 ],

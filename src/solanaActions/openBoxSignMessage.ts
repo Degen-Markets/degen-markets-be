@@ -91,7 +91,9 @@ const boxSignMessageAndVerify = async (event: APIGatewayProxyEventV2) => {
     };
   }
 
-  // if the signature is valid we should set the box:isOpened field on it to true
+  // if the signature is valid we should set the box:isOpened field on it to true here
+
+  // proceeding next action here
 
   logger.info("Signature verification succeeded", { account });
 
@@ -102,7 +104,7 @@ const boxSignMessageAndVerify = async (event: APIGatewayProxyEventV2) => {
       next: {
         type: "inline",
         action: {
-          type: "completed",
+          type: "action",
           icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
           label: "Box opened successfully",
           description: `Signature Verified! Signature status: ${isSignatureValid}`,

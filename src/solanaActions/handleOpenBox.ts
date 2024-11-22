@@ -11,14 +11,13 @@ const logger: Logger = new Logger({
 
 const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
   const boxCount = event.queryStringParameters?.boxCount;
+  const currentBoxPosition = event.queryStringParameters?.currentBoxPosition;
 
   logger.info("Received event for box signature verification", {
     body: event.body,
   });
 
-  const { account, signature, currentBoxPosition } = JSON.parse(
-    event.body || "{}",
-  );
+  const { account, signature } = JSON.parse(event.body || "{}");
   // for sign-message, runs only once when user purchase Box
   if (boxCount) {
     const response: SignMessageResponse = {
@@ -50,8 +49,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        message:
-          "Account address, signature, and currentBoxPosition are required.",
+        message: `Account:${account}, signature:${signature}, and currentBoxPosition:${currentBoxPosition} are required.`,
       }),
       headers: ACTIONS_CORS_HEADERS,
     };

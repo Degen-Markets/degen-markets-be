@@ -19,7 +19,7 @@ const boxSignMessageAndVerify = async (event: APIGatewayProxyEventV2) => {
       links: {
         next: {
           type: "post",
-          href: "/mystery-box/open",
+          href: "/mystery-boxes/open",
         },
       },
     };
@@ -76,7 +76,7 @@ const boxSignMessageAndVerify = async (event: APIGatewayProxyEventV2) => {
         actions: [
           {
             type: "post",
-            href: "/mystery-box/open",
+            href: "/mystery-boxes/open",
             label: "Sign Message Again",
           },
         ],

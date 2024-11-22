@@ -76,6 +76,8 @@ const boxSignatureVerifyMessage = async (event: APIGatewayProxyEventV2) => {
     };
   }
 
+  // if the signature is valid we should set the box:isOpened field on it to true
+
   logger.info("Signature verification succeeded", { account });
 
   const payload: ActionPostResponse = {

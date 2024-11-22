@@ -18,11 +18,11 @@ import generateCreateOptionTx from "./createOptionTx";
 import finishPoolCreation from "./finishPoolCreation";
 import getMysteryBoxesHandler from "./getMysteryBoxes";
 import generateMysteryBoxPurchaseTx from "./generateMysteryBoxPurchaseTx";
-import openMysteryBox from "./openBoxSignMessage";
-import boxSignatureVerifyMessage from "./openBoxVerifySignature";
 import boxSignMessage from "./openBoxSignMessage";
+import boxSignMessageAndVerify from "./openBoxSignMessage";
 
 const logger: Logger = new Logger({ serviceName: "solanaActions" });
+export const PRICE_PER_BOX = 0.02;
 
 const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   {
@@ -94,14 +94,9 @@ const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   },
 
   {
-    method: "GET",
-    path: "/mystery-box/open",
-    handler: middy().handler(boxSignMessage),
-  },
-  {
     method: "POST",
     path: "/mystery-box/open",
-    handler: middy().handler(boxSignatureVerifyMessage),
+    handler: middy().handler(boxSignMessageAndVerify),
   },
 ];
 

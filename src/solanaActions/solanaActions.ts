@@ -94,13 +94,13 @@ const routes: Route<APIGatewayProxyEventV2, APIGatewayProxyResultV2>[] = [
   },
 
   {
-    method: "POST",
+    method: "GET",
     path: "/mystery-box/open",
     handler: middy().handler(boxSignMessage),
   },
   {
     method: "POST",
-    path: "/mystery-box/open/verify-signature",
+    path: "/mystery-box/open",
     handler: middy().handler(boxSignatureVerifyMessage),
   },
 ];

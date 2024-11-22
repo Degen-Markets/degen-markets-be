@@ -9,7 +9,7 @@ const boxSignMessage = async () => {
     links: {
       next: {
         type: "post",
-        href: "/mystery-box/open/verify-signature",
+        href: "/mystery-box/open",
       },
     },
   };

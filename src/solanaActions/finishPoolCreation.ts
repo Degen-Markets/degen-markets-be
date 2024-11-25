@@ -46,7 +46,7 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
           type: "completed",
           icon: image,
           label: "",
-          description: `Your bet is ready. Find it on @DegenMarketsBot`,
+          description: `Your bet is ready. Find it on degenmarkets.com`,
           title: "Created your bet!",
           disabled: true,
         },

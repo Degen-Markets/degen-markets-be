@@ -21,6 +21,7 @@ export const twitterUserIds = [
   "1533297503076237312", // @youngjazzeth
   "1351139954525696005", // @beaniemaxi
   "878219545785372673", // @CryptoDonAlt
+  "1512682935547277319", // @WuWei113
 ];
 
 export const systemRoles = [
@@ -33,4 +34,10 @@ export const basePrompts = [
   "Give me a short degenerate sentence (no more than 15 words) based on these tweets without using any emojis:",
   "Give me a prediction (no more than 20 words) based on these tweets without using any emojis:",
   "Give me a haiku based on these tweets:",
+];
+
+export const forbiddenWords = [
+  "https://t.co/", // tweet has image
+  "nigga", // GPT model will not respond to racism
+  "nigger", // GPT model will not respond to racism
 ];

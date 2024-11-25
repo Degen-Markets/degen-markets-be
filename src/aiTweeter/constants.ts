@@ -9,6 +9,12 @@ export const twitterUserIds = [
   "1404603419101306881", // @kmoney_69
   "1243470638477697024", // @ZssBecker
   "973261472", // @blknoiz06
+  "1655041057120296960", // @0xvisitor
+  "844304603336232960", // @MustStopMurad
+  "1509239489021030405", // @slingdeez
+  "1664955003113553920", // @json1444
+  "1509239489021030405", // @Saint10Fourteen
+  "1681718524228648961", // @xbtcas
 ];
 
 export const systemRoles = [

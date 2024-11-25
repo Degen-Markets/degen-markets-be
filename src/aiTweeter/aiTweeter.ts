@@ -1,8 +1,8 @@
 import { ScheduledEvent } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import OpenAI from "openai";
-import { sendBotTweet } from "../utils/twitterBot";
 import { getMandatoryEnvVariable } from "../utils/getMandatoryEnvValue";
+import { formatTweets, get3RandomTweets } from "./utils";
 
 const openai = new OpenAI({
   apiKey: getMandatoryEnvVariable("OPENAI_API_KEY"),
@@ -12,26 +12,31 @@ const logger = new Logger({ serviceName: "AITweeter" });
 
 export const handler = async (event: ScheduledEvent) => {
   logger.info(`Ran scheduled event`, { event });
+  const tweets = await get3RandomTweets();
+  const formattedTweets = formatTweets(tweets);
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
     messages: [
       {
         role: "system",
         content:
-          "You are a provocative crypto expert who gives bold and controversial predictions.",
+          "You are a dull 18 year old gambling addict with bad grammar and never capitalises his sentences or uses emojis",
       },
       {
         role: "user",
-        content: "give me 1 short degenerate statement (no more than 15 words)",
+        content: `Give me a short degenerate sentence (no more than 15 words) based on the jist of these 3 tweets: ${formattedTweets}`,
       },
     ],
   });
 
   const firstChoice = response.choices[0]?.message;
-  logger.info(`Came up with the following tweet: `, { tweet: firstChoice });
+  logger.info(`Came up with the following tweet: `, {
+    result: firstChoice,
+    tweets,
+  });
 
   if (firstChoice?.content) {
     // remove double quotes, because OpenAI adds it
-    await sendBotTweet(firstChoice.content.replace(/"/g, ""));
+    // await sendBotTweet(firstChoice.content.replace(/"/g, ""));
   }
 };

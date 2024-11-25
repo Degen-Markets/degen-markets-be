@@ -6,14 +6,23 @@ const get3RandomTwitterUserIds = (): string[] => {
   return shuffled.slice(0, 3);
 };
 
-export const get3RandomTweets = async (): Promise<string[]> => {
+type Tweet = {
+  userId: string;
+  text: string;
+};
+
+export const get3RandomTweets = async (): Promise<Tweet[]> => {
   const users = get3RandomTwitterUserIds();
+
   return await Promise.all(
-    users.map((userId) => fetchLastTweetForUser(userId)),
+    users.map(async (userId) => {
+      const text = await fetchLastTweetForUser(userId); // Fetch the last tweet
+      return { userId, text }; // Return both the userId and tweet
+    }),
   );
 };
 
-export const formatTweets = (tweets: string[]): string =>
+export const formatTweets = (tweets: Tweet[]): string =>
   tweets.reduce((result, tweet, index) => {
-    return result + `${index + 1}. ${tweet}\n`;
+    return result + `${index + 1}. ${tweet.text}\n`;
   }, "");

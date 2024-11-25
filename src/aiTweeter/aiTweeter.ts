@@ -14,17 +14,20 @@ export const handler = async (event: ScheduledEvent) => {
   logger.info(`Ran scheduled event`, { event });
   const tweets = await get3RandomTweets();
   const formattedTweets = formatTweets(tweets);
+  const basePrompt =
+    "Give me a short degenerate sentence (no more than 15 words) based on these 3 tweets without using any emojis:";
+  const systemRole =
+    "You are a dull 18 year old gambling addict with bad grammar and never capitalises his sentences or uses emojis";
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
     messages: [
       {
         role: "system",
-        content:
-          "You are a dull 18 year old gambling addict with bad grammar and never capitalises his sentences or uses emojis",
+        content: systemRole,
       },
       {
         role: "user",
-        content: `Give me a short degenerate sentence (no more than 15 words) based on the jist of these 3 tweets: ${formattedTweets}`,
+        content: `${basePrompt} ${formattedTweets}`,
       },
     ],
   });
@@ -33,6 +36,8 @@ export const handler = async (event: ScheduledEvent) => {
   logger.info(`Came up with the following tweet: `, {
     result: firstChoice,
     tweets,
+    basePrompt,
+    systemRole,
   });
 
   if (firstChoice?.content) {

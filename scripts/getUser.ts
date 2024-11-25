@@ -22,4 +22,4 @@ async function fetchUser(username: string): Promise<{ userId: string }> {
   }
 }
 
-fetchUser("ZssBecker").then(console.log);
+fetchUser("blknoiz06").then(console.log);

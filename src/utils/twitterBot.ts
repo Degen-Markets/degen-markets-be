@@ -19,7 +19,7 @@ export const sendBotTweet = async (text: string): Promise<string> => {
 export const fetchLastTweetForUser = async (
   userId: string,
 ): Promise<string> => {
-  const url = `https://api.twitter.com/2/users/${userId}/tweets?exclude=replies&max_results=5`;
+  const url = `https://api.twitter.com/2/users/${userId}/tweets?exclude=replies,retweets&max_results=5`;
   try {
     const response = await axios.get(url, {
       headers: {

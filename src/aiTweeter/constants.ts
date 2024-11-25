@@ -15,6 +15,12 @@ export const twitterUserIds = [
   "1664955003113553920", // @json1444
   "1509239489021030405", // @Saint10Fourteen
   "1681718524228648961", // @xbtcas
+  "986900699366604800", // @digitalartchick
+  "1595792813244948480", // @cryptic_tits
+  "1585307868856827905", // @CYBER__BULLY
+  "1533297503076237312", // @youngjazzeth
+  "1351139954525696005", // @beaniemaxi
+  "878219545785372673", // @CryptoDonAlt
 ];
 
 export const systemRoles = [

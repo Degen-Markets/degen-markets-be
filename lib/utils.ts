@@ -24,7 +24,7 @@ export const getEnv = (): Environment => ({
 });
 
 // This should match the value in the github workflow (.github/workflows/deploy.yml and deploy-dev.yml)
-enum DeploymentEnv {
+export enum DeploymentEnv {
   development = "development",
   production = "production",
 }

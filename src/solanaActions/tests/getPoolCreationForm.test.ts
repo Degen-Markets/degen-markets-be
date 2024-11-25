@@ -7,7 +7,7 @@ import { ACTIONS_CORS_HEADERS } from "@solana/actions";
 const correctFormData = {
   label: "",
   description:
-    "Enter the details for your bet. After finishing, your bet will appear on @DegenMarketsBot.",
+    "Enter the details for your bet. After finishing, your bet will appear on degenmarkets.com",
   icon: defaultBanner,
   title: "Create your own Bet!",
   links: {

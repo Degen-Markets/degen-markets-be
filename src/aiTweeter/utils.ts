@@ -1,23 +1,23 @@
-import { basePrompts, systemRoles, twitterUserIds } from "./constants";
+import { basePrompts, systemRoles, twitterUsers } from "./constants";
 import { fetchLastTweetForUser } from "../utils/twitterBot";
 
-const getRandomElements = (array: string[], limit: number): string[] => {
+const getRandomElements = <T>(array: T[], limit: number): T[] => {
   const shuffled = [...array].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, limit);
 };
 
 type Tweet = {
-  userId: string;
+  handle: string;
   text: string;
 };
 
 export const get3RandomTweets = async (): Promise<Tweet[]> => {
-  const users = getRandomElements(twitterUserIds, 3);
+  const users = getRandomElements(twitterUsers, 3);
 
   return await Promise.all(
-    users.map(async (userId) => {
+    users.map(async ({ userId, handle }) => {
       const text = await fetchLastTweetForUser(userId); // Fetch the last tweet
-      return { userId, text }; // Return both the userId and tweet
+      return { handle, text }; // Return both the userId and tweet
     }),
   );
 };

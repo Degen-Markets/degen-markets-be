@@ -1,27 +1,27 @@
-export const twitterUserIds = [
-  "1354400126857605121", // @AltcoinGordon,
-  "864011281", // @KookCapitalLLC
-  "1502733964808650754", // @SolJakey
-  "333357345", // @Cobratate
-  "4663060634", // @mezoteric
-  "1749286265583722496", // @idrawline
-  "1622243071806128131", // @pumpdotfun
-  "1404603419101306881", // @kmoney_69
-  "1243470638477697024", // @ZssBecker
-  "973261472", // @blknoiz06
-  "1655041057120296960", // @0xvisitor
-  "844304603336232960", // @MustStopMurad
-  "1509239489021030405", // @slingdeez
-  "1664955003113553920", // @json1444
-  "1509239489021030405", // @Saint10Fourteen
-  "1681718524228648961", // @xbtcas
-  "986900699366604800", // @digitalartchick
-  "1595792813244948480", // @cryptic_tits
-  "1585307868856827905", // @CYBER__BULLY
-  "1533297503076237312", // @youngjazzeth
-  "1351139954525696005", // @beaniemaxi
-  "878219545785372673", // @CryptoDonAlt
-  "1512682935547277319", // @WuWei113
+export const twitterUsers = [
+  { userId: "1354400126857605121", handle: "AltcoinGordon" },
+  { userId: "864011281", handle: "KookCapitalLLC" },
+  { userId: "1502733964808650754", handle: "SolJakey" },
+  { userId: "333357345", handle: "Cobratate" },
+  { userId: "4663060634", handle: "mezoteric" },
+  { userId: "1749286265583722496", handle: "idrawline" },
+  { userId: "1622243071806128131", handle: "pumpdotfun" },
+  { userId: "1404603419101306881", handle: "kmoney_69" },
+  { userId: "1243470638477697024", handle: "ZssBecker" },
+  { userId: "973261472", handle: "blknoiz06" },
+  { userId: "1655041057120296960", handle: "0xvisitor" },
+  { userId: "844304603336232960", handle: "MustStopMurad" },
+  { userId: "1509239489021030405", handle: "slingdeez" },
+  { userId: "1664955003113553920", handle: "json1444" },
+  { userId: "1509239489021030405", handle: "Saint10Fourteen" },
+  { userId: "1681718524228648961", handle: "xbtcas" },
+  { userId: "986900699366604800", handle: "digitalartchick" },
+  { userId: "1595792813244948480", handle: "cryptic_tits" },
+  { userId: "1585307868856827905", handle: "CYBER__BULLY" },
+  { userId: "1533297503076237312", handle: "youngjazzeth" },
+  { userId: "1351139954525696005", handle: "beaniemaxi" },
+  { userId: "878219545785372673", handle: "CryptoDonAlt" },
+  { userId: "1512682935547277319", handle: "WuWei113" },
 ];
 
 export const systemRoles = [

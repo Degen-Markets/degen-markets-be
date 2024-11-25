@@ -35,6 +35,9 @@ export class AiTweeterStack extends TaggedStack {
         TWITTER_BOT_ACCESS_TOKEN_SECRET: getMandatoryEnvVariable(
           "TWITTER_BOT_ACCESS_TOKEN_SECRET",
         ),
+        TWITTER_BOT_BEARER_TOKEN: getMandatoryEnvVariable(
+          "TWITTER_BOT_BEARER_TOKEN",
+        ),
       },
       memorySize: 256,
       functionName: "AiTweeter",
@@ -51,7 +54,7 @@ export class AiTweeterStack extends TaggedStack {
       description: "Ai Tweeter scheduler",
       schedule: Schedule.rate(
         props.deploymentEnv === DeploymentEnv.production
-          ? Duration.minutes(6)
+          ? Duration.minutes(1)
           : Duration.minutes(3),
       ),
       ruleName: "AiTweeterScheduler",

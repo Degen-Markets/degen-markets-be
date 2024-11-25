@@ -24,8 +24,12 @@ export const get3RandomTweets = async (): Promise<Tweet[]> => {
 
   return await Promise.all(
     users.map(async ({ userId, handle }) => {
-      const text = await fetchLastTweetForUser(userId); // Fetch the last tweet
-      return { handle, text }; // Return both the userId and tweet
+      try {
+        const text = await fetchLastTweetForUser(userId);
+        return { handle, text };
+      } catch (error) {
+        return { handle, text: "" };
+      }
     }),
   );
 };

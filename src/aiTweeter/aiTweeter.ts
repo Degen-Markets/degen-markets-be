@@ -21,7 +21,7 @@ export const handler = async (event: ScheduledEvent) => {
   const formattedTweets = formatTweets(tweets);
   const basePrompt = getRandomPrompt();
   const systemRole = getRandomSystemRole();
-  const temperature = Math.random() * 2;
+  const temperature = 1.2;
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
     messages: [

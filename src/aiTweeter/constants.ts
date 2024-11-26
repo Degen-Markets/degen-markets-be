@@ -33,8 +33,8 @@ export const systemRoles = [
 ];
 
 export const basePrompts = [
-  "Give me a short degenerate sentence (no more than 15 words) based on these tweets without using any emojis:",
-  "Give me a prediction (no more than 20 words) based on these tweets without using any emojis:",
+  "Give me a short degenerate sentence based on these tweets without using any emojis:",
+  "Give me a prediction based on these tweets without using any emojis:",
   // "Give me a haiku based on these tweets:",
 ];
 

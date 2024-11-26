@@ -35,6 +35,7 @@ export const handler = async (event: ScheduledEvent) => {
       },
     ],
     temperature,
+    max_tokens: 50,
   });
 
   const firstChoice = response.choices[0]?.message;

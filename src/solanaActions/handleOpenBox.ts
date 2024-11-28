@@ -90,11 +90,17 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
   logger.info("Signature verification succeeded", { account });
 
   try {
+    // Get the box counts (total, opened, unopened)
+    const boxCountStats = await MysteryBoxServices.getBoxCount(account);
+    logger.info("Box count statistics fetched", { boxCountStats });
+
+    const { totalBoxes, openedBoxes, unopenedBoxes } = boxCountStats;
+
     // Get unopened boxes for the player
-    const unopenedBoxes =
+    const unopenedBoxesList =
       await MysteryBoxServices.getUnopenedBoxesForPlayer(account);
 
-    if (unopenedBoxes.length === 0) {
+    if (unopenedBoxesList.length === 0) {
       logger.info("No unopened boxes found for player", { account });
       const payload: ActionPostResponse = {
         type: "post",
@@ -122,23 +128,23 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
     }
 
     // Ensure there is at least one unopened box
-    if (!unopenedBoxes[0]) {
+    if (!unopenedBoxesList[0]) {
       logger.error("Unexpected error: unopenedBoxes array is empty");
       throw new Error("Unexpected error: unopenedBoxes array is empty.");
     }
 
     // Open the next box
-    await MysteryBoxServices.openBox(account, unopenedBoxes[0].id);
+    await MysteryBoxServices.openBox(account, unopenedBoxesList[0].id);
 
     const nextBoxPosition = currentBoxPosition + 1;
-    const remainingBoxes = unopenedBoxes.length - 1;
+    const remainingBoxes = unopenedBoxesList.length - 1;
 
     // Determine the next action based on remaining unopened boxes
     const nextAction: ActionPostResponse =
       remainingBoxes > 0
         ? {
             type: "post",
-            message: "Continue opening boxes",
+            message: `Continue opening boxes.`,
             links: {
               next: {
                 type: "inline",
@@ -146,7 +152,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
                   type: "action",
                   icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
                   label: `Open Box #${nextBoxPosition}`,
-                  description: "Click to open your next box!",
+                  description: `You've opened ${openedBoxes} boxes. ${remainingBoxes} boxes left to open.`,
                   title: "Open Next Box",
                   links: {
                     actions: [
@@ -163,7 +169,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
           }
         : {
             type: "post",
-            message: "All boxes opened!",
+            message: `All boxes opened, total: ${totalBoxes}`,
             links: {
               next: {
                 type: "inline",
@@ -171,7 +177,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
                   type: "completed",
                   icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
                   label: "All boxes opened",
-                  description: "You've opened all your boxes!",
+                  description: `You've opened all ${totalBoxes} boxes!`,
                   title: "Boxes Complete",
                   disabled: true,
                 },

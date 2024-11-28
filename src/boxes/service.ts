@@ -1,4 +1,4 @@
-import { desc, eq, and, sql } from "drizzle-orm";
+import { desc, eq, and, sql, count } from "drizzle-orm";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { DatabaseClient } from "../clients/DatabaseClient";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
@@ -92,6 +92,38 @@ export default class MysteryBoxServices {
       }
 
       return box;
+    });
+  };
+
+  static getBoxCount = async (
+    player: string,
+  ): Promise<{
+    totalBoxes: number;
+    openedBoxes: number;
+    unopenedBoxes: number;
+  }> => {
+    this.logger.info(`Counting boxes for player: ${player}`);
+
+    return this.databaseClient.withDb(async (db: NodePgDatabase) => {
+      const [result] = await db
+        .select({
+          totalBoxes: count(boxesTable.id),
+          openedBoxes: count(eq(boxesTable.isOpened, true)),
+          unopenedBoxes: count(eq(boxesTable.isOpened, false)),
+        })
+        .from(boxesTable)
+        .where(eq(boxesTable.player, player));
+
+      if (!result) {
+        this.logger.error(`No box data found for player: ${player}`);
+        throw new Error(`No box data found for player: ${player}`);
+      }
+
+      return {
+        totalBoxes: Number(result.totalBoxes),
+        openedBoxes: Number(result.openedBoxes),
+        unopenedBoxes: Number(result.unopenedBoxes),
+      };
     });
   };
 }

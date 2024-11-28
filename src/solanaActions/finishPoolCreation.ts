@@ -1,14 +1,7 @@
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
-import {
-  ActionPostResponse,
-  ACTIONS_CORS_HEADERS,
-  createPostResponse,
-} from "@solana/actions";
+import { ActionPostResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { defaultBanner } from "./constants";
-
-import { sendBotTweet } from "../utils/twitterBot";
-import { sendTelegramBotMessage } from "../utils/telegram";
 
 const logger = new Logger({ serviceName: "finishPoolCreation" });
 
@@ -28,10 +21,10 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
   }
 
   try {
-    const poolUrl = `https://degenmarkets.com/pools/${pool}`;
-    const tweetId = await sendBotTweet(`New bet created: ${poolUrl}`);
-    const telegramMessage = `New Bet, time to raid: https://x.com/DegenMarketsBot/status/${tweetId}`;
-    await sendTelegramBotMessage(telegramMessage);
+    // const poolUrl = `https://degenmarkets.com/pools/${pool}`;
+    // const tweetId = await sendBotTweet(`New bet created: ${poolUrl}`);
+    // const telegramMessage = `New Bet, time to raid: https://x.com/DegenMarketsBot/status/${tweetId}`;
+    // await sendTelegramBotMessage(telegramMessage);
   } catch (e) {
     logger.error((e as Error).message, e as Error);
     return {
@@ -53,7 +46,7 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
           type: "completed",
           icon: image,
           label: "",
-          description: `Your bet is ready. Find it on @DegenMarketsBot`,
+          description: `Your bet is ready. Find it on degenmarkets.com`,
           title: "Created your bet!",
           disabled: true,
         },

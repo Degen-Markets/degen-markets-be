@@ -42,8 +42,7 @@ export default class MysteryBoxServices {
         .select()
         .from(boxesTable)
         .where(and(eq(boxesTable.id, boxId), eq(boxesTable.player, player)))
-        .limit(1)
-        .execute(); // initial SELECT check
+        .limit(1);
 
       if (!existingBox[0]) {
         this.logger.error(`Box ${boxId} not found for player ${player}`);

@@ -119,6 +119,7 @@ export default class MysteryBoxServices {
         throw new Error(`No box data found for player: ${player}`);
       }
 
+      // Return the counts if result exists
       return {
         totalBoxes: Number(result.totalBoxes),
         openedBoxes: Number(result.openedBoxes),

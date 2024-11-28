@@ -132,17 +132,16 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
       throw new Error("Unexpected error: unopenedBoxes array is empty.");
     }
 
-    const remainingBoxes = unopenedBoxesList.length - 1;
-
     await MysteryBoxServices.openBox(account, unopenedBoxesList[0].id);
-
-    const nextBoxPosition = openedBoxes + 1;
+    const remainingBoxes = totalBoxes - openedBoxes; // Remaining unopened boxes
+    const nextBoxPosition = openedBoxes + 1; // Next box to open
 
     const nextAction: ActionPostResponse =
       remainingBoxes > 0
         ? {
             type: "post",
-            message: `Continue opening boxes.`,
+            message: `Continue opening boxes. totalBoxes:${totalBoxes} openedBoxes:${openedBoxes}, unopenedBoxes:${unopenedBoxes})}`,
+
             links: {
               next: {
                 type: "inline",
@@ -150,6 +149,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
                   type: "action",
                   icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
                   label: `Open Box #${nextBoxPosition}`,
+                  // Corrected description
                   description: `You've opened ${openedBoxes} boxes. ${remainingBoxes} boxes left to open.`,
                   title: "Open Next Box",
                   links: {

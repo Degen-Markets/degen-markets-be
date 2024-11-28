@@ -97,7 +97,8 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
     if (unopenedBoxes.length === 0) {
       logger.info("No unopened boxes found for player", { account });
       const payload: ActionPostResponse = {
-        type: "post",
+        type: "transaction",
+        transaction: "transaction",
         message: "All boxes opened!",
         links: {
           next: {
@@ -137,7 +138,8 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
     const nextAction: ActionPostResponse =
       remainingBoxes > 0
         ? {
-            type: "post",
+            type: "transaction",
+            transaction: "",
             message: "Continue opening boxes",
             links: {
               next: {
@@ -162,7 +164,8 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
             },
           }
         : {
-            type: "post",
+            type: "transaction",
+            transaction: "",
             message: "All boxes opened!",
             links: {
               next: {

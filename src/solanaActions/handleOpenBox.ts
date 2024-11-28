@@ -140,7 +140,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
       remainingBoxes > 0
         ? {
             type: "post",
-            message: `Continue opening boxes. totalBoxes:${totalBoxes} openedBoxes:${openedBoxes}, unopenedBoxes:${unopenedBoxes})}`,
+            message: `Continue opening boxes. totalBoxes:${totalBoxes} openedBoxes:${openedBoxes}, unopenedBoxes:${unopenedBoxes})`,
 
             links: {
               next: {
@@ -167,7 +167,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
           }
         : {
             type: "post",
-            message: `All boxes opened, total: ${totalBoxes}`,
+            message: `All boxes opened,  totalBoxes:${totalBoxes} openedBoxes:${openedBoxes}, unopenedBoxes:${unopenedBoxes})`,
             links: {
               next: {
                 type: "inline",

@@ -37,11 +37,29 @@ export default class MysteryBoxServices {
   ): Promise<BoxEntity> => {
     this.logger.info(`Opening box ${boxId} for player ${player}`);
     return this.databaseClient.withDb(async (db: NodePgDatabase) => {
+      // First, verify the box exists and belongs to the player
+      const existingBox = await db
+        .select()
+        .from(boxesTable)
+        .where(and(eq(boxesTable.id, boxId), eq(boxesTable.player, player)))
+        .limit(1)
+        .execute(); // initial SELECT check
+
+      if (!existingBox[0]) {
+        this.logger.error(`Box ${boxId} not found for player ${player}`);
+        throw new Error(`Box ${boxId} not found for player ${player}`);
+      }
+
+      if (existingBox[0].isOpened) {
+        this.logger.error(`Box ${boxId} has already been opened`);
+        throw new Error(`Box ${boxId} has already been opened`);
+      }
+
       const result = await db
         .update(boxesTable)
         .set({
           isOpened: true,
-          openedAt: sql`CURRENT_TIMESTAMP`,
+          openedAt: new Date(),
         })
         .where(
           and(
@@ -58,6 +76,7 @@ export default class MysteryBoxServices {
         throw new Error("Failed to open box");
       }
 
+      this.logger.info(`Successfully opened box ${boxId} for player ${player}`);
       return updatedBox;
     });
   };

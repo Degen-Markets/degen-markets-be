@@ -94,7 +94,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
     const boxCountStats = await MysteryBoxServices.getBoxCount(account);
     logger.info("Box count statistics fetched", { boxCountStats });
 
-    const { totalBoxes, openedBoxes, unopenedBoxes } = boxCountStats;
+    const { totalBoxes, openedBoxes } = boxCountStats;
 
     // Get unopened boxes for the player
     const unopenedBoxesList =
@@ -133,14 +133,14 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
     }
 
     await MysteryBoxServices.openBox(account, unopenedBoxesList[0].id);
-    const remainingBoxes = totalBoxes - openedBoxes; // Remaining unopened boxes
-    const nextBoxPosition = openedBoxes + 1; // Next box to open
+    const remainingBoxes = totalBoxes - openedBoxes;
+    const nextBoxPosition = openedBoxes + 1;
 
     const nextAction: ActionPostResponse =
       remainingBoxes > 0
         ? {
             type: "post",
-            message: `Continue opening boxes. totalBoxes:${totalBoxes} openedBoxes:${openedBoxes}, unopenedBoxes:${unopenedBoxes})`,
+            message: "Continue opening boxes",
 
             links: {
               next: {
@@ -149,7 +149,6 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
                   type: "action",
                   icon: "https://degen-markets-static.s3.eu-west-1.amazonaws.com/mysteryBox.jpg",
                   label: `Open Box #${nextBoxPosition}`,
-                  // Corrected description
                   description: `You've opened ${openedBoxes} boxes. ${remainingBoxes} boxes left to open.`,
                   title: "Open Next Box",
                   links: {
@@ -167,7 +166,7 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
           }
         : {
             type: "post",
-            message: `All boxes opened,  totalBoxes:${totalBoxes} openedBoxes:${openedBoxes}, unopenedBoxes:${unopenedBoxes})`,
+            message: "All boxes opened.",
             links: {
               next: {
                 type: "inline",

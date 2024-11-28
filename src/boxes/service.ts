@@ -100,30 +100,26 @@ export default class MysteryBoxServices {
   ): Promise<{
     totalBoxes: number;
     openedBoxes: number;
-    unopenedBoxes: number;
   }> => {
     this.logger.info(`Counting boxes for player: ${player}`);
 
     return this.databaseClient.withDb(async (db: NodePgDatabase) => {
-      const [result] = await db
-        .select({
-          totalBoxes: count(boxesTable.id),
-          openedBoxes: count(eq(boxesTable.isOpened, true)),
-          unopenedBoxes: count(eq(boxesTable.isOpened, false)),
-        })
+      const totalBoxes = await db
+        .select({ count: count() })
         .from(boxesTable)
         .where(eq(boxesTable.player, player));
 
-      if (!result) {
-        this.logger.error(`No box data found for player: ${player}`);
-        throw new Error(`No box data found for player: ${player}`);
-      }
+      const openedBoxes = await db
+        .select({ count: count() })
+        .from(boxesTable)
+        .where(
+          and(eq(boxesTable.player, player), eq(boxesTable.isOpened, true)),
+        );
 
       // Return the counts if result exists
       return {
-        totalBoxes: Number(result.totalBoxes),
-        openedBoxes: Number(result.openedBoxes),
-        unopenedBoxes: Number(result.unopenedBoxes),
+        totalBoxes: Number(totalBoxes[0]?.count || 0),
+        openedBoxes: Number(openedBoxes[0]?.count || 0),
       };
     });
   };

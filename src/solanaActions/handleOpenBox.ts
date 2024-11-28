@@ -127,22 +127,17 @@ const handleOpenBox = async (event: APIGatewayProxyEventV2) => {
       };
     }
 
-    // Ensure there is at least one unopened box
     if (!unopenedBoxesList[0]) {
       logger.error("Unexpected error: unopenedBoxes array is empty");
       throw new Error("Unexpected error: unopenedBoxes array is empty.");
     }
 
-    // Calculate remaining boxes (unopened ones)
     const remainingBoxes = unopenedBoxesList.length - 1;
 
-    // Open the next box
     await MysteryBoxServices.openBox(account, unopenedBoxesList[0].id);
 
-    // Update the next box position correctly based on unopened boxes
-    const nextBoxPosition = unopenedBoxesList.length - remainingBoxes;
+    const nextBoxPosition = openedBoxes + 1;
 
-    // Determine the next action based on remaining unopened boxes
     const nextAction: ActionPostResponse =
       remainingBoxes > 0
         ? {

@@ -22,7 +22,7 @@ type Tweet = {
 export const get3RandomTweets = async (): Promise<Tweet[]> => {
   const users = getRandomElements(twitterUsers, 3);
 
-  return await Promise.all(
+  const tweets = await Promise.all(
     users.map(async ({ userId, handle }) => {
       try {
         const text = await fetchLastTweetForUser(userId);
@@ -32,6 +32,8 @@ export const get3RandomTweets = async (): Promise<Tweet[]> => {
       }
     }),
   );
+
+  return tweets.filter(({ text }) => text !== "");
 };
 
 export const formatTweets = (tweets: Tweet[]): string =>

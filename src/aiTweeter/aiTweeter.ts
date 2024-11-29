@@ -8,6 +8,7 @@ import {
   getRandomPrompt,
   getRandomSystemRole,
 } from "./utils";
+import { sendBotTweet } from "../utils/twitterBot";
 
 const openai = new OpenAI({
   apiKey: getMandatoryEnvVariable("OPENAI_API_KEY"),
@@ -49,6 +50,6 @@ export const handler = async (event: ScheduledEvent) => {
 
   if (firstChoice?.content) {
     // remove double quotes, because OpenAI adds it
-    // await sendBotTweet(firstChoice.content.replace(/"/g, ""));
+    await sendBotTweet(firstChoice.content.replace(/"/g, ""));
   }
 };

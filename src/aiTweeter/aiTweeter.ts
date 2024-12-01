@@ -95,7 +95,7 @@ export const handler = async (event: ScheduledEvent) => {
   const firstChoice = response.choices[0]?.message;
   logger.info(`Came up with the following tweet: `, {
     result: firstChoice,
-    tweets,
+    tweets: threeRandomTweets,
     basePrompt,
     systemRole,
     temperature,

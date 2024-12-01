@@ -9,6 +9,7 @@ import {
   getRandomSystemRole,
   Tweet,
   getRandomReplyPrompt,
+  isWithinSixMinutesFromNow,
 } from "./utils";
 import { replyToTweet, sendBotTweet } from "../utils/twitterBot";
 
@@ -51,7 +52,7 @@ const replyToTweets = async (tweets: Tweet[], systemRole: string) => {
       temperature,
     });
 
-    if (firstChoice?.content) {
+    if (firstChoice?.content && isWithinSixMinutesFromNow(tweet.createdAt)) {
       // remove double quotes, because OpenAI adds it
       // return replyToTweet(firstChoice.content.replace(/"/g, ""), tweet.id);
     }

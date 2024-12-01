@@ -80,7 +80,11 @@ export const handler = async (event: ScheduledEvent) => {
   const formattedTweets = formatTweets(threeRandomTweets);
   const basePrompt = getRandomPrompt();
   const systemRole = getRandomSystemRole();
-  await replyToTweets(tweets, systemRole);
+  try {
+    await replyToTweets(tweets, systemRole);
+  } catch (e) {
+    logger.error("Failed to reply to tweets", e as Error);
+  }
   const temperature = 1.2;
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
@@ -108,7 +112,11 @@ export const handler = async (event: ScheduledEvent) => {
   });
 
   if (firstChoice?.content) {
-    // remove double quotes, because OpenAI adds it
-    await sendBotTweet(firstChoice.content.replace(/"/g, ""));
+    try {
+      // remove double quotes, because OpenAI adds it
+      await sendBotTweet(firstChoice.content.replace(/"/g, ""));
+    } catch (e) {
+      logger.error("Failed to tweet original post", e as Error);
+    }
   }
 };

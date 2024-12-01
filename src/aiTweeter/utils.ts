@@ -15,7 +15,7 @@ const shuffleArray = <T>(array: T[]): T[] => {
   return shuffled;
 };
 
-const getRandomElements = <T>(array: T[], limit: number): T[] => {
+export const getRandomElements = <T>(array: T[], limit: number): T[] => {
   const shuffled = shuffleArray(array);
   return shuffled.slice(0, limit);
 };

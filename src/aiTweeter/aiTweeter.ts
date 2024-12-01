@@ -10,6 +10,7 @@ import {
   Tweet,
   getRandomReplyPrompt,
   isWithinSixMinutesFromNow,
+  getRandomElements,
 } from "./utils";
 import { replyToTweet, sendBotTweet } from "../utils/twitterBot";
 
@@ -69,7 +70,8 @@ export const handler = async (event: ScheduledEvent) => {
     logger.info("Failed to fetch tweets, ending execution");
     return;
   }
-  const formattedTweets = formatTweets(tweets);
+  const threeRandomTweets = getRandomElements(tweets, 3);
+  const formattedTweets = formatTweets(threeRandomTweets);
   const basePrompt = getRandomPrompt();
   const systemRole = getRandomSystemRole();
   await replyToTweets(tweets, systemRole);

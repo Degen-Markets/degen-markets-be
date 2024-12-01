@@ -2,6 +2,7 @@ import { getMandatoryEnvVariable } from "./getMandatoryEnvValue";
 import { TwitterApi } from "twitter-api-v2";
 import axios from "axios";
 import { forbiddenWords } from "../aiTweeter/constants";
+import { Tweet } from "../aiTweeter/utils";
 
 const getUserClient = () =>
   new TwitterApi({
@@ -17,31 +18,56 @@ export const sendBotTweet = async (text: string): Promise<string> => {
   return tweet.data.id;
 };
 
-export const fetchLastTweetForUser = async (
-  userId: string,
+export const replyToTweet = async (
+  text: string,
+  inReplyToTweetId: string,
 ): Promise<string> => {
-  const url = `https://api.twitter.com/2/users/${userId}/tweets?exclude=replies,retweets&max_results=5`;
+  const userClient = getUserClient();
+  const options = {
+    text,
+    reply: { in_reply_to_tweet_id: inReplyToTweetId },
+  };
+
+  const tweet = await userClient.v2.tweet(options);
+  return tweet.data.id;
+};
+
+export type TweetResponse = {
+  data: {
+    text: string;
+    author_id: string;
+    created_at: string;
+    id: string;
+  }[];
+};
+
+export const fetchLastTweetsForUser = async (
+  userId: string,
+): Promise<Tweet[]> => {
+  const url = `https://api.twitter.com/2/users/${userId}/tweets?exclude=replies,retweets&max_results=5&tweet.fields=created_at,author_id`;
 
   try {
-    const response = await axios.get(url, {
+    const response = await axios.get<TweetResponse>(url, {
       headers: {
         Authorization: `Bearer ${getMandatoryEnvVariable("TWITTER_BOT_BEARER_TOKEN")}`,
       },
     });
 
-    if (response.data.data && response.data.data.length > 0) {
-      for (const tweet of response.data.data) {
+    return response.data.data
+      .filter((tweet) => {
         const text = tweet.text.toLowerCase();
         const containsForbiddenWord = forbiddenWords.some((word) =>
           text.includes(word.toLowerCase()),
         );
-        if (!containsForbiddenWord) {
-          return text;
-        }
-      }
-    }
-
-    return "";
+        return !containsForbiddenWord;
+      })
+      .map((tweet) => {
+        return {
+          ...tweet,
+          authorId: tweet.author_id,
+          createdAt: new Date(),
+        };
+      });
   } catch (error: any) {
     console.error(
       "Error fetching last tweet:",

@@ -4,13 +4,14 @@ import { config } from "dotenv";
 config();
 
 async function fetchLastTweet(userId: string): Promise<string> {
-  const url = `https://api.twitter.com/2/users/${userId}/tweets?exclude=replies,retweets&max_results=5`;
+  const url = `https://api.twitter.com/2/users/${userId}/tweets?exclude=replies,retweets&max_results=5&tweet.fields=created_at,author_id`;
   try {
     const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${getMandatoryEnvVariable("TWITTER_BOT_BEARER_TOKEN")}`,
       },
     });
+    console.log(response.data.data);
     if (response.data.data && response.data.data.length > 0) {
       return response.data.data[0].text;
     } else {

@@ -1,5 +1,10 @@
-import { basePrompts, systemRoles, twitterUsers } from "./constants";
-import { fetchLastTweetForUser } from "../utils/twitterBot";
+import {
+  basePrompts,
+  replyPrompts,
+  systemRoles,
+  twitterUsers,
+} from "./constants";
+import { fetchLastTweetsForUser } from "../utils/twitterBot";
 
 const shuffleArray = <T>(array: T[]): T[] => {
   const shuffled = [...array];
@@ -14,26 +19,23 @@ const getRandomElements = <T>(array: T[], limit: number): T[] => {
   const shuffled = shuffleArray(array);
   return shuffled.slice(0, limit);
 };
-type Tweet = {
-  handle: string;
+
+export type Tweet = {
   text: string;
+  authorId: string;
+  createdAt: Date;
+  id: string;
 };
 
-export const get3RandomTweets = async (): Promise<Tweet[]> => {
+export const getTweetsFrom3RandomUsers = async (): Promise<Tweet[]> => {
   const users = getRandomElements(twitterUsers, 3);
 
   const tweets = await Promise.all(
     users.map(async ({ userId, handle }) => {
-      try {
-        const text = await fetchLastTweetForUser(userId);
-        return { handle, text };
-      } catch (error) {
-        return { handle, text: "" };
-      }
+      return await fetchLastTweetsForUser(userId);
     }),
   );
-
-  return tweets.filter(({ text }) => text !== "");
+  return tweets.flat();
 };
 
 export const formatTweets = (tweets: Tweet[]): string =>
@@ -42,5 +44,8 @@ export const formatTweets = (tweets: Tweet[]): string =>
   }, "");
 
 export const getRandomPrompt = () => getRandomElements(basePrompts, 1)[0]!;
+
+export const getRandomReplyPrompt = () =>
+  getRandomElements(replyPrompts, 1)[0]!;
 
 export const getRandomSystemRole = () => getRandomElements(systemRoles, 1)[0]!;

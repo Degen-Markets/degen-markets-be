@@ -40,7 +40,9 @@ export const basePrompts = [
 ];
 
 export const replyPrompts = [
-  "Give me a short witty reply to this tweet without using any emojis: ",
+  "Give me a sassy reply to this tweet without using any emojis: ",
+  "Give me a degenerate reply to this person being aggressive to you: ",
+  "Give me a poetic response to this: ",
 ];
 
 export const forbiddenWords = [

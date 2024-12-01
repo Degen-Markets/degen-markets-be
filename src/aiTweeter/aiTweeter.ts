@@ -38,7 +38,7 @@ const replyToTweets = async (tweets: Tweet[], systemRole: string) => {
           },
         ],
         temperature,
-        max_tokens: 25,
+        max_tokens: 50,
       });
     }),
   );
@@ -89,7 +89,7 @@ export const handler = async (event: ScheduledEvent) => {
       },
     ],
     temperature,
-    max_tokens: 25,
+    max_tokens: 50,
   });
 
   const firstChoice = response.choices[0]?.message;

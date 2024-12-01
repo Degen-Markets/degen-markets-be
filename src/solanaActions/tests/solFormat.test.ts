@@ -1,4 +1,4 @@
-import { convertSolToLamports } from "../../../lib/utils";
+import { convertSolToLamports } from "../../utils/solana";
 
 describe("convertSolToLamports", () => {
   const testCases = [

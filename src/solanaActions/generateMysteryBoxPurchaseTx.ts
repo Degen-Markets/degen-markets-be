@@ -4,9 +4,9 @@ import { ACTIONS_CORS_HEADERS } from "@solana/actions";
 
 import { _Utils } from "../utils/serializedMysteryBoxTx";
 import { buildBadRequestError } from "../utils/httpResponses";
-import { convertSolToLamports, formatSolBalance } from "../../lib/utils";
 import { connection } from "../clients/SolanaProgramClient";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { convertSolToLamports, formatSolBalance } from "../utils/solana";
 export const PRICE_PER_BOX = 0.02;
 
 const logger: Logger = new Logger({

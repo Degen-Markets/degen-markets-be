@@ -9,7 +9,7 @@ import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { SubnetType } from "aws-cdk-lib/aws-ec2";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
-import { DeploymentEnv } from "./utils";
+import { aiScheduleInMinutes, DeploymentEnv } from "./utils";
 
 interface AiStackProps extends StackProps {
   deploymentEnv: DeploymentEnv;
@@ -54,7 +54,7 @@ export class AiTweeterStack extends TaggedStack {
       description: "Ai Tweeter scheduler",
       schedule: Schedule.rate(
         props.deploymentEnv === DeploymentEnv.production
-          ? Duration.minutes(60)
+          ? Duration.minutes(aiScheduleInMinutes)
           : Duration.minutes(3),
       ),
       ruleName: "AiTweeterScheduler",

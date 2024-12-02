@@ -5,6 +5,7 @@ import {
   twitterUsers,
 } from "./constants";
 import { fetchLastTweetsForUser } from "../utils/twitterBot";
+import { aiScheduleInMinutes } from "../../lib/utils";
 
 const shuffleArray = <T>(array: T[]): T[] => {
   const shuffled = [...array];
@@ -50,9 +51,9 @@ export const getRandomReplyPrompt = () =>
 
 export const getRandomSystemRole = () => getRandomElements(systemRoles, 1)[0]!;
 
-export const isWithinOneHourFromNow = (date: Date) => {
+export const isWithinTimeLimit = (date: Date) => {
   const now = new Date();
   const differenceInMs = Math.abs(now.getTime() - date.getTime());
-  const sixMinutesInMs = 60 * 60 * 1000; // 6 minutes in milliseconds
+  const sixMinutesInMs = aiScheduleInMinutes * 60 * 1000; // 6 minutes in milliseconds
   return differenceInMs <= sixMinutesInMs;
 };

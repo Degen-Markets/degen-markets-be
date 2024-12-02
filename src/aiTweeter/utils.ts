@@ -50,9 +50,9 @@ export const getRandomReplyPrompt = () =>
 
 export const getRandomSystemRole = () => getRandomElements(systemRoles, 1)[0]!;
 
-export const isWithinFifteenMinutesFromNow = (date: Date) => {
+export const isWithinOneHourFromNow = (date: Date) => {
   const now = new Date();
   const differenceInMs = Math.abs(now.getTime() - date.getTime());
-  const sixMinutesInMs = 6 * 60 * 1000; // 6 minutes in milliseconds
+  const sixMinutesInMs = 60 * 60 * 1000; // 6 minutes in milliseconds
   return differenceInMs <= sixMinutesInMs;
 };

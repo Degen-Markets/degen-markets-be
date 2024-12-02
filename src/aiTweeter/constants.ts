@@ -36,8 +36,8 @@ export const systemRoles = [
 export const basePrompts = [
   "Give me a short degenerate sentence based on these tweets without using any emojis or the word 'crypto', with up to 20 words: ",
   "Give me a prediction based on these tweets without using any emojis or the word 'crypto', with up to 20 words: ",
-  "Give me a degenerate reply to these people being aggressive to you without using any emojis or the word 'crypto', with up to 20 words: ",
-  "Give me a sassy reply to these tweets without using any emojis or the word 'crypto', with up to 20 words: ",
+  "Give me a degenerate statement to these people being aggressive to you without using any emojis or the word 'crypto', with up to 20 words: ",
+  "Give me a sassy statement to these tweets without using any emojis or the word 'crypto', with up to 20 words: ",
   // "Give me a haiku based on these tweets without using the word 'crypto' or any emojis: ",
 ];
 

@@ -73,8 +73,8 @@ export const handler = async (event: ScheduledEvent) => {
     logger.info("Failed to fetch tweets, ending execution");
     return;
   }
-  const threeRandomTweets = getRandomElements(tweets, 3);
-  const formattedTweets = formatTweets(threeRandomTweets);
+  const twoRandomTweets = getRandomElements(tweets, 2);
+  const formattedTweets = formatTweets(twoRandomTweets);
   const basePrompt = getRandomPrompt();
   const systemRole = getRandomSystemRole();
   try {
@@ -102,7 +102,7 @@ export const handler = async (event: ScheduledEvent) => {
   const firstChoice = response.choices[0]?.message;
   logger.info(`Came up with the following tweet: `, {
     result: firstChoice,
-    tweets: threeRandomTweets,
+    tweets: twoRandomTweets,
     basePrompt,
     systemRole,
     temperature,

@@ -11,6 +11,7 @@ import optionCreatedEventHandler from "./eventHandlers/optionCreated";
 import winnerSetEventHandler from "./eventHandlers/winnerSet";
 import poolStatusUpdatedEventHandler from "./eventHandlers/poolStatusUpdate";
 import winClaimedEventHandler from "./eventHandlers/winClaimed";
+import solTransferredEventHandler from "./eventHandlers/solTransfer";
 
 const logger = new Logger({ serviceName: "smartContractEventProcessor" });
 
@@ -81,6 +82,12 @@ const forwardToEventHandler = async (
         event: smartContractEvent,
       });
       await winClaimedEventHandler(smartContractEvent.data);
+      break;
+    case "solTransferred":
+      logger.info("Processing `winClaimed` event", {
+        event: smartContractEvent,
+      });
+      await solTransferredEventHandler(smartContractEvent.data);
       break;
 
     default:

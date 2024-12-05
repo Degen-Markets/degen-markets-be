@@ -163,6 +163,15 @@ function mapLogToEventOrNull(
           pool: event.data.pool.toString(),
         },
       };
+    case "solTransferred":
+      return {
+        eventName: event.name,
+        timestamp,
+        data: {
+          amount: event.data.amount.toString(),
+          sender: event.data.sender.toString(),
+        },
+      };
 
     default:
       // null means event isn't recognized, or we don't care about this event in backend webhook flow

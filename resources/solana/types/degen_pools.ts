@@ -177,6 +177,31 @@ export type DegenPools = {
       ];
     },
     {
+      name: "executeTransfer";
+      discriminator: [233, 126, 160, 184, 235, 206, 31, 119];
+      accounts: [
+        {
+          name: "sender";
+          writable: true;
+          signer: true;
+        },
+        {
+          name: "systemProgram";
+        },
+        {
+          name: "receiver";
+          writable: true;
+          address: "rv9MdKVp2r13ZrFAwaES1WAQELtsSG4KEMdxur8ghXd";
+        },
+      ];
+      args: [
+        {
+          name: "amount";
+          type: "u64";
+        },
+      ];
+    },
+    {
       name: "setIsPaused";
       discriminator: [105, 103, 58, 197, 208, 86, 131, 112];
       accounts: [
@@ -253,6 +278,10 @@ export type DegenPools = {
       discriminator: [54, 220, 85, 46, 3, 37, 43, 233];
     },
     {
+      name: "solTransferred";
+      discriminator: [43, 173, 33, 177, 13, 255, 91, 59];
+    },
+    {
       name: "winClaimed";
       discriminator: [222, 254, 147, 204, 233, 195, 37, 131];
     },
@@ -306,6 +335,16 @@ export type DegenPools = {
       code: 6008;
       name: "poolAccountDoesNotMatch";
       msg: "Pool account does not match derived key";
+    },
+    {
+      code: 6009;
+      name: "insufficientFunds";
+      msg: "Insufficient funds";
+    },
+    {
+      code: 6010;
+      name: "invalidAmount";
+      msg: "Invalid transfer amount";
     },
   ];
   types: [
@@ -449,6 +488,22 @@ export type DegenPools = {
           {
             name: "pool";
             type: "pubkey";
+          },
+        ];
+      };
+    },
+    {
+      name: "solTransferred";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "sender";
+            type: "pubkey";
+          },
+          {
+            name: "amount";
+            type: "u64";
           },
         ];
       };

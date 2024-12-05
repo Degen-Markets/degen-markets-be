@@ -69,7 +69,6 @@ const generateMysteryBoxPurchaseTx = async (event: APIGatewayProxyEventV2) => {
   try {
     const payload = await _Utils.serializeMysteryBoxPurchaseTx({
       amountLamports,
-      account,
       buyer,
     });
 

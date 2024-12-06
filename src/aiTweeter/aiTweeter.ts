@@ -78,7 +78,7 @@ export const handler = async (event: ScheduledEvent) => {
   const basePrompt = getRandomPrompt();
   const systemRole = getRandomSystemRole();
   try {
-    await replyToTweets(tweets, systemRole);
+    // await replyToTweets(tweets, systemRole);
   } catch (e) {
     logger.error("Failed to reply to tweets", e as Error);
   }
@@ -111,7 +111,7 @@ export const handler = async (event: ScheduledEvent) => {
   if (firstChoice?.content) {
     try {
       // remove double quotes, because OpenAI adds it
-      await sendBotTweet(firstChoice.content.replace(/"/g, ""));
+      // await sendBotTweet(firstChoice.content.replace(/"/g, ""));
     } catch (e) {
       logger.error("Failed to tweet original post", e as Error);
     }

@@ -78,7 +78,7 @@ export const handler = async (event: ScheduledEvent) => {
   const basePrompt = getRandomPrompt();
   const systemRole = getRandomSystemRole();
   try {
-    // await replyToTweets(tweets, systemRole);
+    await replyToTweets(tweets, systemRole);
   } catch (e) {
     logger.error("Failed to reply to tweets", e as Error);
   }

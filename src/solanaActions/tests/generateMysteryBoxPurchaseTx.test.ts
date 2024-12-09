@@ -77,7 +77,6 @@ describe("generateMysteryBoxPurchaseTx", () => {
 
     expect(_Utils.serializeMysteryBoxPurchaseTx).toHaveBeenCalledWith({
       amountLamports: mockLamports,
-      account: mockBuyerAddress,
       buyer: new PublicKey(mockBuyerAddress),
     });
 

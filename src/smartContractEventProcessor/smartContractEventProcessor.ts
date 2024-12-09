@@ -84,7 +84,7 @@ const forwardToEventHandler = async (
       await winClaimedEventHandler(smartContractEvent.data);
       break;
     case "solTransferred":
-      logger.info("Processing `winClaimed` event", {
+      logger.info("Processing `solTransferred` event", {
         event: smartContractEvent,
       });
       await solTransferredEventHandler(smartContractEvent.data);

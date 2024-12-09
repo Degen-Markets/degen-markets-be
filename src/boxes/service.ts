@@ -58,7 +58,7 @@ export default class MysteryBoxServices {
         .update(boxesTable)
         .set({
           isOpened: true,
-          openedAt:  new Date().toISOString(),
+          openedAt: new Date(),
         })
         .where(
           and(

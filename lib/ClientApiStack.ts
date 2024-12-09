@@ -57,7 +57,9 @@ export class ClientApiStack extends TaggedStack {
           TWITTER_CLIENT_SECRET: getMandatoryEnvVariable(
             "TWITTER_CLIENT_SECRET",
           ),
-          TWITTER_BEARER_TOKEN: getMandatoryEnvVariable("TWITTER_BEARER_TOKEN"),
+          TWITTER_BOT_BEARER_TOKEN: getMandatoryEnvVariable(
+            "TWITTER_BOT_BEARER_TOKEN",
+          ),
           BUCKET_NAME: bucket.bucketName,
         },
         vpc,

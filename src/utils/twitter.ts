@@ -42,7 +42,9 @@ export const findUserById = async (
   twitterPfpUrl: string | undefined;
 } | null> => {
   logger.info("Finding user by ID", { twitterId });
-  const client = new Client(getMandatoryEnvVariable("TWITTER_BEARER_TOKEN"));
+  const client = new Client(
+    getMandatoryEnvVariable("TWITTER_BOT_BEARER_TOKEN"),
+  );
   const res = await client.users.findUserById(twitterId, {
     "user.fields": ["id", "profile_image_url", "username"],
   });
@@ -65,7 +67,9 @@ export const findTweetById = async (
   tweetId: string,
 ): Promise<{ content: string; authorId: string; links: string[] } | null> => {
   logger.info("Requesting tweet by ID", { tweetId });
-  const client = new Client(getMandatoryEnvVariable("TWITTER_BEARER_TOKEN"));
+  const client = new Client(
+    getMandatoryEnvVariable("TWITTER_BOT_BEARER_TOKEN"),
+  );
   const response = await client.tweets.findTweetById(tweetId, {
     "tweet.fields": ["text", "author_id", "entities"], // you'll only get back the fields if you ask for them
   });

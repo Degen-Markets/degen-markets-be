@@ -15,6 +15,7 @@ const solTransferredEventHandler = async (
   const result = await MysteryBoxServices.createBox({
     player: sender,
     isOpened: false,
+    createdAt: new Date(),
   });
 
   logger.info("SOL transfer event processed, box created", {

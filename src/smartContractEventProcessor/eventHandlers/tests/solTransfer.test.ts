@@ -18,12 +18,11 @@ describe("solTransferredEventHandler", () => {
       sender: "testWalletAddress123",
     };
 
-    // Setup mock implementation
     const mockCreatedBox = {
       id: "box123",
       player: mockEventData.sender,
       isOpened: false,
-      createdAt: expect.any(Date),
+      createdAt: new Date(),
       openedAt: null,
       winningToken: null,
       winningAmount: null,
@@ -66,7 +65,7 @@ describe("solTransferredEventHandler", () => {
       id: "box123",
       player: "",
       isOpened: false,
-      createdAt: expect.any(Date),
+      createdAt: new Date(),
       openedAt: null,
       winningToken: null,
       winningAmount: null,

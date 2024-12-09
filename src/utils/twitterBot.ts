@@ -3,6 +3,9 @@ import { TwitterApi } from "twitter-api-v2";
 import axios from "axios";
 import { forbiddenWords } from "../aiTweeter/constants";
 import { Tweet } from "../aiTweeter/utils";
+import { Logger } from "@aws-lambda-powertools/logger";
+
+const logger = new Logger({ serviceName: "twitterBot" });
 
 const getUserClient = () =>
   new TwitterApi({
@@ -52,6 +55,8 @@ export const fetchLastTweetsForUser = async (
         Authorization: `Bearer ${getMandatoryEnvVariable("TWITTER_BOT_BEARER_TOKEN")}`,
       },
     });
+
+    logger.info(`Got tweets response: `, { response });
 
     return response.data.data
       .filter((tweet) => {

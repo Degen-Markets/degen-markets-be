@@ -22,6 +22,18 @@ export const twitterUsers = [
   { userId: "1351139954525696005", handle: "beaniemaxi" },
   { userId: "878219545785372673", handle: "CryptoDonAlt" },
   { userId: "1512682935547277319", handle: "WuWei113" },
+  { userId: "1698624023905611776", handle: "0xTDG" },
+  { userId: "1864333756263194624", handle: "1solinfeb" },
+  { userId: "1659291133912969246", handle: "acriues" },
+  { userId: "731711403984338944", handle: "yashhsm" },
+  { userId: "965651", handle: "chooserich" },
+  { userId: "902708127757467649", handle: "saracrypto_eth" },
+  { userId: "1487891072399335429", handle: "TriippyTrades" },
+  { userId: "1788966273814339584", handle: "moonshot" },
+  { userId: "1392124029914566666", handle: "metaversejoji" },
+  { userId: "1698357536468910080", handle: "crypto_gatsbyy" },
+  { userId: "237579841", handle: "YaboyB_Hux" },
+  { userId: "1505874016761831430", handle: "DegenerateNews" },
 ];
 
 export const systemRoles = [

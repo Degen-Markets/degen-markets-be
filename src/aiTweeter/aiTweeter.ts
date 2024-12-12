@@ -46,15 +46,17 @@ const replyToTweets = async (tweets: Tweet[], systemRole: string) => {
     completions.map((completion, index) => {
       const firstChoice = completion.choices[0]?.message;
       const tweet = tweets[index]!;
+      const isWithinTimeframe = isWithinTimeLimit(tweet.createdAt);
       logger.info(`Came up with the following reply: `, {
         result: firstChoice,
         tweet,
         replyPrompt,
         systemRole,
         temperature,
+        isWithinTimeframe,
       });
 
-      if (firstChoice?.content && isWithinTimeLimit(tweet.createdAt)) {
+      if (firstChoice?.content && isWithinTimeframe) {
         // remove double quotes, because OpenAI adds it
         return replyToTweet(firstChoice.content.replace(/"/g, ""), tweet.id);
       }

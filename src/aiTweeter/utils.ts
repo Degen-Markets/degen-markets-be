@@ -54,6 +54,6 @@ export const getRandomSystemRole = () => getRandomElements(systemRoles, 1)[0]!;
 export const isWithinTimeLimit = (date: Date) => {
   const now = new Date();
   const differenceInMs = Math.abs(now.getTime() - date.getTime());
-  const sixMinutesInMs = aiScheduleInMinutes * 60 * 1000; // 6 minutes in milliseconds
-  return differenceInMs <= sixMinutesInMs;
+  const durationInMs = aiScheduleInMinutes * 60 * 1000;
+  return differenceInMs <= durationInMs;
 };

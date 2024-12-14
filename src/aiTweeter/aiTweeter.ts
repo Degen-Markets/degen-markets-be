@@ -4,7 +4,7 @@ import OpenAI from "openai";
 import { getMandatoryEnvVariable } from "../utils/getMandatoryEnvValue";
 import {
   formatTweets,
-  getTweetsFrom3RandomUsers,
+  getTweetsFromSomeRandomUsers,
   getRandomPrompt,
   getRandomSystemRole,
   Tweet,
@@ -69,7 +69,7 @@ export const handler = async (event: ScheduledEvent) => {
   logger.info(`Ran scheduled event`, { event });
   let tweets: Tweet[];
   try {
-    tweets = await getTweetsFrom3RandomUsers();
+    tweets = await getTweetsFromSomeRandomUsers();
   } catch (e) {
     logger.error((e as Error).message, e as Error);
     logger.info("Failed to fetch tweets, ending execution");

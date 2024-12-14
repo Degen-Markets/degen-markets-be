@@ -28,8 +28,8 @@ export type Tweet = {
   id: string;
 };
 
-export const getTweetsFrom3RandomUsers = async (): Promise<Tweet[]> => {
-  const users = getRandomElements(twitterUsers, 3);
+export const getTweetsFromSomeRandomUsers = async (): Promise<Tweet[]> => {
+  const users = getRandomElements(twitterUsers, 9);
 
   const tweets = await Promise.all(
     users.map(async ({ userId, handle }) => {

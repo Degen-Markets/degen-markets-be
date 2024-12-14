@@ -37,4 +37,4 @@ export const getDeploymentEnv = () => {
   return { subdomainPrefix, deploymentEnv, stackIdPrefix };
 };
 
-export const aiScheduleInMinutes = 60;
+export const aiScheduleInMinutes = 150;

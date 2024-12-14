@@ -70,7 +70,7 @@ export const fetchLastTweetsForUser = async (
         return {
           ...tweet,
           authorId: tweet.author_id,
-          createdAt: new Date(),
+          createdAt: new Date(tweet.created_at),
         };
       });
   } catch (error: any) {

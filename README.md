@@ -1,6 +1,6 @@
 # Degen Markets
 
-This repo contains the entire infrastructure for the degen markets project.
+This repo contains the entire infrastructure & BE for the degen markets project.
 
 ## Architecture
 

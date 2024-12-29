@@ -17,26 +17,13 @@ async function fetchUser(
     );
 
     const userId = userResponse.data.data.id || "User not found.";
-    return { handle, userId };
+    return { userId, handle };
   } catch (error) {
     console.log(error);
-    return { handle, userId: "Error fetching user." };
+    return { userId: "Error fetching user.", handle };
   }
 }
 
 Promise.all(
-  [
-    "0xTDG",
-    "1solinfeb",
-    "acriues",
-    "yashhsm",
-    "chooserich",
-    "saracrypto_eth",
-    "TriippyTrades",
-    "moonshot",
-    "metaversejoji",
-    "crypto_gatsbyy",
-    "YaboyB_Hux",
-    "DegenerateNews",
-  ].map((username) => fetchUser(username)),
+  ["imperooterxbt", "himgajria"].map((username) => fetchUser(username)),
 ).then(console.log);

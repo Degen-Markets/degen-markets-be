@@ -58,26 +58,30 @@ export const fetchLastTweetsForUser = async (
 
     logger.info(`Got tweets response: `, { response });
 
-    return response.data.data
-      .filter((tweet) => {
-        const text = tweet.text.toLowerCase();
-        const containsForbiddenWord = forbiddenWords.some((word) =>
-          text.includes(word.toLowerCase()),
-        );
-        return !containsForbiddenWord;
-      })
-      .map((tweet) => {
-        return {
-          ...tweet,
-          authorId: tweet.author_id,
-          createdAt: new Date(tweet.created_at),
-        };
-      });
+    if (response.data.data) {
+      return response.data.data
+        .filter((tweet) => {
+          const text = tweet.text.toLowerCase();
+          const containsForbiddenWord = forbiddenWords.some((word) =>
+            text.includes(word.toLowerCase()),
+          );
+          return !containsForbiddenWord;
+        })
+        .map((tweet) => {
+          return {
+            ...tweet,
+            authorId: tweet.author_id,
+            createdAt: new Date(tweet.created_at),
+          };
+        });
+    }
+    return [];
   } catch (error: any) {
-    console.error(
-      "Error fetching last tweet:",
-      error.response?.data || error.message,
-    );
+    logger.error("Error fetching last tweet:", {
+      data: error.response?.data,
+      message: error.message,
+      error,
+    });
     throw new Error("Failed to fetch last tweet.");
   }
 };

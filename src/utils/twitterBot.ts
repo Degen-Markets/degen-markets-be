@@ -82,6 +82,6 @@ export const fetchLastTweetsForUser = async (
       message: error.message,
       error,
     });
-    throw new Error("Failed to fetch last tweet.");
+    return [];
   }
 };

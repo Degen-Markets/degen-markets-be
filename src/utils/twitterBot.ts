@@ -1,11 +1,19 @@
 import { getMandatoryEnvVariable } from "./getMandatoryEnvValue";
 import { TwitterApi } from "twitter-api-v2";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { forbiddenWords } from "../aiTweeter/constants";
 import { Tweet } from "../aiTweeter/utils";
 import { Logger } from "@aws-lambda-powertools/logger";
+import { sendSlackNotification, SlackChannel } from "./slackNotifier";
+import { DeploymentEnv, getDeploymentEnv } from "../../lib/utils";
 
 const logger = new Logger({ serviceName: "twitterBot" });
+
+const { deploymentEnv } = getDeploymentEnv();
+const channel =
+  deploymentEnv === DeploymentEnv.production
+    ? SlackChannel.PROD_ALERTS
+    : SlackChannel.DEV_ALERTS;
 
 const getUserClient = () =>
   new TwitterApi({
@@ -77,11 +85,26 @@ export const fetchLastTweetsForUser = async (
     }
     return [];
   } catch (error: any) {
-    logger.error("Error fetching last tweet:", {
-      data: error.response?.data,
-      message: error.message,
-      error,
+    const axiosError = error as AxiosError;
+    const errorDetails = {
+      userId,
+      statusCode: axiosError.response?.status,
+      errorMessage: axiosError.message,
+      responseData: axiosError.response?.data,
+    };
+
+    logger.error("Error fetching tweets:", errorDetails);
+
+    await sendSlackNotification(channel, {
+      type: "error",
+      title: "Failed to fetch tweets from Twitter API",
+      details: errorDetails,
+      error:
+        axiosError instanceof Error
+          ? axiosError
+          : new Error(String(axiosError)),
     });
+
     return [];
   }
 };

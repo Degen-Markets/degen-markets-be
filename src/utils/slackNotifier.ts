@@ -4,11 +4,6 @@ import { Logger } from "@aws-lambda-powertools/logger";
 
 const logger = new Logger({ serviceName: "slackNotifier" });
 
-export enum SlackChannel {
-  PROD_ALERTS = "prod-alerts",
-  DEV_ALERTS = "dev-alerts",
-}
-
 type SlackMessage = {
   type: "error" | "warning" | "info";
   title: string;
@@ -16,10 +11,7 @@ type SlackMessage = {
   error?: Error;
 };
 
-const getSlackWebhookUrl = (channel: SlackChannel): string => {
-  const envKey = `SLACK_${channel.toUpperCase().replace("-", "_")}_WEBHOOK_URL`;
-  return getMandatoryEnvVariable(envKey); // SLACK_PROD_ALERTS_WEBHOOK_URL | SLACK_DEV_ALERTS_WEBHOOK_URL
-};
+const webhookUrl = getMandatoryEnvVariable("SLACK_ALERTS_WEBHOOK_URL");
 
 const formatErrorBlock = (error?: Error) => {
   if (!error) return null;
@@ -48,12 +40,9 @@ const formatDetailsBlock = (details: Record<string, any>) => {
 };
 
 export const sendSlackNotification = async (
-  channel: SlackChannel,
   message: SlackMessage,
 ): Promise<void> => {
   try {
-    const webhookUrl = getSlackWebhookUrl(channel);
-
     const emoji =
       message.type === "error"
         ? "🚨"
@@ -81,13 +70,11 @@ export const sendSlackNotification = async (
     });
 
     logger.info("Successfully sent Slack notification", {
-      channel,
       messageType: message.type,
       title: message.title,
     });
   } catch (error) {
     logger.error("Failed to send Slack notification", {
-      channel,
       error: error instanceof Error ? error.message : String(error),
       messageType: message.type,
       title: message.title,

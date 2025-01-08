@@ -12,22 +12,14 @@ import {
   isWithinTimeLimit,
   getRandomElements,
 } from "./utils";
-import { replyToTweet, sendBotTweet } from "../utils/twitterBot";
-import { sendSlackNotification, SlackChannel } from "../utils/slackNotifier";
-import { DeploymentEnv, getDeploymentEnv } from "../../lib/utils";
+import { replyToTweet } from "../utils/twitterBot";
+import { sendSlackNotification } from "../utils/slackNotifier";
 
 const openai = new OpenAI({
   apiKey: getMandatoryEnvVariable("OPENAI_API_KEY"),
 });
 
 const logger = new Logger({ serviceName: "AITweeter" });
-
-const { deploymentEnv } = getDeploymentEnv();
-
-const channel =
-  deploymentEnv === DeploymentEnv.production
-    ? SlackChannel.PROD_ALERTS
-    : SlackChannel.DEV_ALERTS;
 
 const replyToTweets = async (tweets: Tweet[], systemRole: string) => {
   const replyPrompt = getRandomReplyPrompt();
@@ -83,7 +75,7 @@ export const handler = async (event: ScheduledEvent) => {
     if (tweets.length === 0) {
       const message = "No valid tweets found from any users, ending execution";
       logger.warn(message);
-      await sendSlackNotification(channel, {
+      await sendSlackNotification({
         type: "warning",
         title: "AI Tweeter: No Valid Tweets Found",
         details: { message },
@@ -98,7 +90,7 @@ export const handler = async (event: ScheduledEvent) => {
     };
 
     logger.error("Failed to fetch tweets", errorDetails);
-    await sendSlackNotification(channel, {
+    await sendSlackNotification({
       type: "error",
       title: "AI Tweeter: Failed to Fetch Tweets",
       details: errorDetails,
@@ -114,7 +106,7 @@ export const handler = async (event: ScheduledEvent) => {
     logger.warn(message, {
       foundTweets: twoRandomTweets.length,
     });
-    await sendSlackNotification(channel, {
+    await sendSlackNotification({
       type: "warning",
       title: "AI Tweeter: Insufficient Tweet Count",
       details: {
@@ -139,7 +131,7 @@ export const handler = async (event: ScheduledEvent) => {
     };
 
     logger.error("Failed to reply to tweets", errorDetails);
-    await sendSlackNotification(channel, {
+    await sendSlackNotification({
       type: "error",
       title: "AI Tweeter: Failed to Reply to Tweets",
       details: errorDetails,
@@ -188,7 +180,7 @@ export const handler = async (event: ScheduledEvent) => {
         };
 
         logger.error("Failed to send tweet", errorDetails);
-        await sendSlackNotification(channel, {
+        await sendSlackNotification({
           type: "error",
           title: "AI Tweeter: Failed to Send Tweet",
           details: errorDetails,
@@ -204,7 +196,7 @@ export const handler = async (event: ScheduledEvent) => {
     };
 
     logger.error("Failed to generate or send tweet", errorDetails);
-    await sendSlackNotification(channel, {
+    await sendSlackNotification({
       type: "error",
       title: "AI Tweeter: Failed to Generate or Send Tweet",
       details: errorDetails,

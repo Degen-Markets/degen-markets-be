@@ -18,7 +18,7 @@ type SlackMessage = {
 
 const getSlackWebhookUrl = (channel: SlackChannel): string => {
   const envKey = `SLACK_${channel.toUpperCase().replace("-", "_")}_WEBHOOK_URL`;
-  return getMandatoryEnvVariable(envKey);
+  return getMandatoryEnvVariable(envKey); // SLACK_PROD_ALERTS_WEBHOOK_URL | SLACK_DEV_ALERTS_WEBHOOK_URL
 };
 
 const formatErrorBlock = (error?: Error) => {

@@ -2,6 +2,7 @@ import { APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { ActionPostResponse, ACTIONS_CORS_HEADERS } from "@solana/actions";
 import { defaultBanner } from "./constants";
+import { sendSlackNotification } from "../utils/slackNotifier";
 
 const logger = new Logger({ serviceName: "finishPoolCreation" });
 
@@ -10,7 +11,22 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
   const pool = event.queryStringParameters?.pool;
   const image = event.queryStringParameters?.image || defaultBanner;
   logger.info(`finish pool creation called`, { account, pool });
+
   if (!pool || !account) {
+    const error = "Missing pool or account parameter";
+    logger.error(error, { pool, account });
+
+    await sendSlackNotification({
+      type: "error",
+      title: "Solana (finishPoolCreation): Missing Required Parameters",
+      details: {
+        error,
+        pool,
+        account,
+        image,
+      },
+    });
+
     return {
       statusCode: 400,
       body: JSON.stringify({
@@ -25,8 +41,63 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
     // const tweetId = await sendBotTweet(`New bet created: ${poolUrl}`);
     // const telegramMessage = `New Bet, time to raid: https://x.com/DegenMarketsBot/status/${tweetId}`;
     // await sendTelegramBotMessage(telegramMessage);
-  } catch (e) {
-    logger.error((e as Error).message, e as Error);
+
+    const payload: ActionPostResponse = {
+      type: "post",
+      message: "Finished creating your bet!",
+      links: {
+        next: {
+          type: "inline",
+          action: {
+            type: "completed",
+            icon: image,
+            label: "",
+            description: `Your bet is ready. Find it on degenmarkets.com`,
+            title: "Created your bet!",
+            disabled: true,
+          },
+        },
+      },
+    };
+
+    logger.info(`Pool creation finished successfully for ${pool}`, { payload });
+
+    await sendSlackNotification({
+      type: "info",
+      title: "Solana (finishPoolCreation): Pool Creation Completed",
+      details: {
+        pool,
+        account,
+        image,
+        message: "Pool creation finished successfully",
+      },
+    });
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(payload),
+      headers: ACTIONS_CORS_HEADERS,
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error("Failed to finish pool creation", {
+      error: errorMessage,
+      pool,
+      account,
+    });
+
+    await sendSlackNotification({
+      type: "error",
+      title: "Solana (finishPoolCreation): Failed to Complete Pool Creation",
+      details: {
+        error: errorMessage,
+        pool,
+        account,
+        image,
+      },
+      error: error instanceof Error ? error : new Error(String(error)),
+    });
+
     return {
       statusCode: 400,
       body: JSON.stringify({
@@ -35,32 +106,6 @@ const finishPoolCreation = async (event: APIGatewayProxyEventV2) => {
       headers: ACTIONS_CORS_HEADERS,
     };
   }
-
-  const payload: ActionPostResponse = {
-    type: "post",
-    message: "Finished creating your bet!",
-    links: {
-      next: {
-        type: "inline",
-        action: {
-          type: "completed",
-          icon: image,
-          label: "",
-          description: `Your bet is ready. Find it on degenmarkets.com`,
-          title: "Created your bet!",
-          disabled: true,
-        },
-      },
-    },
-  };
-
-  logger.info(`Pool creation finished successfully for ${pool}`, { payload });
-
-  return {
-    statusCode: 200,
-    body: JSON.stringify(payload),
-    headers: ACTIONS_CORS_HEADERS,
-  };
 };
 
 export default finishPoolCreation;

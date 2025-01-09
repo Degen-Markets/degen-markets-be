@@ -38,6 +38,9 @@ export class AiTweeterStack extends TaggedStack {
         TWITTER_BOT_BEARER_TOKEN: getMandatoryEnvVariable(
           "TWITTER_BOT_BEARER_TOKEN",
         ),
+        SLACK_ALERTS_WEBHOOK_URL: getMandatoryEnvVariable(
+          "SLACK_ALERTS_WEBHOOK_URL",
+        ),
       },
       memorySize: 256,
       functionName: "AiTweeter",

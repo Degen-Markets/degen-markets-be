@@ -9,6 +9,7 @@ import {
   buildOkResponse,
 } from "../utils/httpResponses";
 import _Utils from "./utils/createPoolTx.utils";
+import { sendSlackNotification } from "../utils/slackNotifier";
 
 const logger: Logger = new Logger({ serviceName: "generateCreatePoolTx" });
 
@@ -43,20 +44,44 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
   });
 
   if (!poolTitle) {
-    logger.error("Pool title not found", { poolTitle });
-    return buildBadRequestError(
-      "Pool title missing in request",
-      ACTIONS_CORS_HEADERS,
-    );
+    const error = "Pool title missing in request";
+    logger.error(error, { poolTitle });
+
+    await sendSlackNotification({
+      type: "error",
+      title: "Solana (CreatePoolTx): Failed to Create Pool - Missing Title",
+      details: {
+        error,
+        poolTitle,
+        imageUrl,
+        description,
+        account,
+      },
+    });
+
+    return buildBadRequestError(error, ACTIONS_CORS_HEADERS);
   }
 
   const creatorTrial = tryIt(() => new PublicKey(account));
   if (!creatorTrial.success) {
-    logger.error("Valid account is missing in request", { account });
-    return buildBadRequestError(
-      "Valid account is missing in request",
-      ACTIONS_CORS_HEADERS,
-    );
+    const error = "Valid account is missing in request";
+    logger.error(error, { account });
+
+    await sendSlackNotification({
+      type: "error",
+      title: "Solana (CreatePoolTx): Failed to Create Pool - Invalid Account",
+      details: {
+        error,
+        account,
+        poolTitle,
+      },
+      error:
+        creatorTrial.err instanceof Error
+          ? creatorTrial.err
+          : new Error(String(creatorTrial.err)),
+    });
+
+    return buildBadRequestError(error, ACTIONS_CORS_HEADERS);
   }
   const creator = creatorTrial.data;
 
@@ -64,11 +89,28 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
     _Utils.getFinalImgUrl(imageUrl, VALID_IMAGE_EXTENSIONS),
   );
   if (!imgUrlTrial.success) {
-    logger.error("Error processing image", { error: imgUrlTrial.err });
-    return buildBadRequestError(
-      (imgUrlTrial.err as Error).message,
-      ACTIONS_CORS_HEADERS,
-    );
+    const error =
+      imgUrlTrial.err instanceof Error
+        ? imgUrlTrial.err.message
+        : String(imgUrlTrial.err);
+    logger.error("Error processing image", { error });
+
+    await sendSlackNotification({
+      type: "error",
+      title: "Solana (CreatePoolTx): Failed to Create Pool - Image Error",
+      details: {
+        error,
+        imageUrl,
+        poolTitle,
+        account: creator.toString(),
+      },
+      error:
+        imgUrlTrial.err instanceof Error
+          ? imgUrlTrial.err
+          : new Error(String(imgUrlTrial.err)),
+    });
+
+    return buildBadRequestError(error, ACTIONS_CORS_HEADERS);
   }
   const imgUrl = imgUrlTrial.data;
 
@@ -82,13 +124,34 @@ const generateCreatePoolTx = async (event: APIGatewayProxyEventV2) => {
   );
 
   if (!payloadTrial.success) {
-    logger.error((payloadTrial.err as Error).message, {
-      error: payloadTrial.err,
-    });
-    return buildInternalServerError(
-      "Something went wrong, please try again",
-      ACTIONS_CORS_HEADERS,
+    const error = "Something went wrong, please try again";
+    logger.error(
+      payloadTrial.err instanceof Error
+        ? payloadTrial.err.message
+        : String(payloadTrial.err),
+      {
+        error: payloadTrial.err,
+      },
     );
+
+    await sendSlackNotification({
+      type: "error",
+      title:
+        "Solana (CreatePoolTx): Failed to Create Pool - Serialization Error",
+      details: {
+        error,
+        poolTitle,
+        imageUrl: imgUrl,
+        description,
+        account: creator.toString(),
+      },
+      error:
+        payloadTrial.err instanceof Error
+          ? payloadTrial.err
+          : new Error(String(payloadTrial.err)),
+    });
+
+    return buildInternalServerError(error, ACTIONS_CORS_HEADERS);
   }
 
   const payload = payloadTrial.data;

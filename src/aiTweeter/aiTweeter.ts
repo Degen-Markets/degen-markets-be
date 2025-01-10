@@ -75,11 +75,6 @@ export const handler = async (event: ScheduledEvent) => {
     if (tweets.length === 0) {
       const message = "No valid tweets found from any users, ending execution";
       logger.warn(message);
-      await sendSlackNotification({
-        type: "warning",
-        title: "AI Tweeter: No Valid Tweets Found",
-        details: { message },
-      });
       return;
     }
   } catch (e) {

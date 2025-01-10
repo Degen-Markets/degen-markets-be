@@ -87,17 +87,6 @@ export const fetchLastTweetsForUser = async (
     };
 
     logger.error("Error fetching tweets:", errorDetails);
-
-    await sendSlackNotification({
-      type: "error",
-      title: "Failed to fetch tweets from Twitter API",
-      details: errorDetails,
-      error:
-        axiosError instanceof Error
-          ? axiosError
-          : new Error(String(axiosError)),
-    });
-
     return [];
   }
 };

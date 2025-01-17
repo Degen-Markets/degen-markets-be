@@ -12,7 +12,6 @@ import { defaultBanner } from "../constants";
 import { typedIncludes } from "../../utils/typedStdLib";
 import ImageService from "../../utils/ImageService";
 import S3Service from "../../utils/S3Service";
-import { sendSlackNotification } from "../../utils/slackNotifier";
 
 const logger: Logger = new Logger({
   serviceName: "generateCreatePoolTx-utils",
@@ -88,17 +87,6 @@ const _Utils = {
     });
 
     logger.debug("Created payload", { payload });
-
-    await sendSlackNotification({
-      type: "info",
-      title: "Solana (CreatePoolTx): New Pool Created",
-      details: {
-        poolTitle,
-        imageUrl: imgUrl,
-        description,
-        account: creator.toString(),
-      },
-    });
 
     return payload;
   },

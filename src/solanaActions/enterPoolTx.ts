@@ -115,17 +115,6 @@ export const generateEnterPoolTx = async (event: APIGatewayProxyEventV2) => {
     });
 
     logger.info(JSON.stringify(payload));
-    await sendSlackNotification({
-      type: "info",
-      title: "Solana (enterPoolTx): New Pool Entry Created",
-      details: {
-        poolId,
-        optionId,
-        account,
-        value,
-        entryAccount: entryKey.toString(),
-      },
-    });
 
     return {
       statusCode: 200,

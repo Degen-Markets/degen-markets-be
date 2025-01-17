@@ -69,6 +69,9 @@ export class SolanaActionsStack extends TaggedStack {
           BUCKET_NAME: bucket.bucketName,
           BUCKET_PUBLIC_FOLDER: this.BUCKET_PUBLIC_FOLDER_PREFIX,
           SOLANA_RPC_URL: getMandatoryEnvVariable("SOLANA_RPC_URL"),
+          SLACK_ALERTS_WEBHOOK_URL: getMandatoryEnvVariable(
+            "SLACK_ALERTS_WEBHOOK_URL",
+          ),
         },
         vpc,
         vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },

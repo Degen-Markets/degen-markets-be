@@ -99,6 +99,18 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
     });
 
     logger.info("Option Creation transaction serialized", { ...payload });
+    await sendSlackNotification({
+      type: "info",
+      title: "Solana (CreateOptionTx): New Option Created",
+      details: {
+        poolTitle,
+        imageUrl,
+        title,
+        account: account.toString(),
+        count,
+        existingOptionsString,
+      },
+    });
 
     return {
       statusCode: 200,

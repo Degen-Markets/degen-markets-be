@@ -9,6 +9,7 @@ import { SQS } from "@aws-sdk/client-sqs";
 import { getMandatoryEnvVariable } from "../../utils/getMandatoryEnvValue";
 import { SmartContractEvent } from "../../smartContractEventProcessor/types";
 import { decodeEventBase64Data } from "../../smartContractEventProcessor/utils";
+import { sendSlackNotification } from "../../utils/slackNotifier";
 
 const logger = new Logger({
   serviceName: "PoolInteractionsHandler",
@@ -24,6 +25,19 @@ export const poolInteractionsHandler = async (
       error: parseTrial.err,
       body: event.body,
     });
+
+    await sendSlackNotification({
+      type: "error",
+      title: "Webhook (poolInteractionsHandler): Invalid Event Body",
+      details: {
+        error:
+          parseTrial.err instanceof Error
+            ? parseTrial.err.message
+            : String(parseTrial.err),
+        body: event.body,
+      },
+    });
+
     return buildBadRequestError("Missing or invalid event body");
   }
   const parsedBody = parseTrial.data;
@@ -34,6 +48,16 @@ export const poolInteractionsHandler = async (
     logger.error(
       "blockTime is missing from event body. Terminating processing.",
     );
+
+    await sendSlackNotification({
+      type: "error",
+      title: "Webhook (poolInteractionsHandler): Missing Block Time",
+      details: {
+        message: "blockTime is required but missing from event body",
+        parsedBody,
+      },
+    });
+
     return buildBadRequestError("blockTime is required but missing.");
   }
 
@@ -47,6 +71,16 @@ export const poolInteractionsHandler = async (
     !logMessages.every((message) => typeof message === "string")
   ) {
     logger.error("Invalid log messages structure", { parsedBody });
+
+    await sendSlackNotification({
+      type: "error",
+      title: "Webhook (poolInteractionsHandler): Invalid Log Messages",
+      details: {
+        message: "Invalid or missing log messages structure",
+        parsedBody,
+      },
+    });
+
     return buildBadRequestError("Invalid log messages structure");
   }
 
@@ -79,6 +113,20 @@ export const poolInteractionsHandler = async (
         error: result.err,
         event,
       });
+
+      await sendSlackNotification({
+        type: "error",
+        title: "Webhook (poolInteractionsHandler): Failed to Send Event to SQS",
+        details: {
+          eventName: event.eventName,
+          error:
+            result.err instanceof Error
+              ? result.err.message
+              : String(result.err),
+          event,
+        },
+      });
+
       return;
     }
 

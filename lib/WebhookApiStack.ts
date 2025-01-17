@@ -63,6 +63,9 @@ export class WebhookApiStack extends TaggedStack {
           QUEUE_URL: this.smartContractEventQueue.queueUrl,
           MESSAGE_GROUP_ID: messageGroupId,
           SOLANA_RPC_URL: getMandatoryEnvVariable("SOLANA_RPC_URL"),
+          SLACK_ALERTS_WEBHOOK_URL: getMandatoryEnvVariable(
+            "SLACK_ALERTS_WEBHOOK_URL",
+          ),
         },
         bundling: {
           externalModules: ["@aws-sdk"],

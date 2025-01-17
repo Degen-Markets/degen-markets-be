@@ -46,7 +46,7 @@ describe("generateCreateOptionTx", () => {
 
     expect(response).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ message: "Bad request " }),
+      body: JSON.stringify({ message: "Bad request" }),
       headers: ACTIONS_CORS_HEADERS,
     });
   });
@@ -64,7 +64,7 @@ describe("generateCreateOptionTx", () => {
 
     expect(response).toEqual({
       statusCode: 400,
-      body: JSON.stringify({ message: "Bad request " }),
+      body: JSON.stringify({ message: "Bad request" }),
       headers: ACTIONS_CORS_HEADERS,
     });
   });

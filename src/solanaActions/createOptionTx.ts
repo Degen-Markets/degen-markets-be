@@ -4,6 +4,7 @@ import { defaultBanner } from "./constants";
 import { PublicKey } from "@solana/web3.js";
 import { Logger } from "@aws-lambda-powertools/logger";
 import { _Utils } from "../utils/createOptionTx.utils";
+import { sendSlackNotification } from "../utils/slackNotifier";
 
 const logger: Logger = new Logger({ serviceName: "generateCreateOptionTx" });
 
@@ -19,9 +20,25 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
   const { account } = JSON.parse(event.body || "{}");
 
   if (!poolTitle || !existingOptionsString) {
+    const error = "Missing pool title or options";
+    logger.error(error, { poolTitle, existingOptionsString });
+
+    await sendSlackNotification({
+      type: "error",
+      title:
+        "Solana (createOptionTx): Failed to Create Option - Missing Parameters",
+      details: {
+        error,
+        poolTitle,
+        existingOptionsString,
+        pool,
+        account,
+      },
+    });
+
     return {
       statusCode: 400,
-      body: JSON.stringify({ message: "Bad request " }),
+      body: JSON.stringify({ message: "Bad request" }),
       headers: ACTIONS_CORS_HEADERS,
     };
   }
@@ -35,19 +52,42 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
   });
 
   if (!existingOptionsString || !title || !pool || isNaN(count) || !account) {
+    const error = "Invalid or missing required parameters";
+    logger.error(error, {
+      existingOptionsString,
+      title,
+      pool,
+      count,
+      account,
+    });
+
+    await sendSlackNotification({
+      type: "error",
+      title:
+        "Solana (createOptionTx): Failed to Create Option - Invalid Parameters",
+      details: {
+        error,
+        existingOptionsString,
+        title,
+        pool,
+        count,
+        account,
+        imageUrl,
+      },
+    });
+
     return {
       statusCode: 400,
       body: JSON.stringify({ message: "Bad request!" }),
       headers: ACTIONS_CORS_HEADERS,
     };
   }
-
   // TODO: check option doesn't exist
   // TODO: see old options
   // TODO: test non image urls
-  const poolAccountKey = new PublicKey(pool);
 
   try {
+    const poolAccountKey = new PublicKey(pool);
     const payload = await _Utils.serializeCreateOptionTx({
       title,
       poolAccountKey,
@@ -65,8 +105,32 @@ const generateCreateOptionTx = async (event: APIGatewayProxyEventV2) => {
       body: JSON.stringify(payload),
       headers: ACTIONS_CORS_HEADERS,
     };
-  } catch (e) {
-    logger.error((e as Error).message, { error: e });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logger.error("Failed to create option", {
+      error: errorMessage,
+      pool,
+      title,
+      account,
+    });
+
+    await sendSlackNotification({
+      type: "error",
+      title:
+        "Solana (createOptionTx): Failed to Create Option - Transaction Error",
+      details: {
+        error: errorMessage,
+        pool,
+        poolTitle,
+        title,
+        account,
+        count,
+        imageUrl,
+        existingOptionsString,
+      },
+      error: error instanceof Error ? error : new Error(String(error)),
+    });
+
     return {
       statusCode: 400,
       body: JSON.stringify({
